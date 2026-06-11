@@ -51,6 +51,10 @@
 
 	/**
 	 * Warn the user before navigating away with unsaved meta box changes.
+	 *
+	 * In Gutenberg, meta boxes run inside an iframe so we attach the
+	 * beforeunload listener to the parent window instead. In the classic
+	 * editor window === window.parent, so the same code path works for both.
 	 */
 	function initUnsavedWarning() {
 		var hiddenInput    = document.getElementById('draft_complete_hidden');
@@ -75,6 +79,9 @@
 			);
 		}
 
+		// Gutenberg renders meta boxes in an iframe; attach to the top window.
+		var targetWindow = window.parent || window;
+
 		function beforeUnloadHandler(e) {
 			if (isDirty()) {
 				e.preventDefault();
@@ -82,13 +89,51 @@
 			}
 		}
 
-		window.addEventListener('beforeunload', beforeUnloadHandler);
+		targetWindow.addEventListener('beforeunload', beforeUnloadHandler);
 
+		// Classic editor: remove warning on normal post save.
 		var postForm = document.getElementById('post');
 		if (postForm) {
 			postForm.addEventListener('submit', function () {
-				window.removeEventListener('beforeunload', beforeUnloadHandler);
+				targetWindow.removeEventListener('beforeunload', beforeUnloadHandler);
 			});
+		}
+
+		// Gutenberg: also integrate with wp.data so the editor's own
+		// "unsaved changes" system is aware of our field changes.
+		var fields = [hiddenInput, dueDateInput, prioritySelect].filter(Boolean);
+		fields.forEach(function (field) {
+			field.addEventListener('change', markGutenbergDirty);
+		});
+		// Toggle button fires a click, not a change event on the hidden input.
+		var toggleButton = document.getElementById('draft_complete_button');
+		if (toggleButton) {
+			toggleButton.addEventListener('click', markGutenbergDirty);
+		}
+	}
+
+	function markGutenbergDirty() {
+		// Only meaningful in Gutenberg; wp.data is not present in classic editor.
+		if (
+			typeof window.parent.wp === 'undefined' ||
+			typeof window.parent.wp.data === 'undefined'
+		) {
+			return;
+		}
+		var dispatch = window.parent.wp.data.dispatch;
+		var select   = window.parent.wp.data.select;
+		if (!dispatch || !select) {
+			return;
+		}
+		var editor = dispatch('core/editor');
+		if (editor && typeof editor.editPost === 'function') {
+			// Touching meta triggers Gutenberg's dirty flag without altering content.
+			var postId = select('core/editor') && select('core/editor').getCurrentPostId
+				? select('core/editor').getCurrentPostId()
+				: null;
+			if (postId) {
+				editor.editPost({ meta: {} });
+			}
 		}
 	}
 
