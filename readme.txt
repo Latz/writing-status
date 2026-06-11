@@ -3,7 +3,7 @@ Contributors: yourwordpressusername
 Tags: draft, posts, writing, status, productivity
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -24,6 +24,7 @@ Writing Status helps content creators and site administrators manage their writi
 * **Filter by Status or Priority**: Dropdowns above the posts list let you filter by completion and priority
 * **Sortable Column**: Click the "Writing Status" column header to sort posts by status and priority
 * **Bulk Edit Support**: Set completion, priority, and due date across multiple posts at once from the Bulk Edit panel
+* **Quick Edit Support**: Update completion, priority, and due date for a single post inline from the posts list
 * **Dashboard Widget**: See incomplete and complete drafts at a glance from the WordPress dashboard
 * **Unsaved Changes Warning**: The post editor warns you before navigating away with unsaved meta box changes
 * **Clean Interface**: Integrates seamlessly with WordPress admin design
@@ -117,6 +118,10 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 
 == Changelog ==
 
+= 1.8.0 =
+* Added Writing Status fields (completion, priority, due date) to the Quick Edit panel
+* Quick Edit pre-populates current values so only the fields you want to change need updating
+
 = 1.7.0 =
 * Renamed plugin from "Draft Status" to "Writing Status"
 * Renamed database meta keys: `_draft_complete` → `_writing_complete`, `_draft_due_date` → `_writing_due_date`, `_draft_priority` → `_writing_priority`
@@ -153,6 +158,9 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 * Color-coded visual indicators (blue for published, green for complete, red for incomplete)
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+Adds Quick Edit support. No database changes required.
 
 = 1.7.0 =
 Renames the plugin and its database meta keys. After updating, deactivate and reactivate the plugin once so the migration can rename existing post meta rows. No data is lost.

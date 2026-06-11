@@ -168,14 +168,54 @@
 		}
 	}
 
+	/**
+	 * Pre-populate Quick Edit fields with the current post's Writing Status values.
+	 *
+	 * WordPress renders one shared Quick Edit form per table; field values must be
+	 * injected via JS each time the row opens. We wrap inlineEditPost.edit and read
+	 * data attributes that displayCompletionColumn outputs in the hidden span.
+	 */
+	function initQuickEdit() {
+		if (typeof window.inlineEditPost === 'undefined') {
+			return;
+		}
+
+		var originalEdit = inlineEditPost.edit;
+
+		inlineEditPost.edit = function (id) {
+			originalEdit.apply(this, arguments);
+
+			var postId = (typeof id === 'object') ? parseInt(this.getId(id), 10) : id;
+			var dataEl = document.getElementById('writing-status-data-' + postId);
+			if (!dataEl) {
+				return;
+			}
+
+			var row = document.getElementById('edit-' + postId);
+			if (!row) {
+				return;
+			}
+
+			var sel  = row.querySelector('select[name="writing_complete"]');
+			var date = row.querySelector('input[name="writing_due_date"]');
+			var pri  = row.querySelector('select[name="writing_priority"]');
+
+			if (sel)  { sel.value  = dataEl.getAttribute('data-complete')  || 'no'; }
+			if (date) { date.value = dataEl.getAttribute('data-due-date')   || ''; }
+			if (pri)  { pri.value  = dataEl.getAttribute('data-priority')   || 'none'; }
+		};
+	}
+
 	// Initialize when DOM is ready
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', function () {
 			initCompletionToggle();
 			initUnsavedWarning();
+			initQuickEdit();
 		});
 	} else {
 		initCompletionToggle();
 		initUnsavedWarning();
+		initQuickEdit();
 	}
 })();

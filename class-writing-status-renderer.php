@@ -310,6 +310,55 @@ class WritingStatusRenderer {
     }
 
     /**
+     * Render quick edit fields
+     *
+     * Outputs the Writing Status fields inside the Quick Edit panel.
+     * Triggered by the quick_edit_custom_box action on the writing_completion column.
+     * Field names match the meta box so saveCompletionStatus handles saving.
+     *
+     * @since 1.8.0
+     * @param string $column_name The column being rendered.
+     * @param string $post_type   The current post type.
+     */
+    public function renderQuickEditBox($column_name, $post_type) {
+        if ($column_name !== 'writing_completion' || $post_type !== 'post') {
+            return;
+        }
+        ?>
+        <fieldset class="writing-status-quick-edit">
+            <div class="inline-edit-col">
+                <h4><?php esc_html_e('Writing Status', 'writing-status'); ?></h4>
+
+                <label class="inline-edit-group">
+                    <span class="title"><?php esc_html_e('Completion', 'writing-status'); ?></span>
+                    <select name="writing_complete">
+                        <option value="no"><?php esc_html_e('Incomplete', 'writing-status'); ?></option>
+                        <option value="yes"><?php esc_html_e('Complete', 'writing-status'); ?></option>
+                    </select>
+                </label>
+
+                <label class="inline-edit-group">
+                    <span class="title"><?php esc_html_e('Priority', 'writing-status'); ?></span>
+                    <select name="writing_priority">
+                        <option value="none"><?php esc_html_e('None', 'writing-status'); ?></option>
+                        <?php foreach ($this->getPriorityLabels() as $value => $label) : ?>
+                            <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+
+                <label class="inline-edit-group">
+                    <span class="title"><?php esc_html_e('Due Date', 'writing-status'); ?></span>
+                    <input type="date" name="writing_due_date" value="">
+                </label>
+
+                <?php wp_nonce_field('writing_completion_nonce', 'writing_completion_nonce_field'); ?>
+            </div>
+        </fieldset>
+        <?php
+    }
+
+    /**
      * Get dashboard widget queries
      *
      * Builds and returns both incomplete and complete draft queries with proper ordering.

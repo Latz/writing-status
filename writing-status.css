@@ -445,23 +445,53 @@
 }
 
 /*
- * Bulk Edit Panel
- * ===============
- * Styles for the Writing Status section inside the Bulk Edit row.
+ * Quick Edit Panel Position
+ * ==========================
+ * The three core Quick Edit columns are: left 40% + center 20% + right 39% (all float: left).
+ * The right column's left edge is at 60%. Higher specificity here places our box on a new
+ * line (clear: both) and pushes it to 60% from the left to align exactly with the right column.
+ * Responsive: match WordPress's own 782px breakpoint that collapses columns to full width.
  */
-.writing-status-bulk-edit .inline-edit-group {
+#wpbody-content .inline-edit-row fieldset.writing-status-quick-edit {
+	float: left;
+	clear: both;
+	margin-left: 60%;
+	width: 39%;
+	padding-right: 0;
+}
+
+@media screen and (max-width: 782px) {
+	#wpbody-content .inline-edit-row fieldset.writing-status-quick-edit {
+		float: none;
+		clear: none;
+		margin-left: 0;
+		width: 100%;
+		padding: 0;
+	}
+}
+
+/*
+ * Bulk Edit and Quick Edit Panels
+ * ================================
+ * Shared styles for the Writing Status section inside Bulk Edit and Quick Edit rows.
+ */
+.writing-status-bulk-edit .inline-edit-group,
+.writing-status-quick-edit .inline-edit-group {
 	display: flex;
 	align-items: center;
 	margin-bottom: 8px;
 }
 
-.writing-status-bulk-edit .inline-edit-group .title {
+.writing-status-bulk-edit .inline-edit-group .title,
+.writing-status-quick-edit .inline-edit-group .title {
 	min-width: 80px;
 	font-weight: 600;
 }
 
 .writing-status-bulk-edit .inline-edit-group select,
-.writing-status-bulk-edit .inline-edit-group input[type="date"] {
+.writing-status-bulk-edit .inline-edit-group input[type="date"],
+.writing-status-quick-edit .inline-edit-group select,
+.writing-status-quick-edit .inline-edit-group input[type="date"] {
 	flex: 1;
 	max-width: 200px;
 }

@@ -3,7 +3,7 @@
  * Plugin Name: Writing Status
  * Plugin URI: https://github.com/yourusername/writing-status
  * Description: Mark draft posts by completion status (complete/incomplete) with priority levels
- * Version: 1.7.0
+ * Version: 1.8.0
  * Author: Latz
  * Author URI: https://elektroelch.de
  * * License: GPL v2 or later
@@ -75,6 +75,9 @@ class WritingStatus extends WritingStatusRenderer {
         add_action('bulk_edit_custom_box', array($this, 'renderBulkEditBox'), 10, 2);
         add_action('save_post', array($this, 'saveBulkEdit'), 20, 1);
 
+        // Quick Edit panel fields
+        add_action('quick_edit_custom_box', array($this, 'renderQuickEditBox'), 10, 2);
+
         // Overdue drafts notice on Posts list and Dashboard
         add_action('admin_notices', array($this, 'showOverdueNotice'));
     }
@@ -116,16 +119,16 @@ class WritingStatus extends WritingStatusRenderer {
             'writing-status',                      // Handle
             plugin_dir_url(__FILE__) . 'writing-status.css', // Source
             array(),                                      // Dependencies
-            '1.7.0'                                      // Version
+            '1.8.0'                                      // Version
         );
 
-        // Enqueue the plugin JavaScript for post editor pages
-        if ($hook === 'post.php' || $hook === 'post-new.php') {
+        // Enqueue the plugin JavaScript for post editor and posts list pages
+        if ($hook === 'post.php' || $hook === 'post-new.php' || $hook === 'edit.php') {
             wp_enqueue_script(
                 'writing-status',                      // Handle
                 plugin_dir_url(__FILE__) . 'writing-status.js', // Source
-                array(),                                      // Dependencies
-                '1.7.0',                                     // Version
+                array('inline-edit-post'),                    // Dependencies
+                '1.8.0',                                     // Version
                 true                                          // Load in footer
             );
         }
@@ -169,22 +172,31 @@ class WritingStatus extends WritingStatusRenderer {
                 esc_attr__('Post status: Published', 'writing-status'),
                 esc_html__('Published', 'writing-status')
             );
-            return;
+        } else {
+            // Get post meta data
+            $is_complete = get_post_meta($post_id, '_writing_complete', true);
+            $due_date = get_post_meta($post_id, '_writing_due_date', true);
+            $priority = get_post_meta($post_id, '_writing_priority', true);
+
+            // Render completion status
+            $this->renderCompletionStatus($is_complete);
+
+            // Render due date
+            $this->renderDueDate($due_date);
+
+            // Render priority badge
+            $this->renderPriorityBadge($priority);
         }
 
-        // Get post meta data
-        $is_complete = get_post_meta($post_id, '_writing_complete', true);
-        $due_date = get_post_meta($post_id, '_writing_due_date', true);
-        $priority = get_post_meta($post_id, '_writing_priority', true);
-
-        // Render completion status
-        $this->renderCompletionStatus($is_complete);
-
-        // Render due date
-        $this->renderDueDate($due_date);
-
-        // Render priority badge
-        $this->renderPriorityBadge($priority);
+        // Hidden data span for Quick Edit JS pre-population
+        printf(
+            '<span class="hidden writing-status-qe-data" id="writing-status-data-%1$d"'
+            . ' data-complete="%2$s" data-due-date="%3$s" data-priority="%4$s"></span>',
+            $post_id,
+            esc_attr(get_post_meta($post_id, '_writing_complete', true) ?: 'no'),
+            esc_attr(get_post_meta($post_id, '_writing_due_date', true) ?: ''),
+            esc_attr(get_post_meta($post_id, '_writing_priority', true) ?: 'none')
+        );
     }
 
     /**
