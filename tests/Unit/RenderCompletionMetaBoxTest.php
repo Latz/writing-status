@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::renderCompletionMetaBox().
+ * Unit tests for WritingStatus::renderCompletionMetaBox().
  *
  * get_post_status is defined in bootstrap as always returning 'draft', so the
  * published branch cannot be reached and is not tested here.
@@ -12,12 +12,12 @@ use PHPUnit\Framework\TestCase;
 
 class RenderCompletionMetaBoxTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {

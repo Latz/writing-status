@@ -16,8 +16,8 @@
     </testsuites>
     <coverage>
         <include>
-            <file>draft-status.php</file>
-            <file>class-draft-status-renderer.php</file>
+            <file>writing-status.php</file>
+            <file>class-writing-status-renderer.php</file>
         </include>
     </coverage>
 </phpunit>

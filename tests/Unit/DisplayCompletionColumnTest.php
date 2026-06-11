@@ -1,18 +1,18 @@
 <?php
 /**
- * Unit tests for DraftStatus::displayCompletionColumn().
+ * Unit tests for WritingStatus::displayCompletionColumn().
  */
 
 use PHPUnit\Framework\TestCase;
 
 class DisplayCompletionColumnTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {
@@ -41,7 +41,7 @@ class DisplayCompletionColumnTest extends TestCase {
 
         // Bootstrap stubs get_post_status='draft', get_post_meta='' so is_complete=''.
         // Empty string !== 'yes' → incomplete branch fires.
-        $this->assertStringContainsString( 'draft-status-incomplete', $output );
+        $this->assertStringContainsString( 'writing-status-incomplete', $output );
     }
 
     /** @test */
@@ -51,7 +51,7 @@ class DisplayCompletionColumnTest extends TestCase {
         // Note: bootstrap defines get_post_meta as a real function, so WP_Mock
         // cannot override it. Instead we call renderCompletionStatus directly
         // via reflection to verify the 'complete' path.
-        $method = new ReflectionMethod( DraftStatus::class, 'renderCompletionStatus' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderCompletionStatus' );
         $method->setAccessible( true );
 
         WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
@@ -61,13 +61,13 @@ class DisplayCompletionColumnTest extends TestCase {
         $method->invoke( $this->plugin, 'yes' );
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'draft-status-complete', $output );
+        $this->assertStringContainsString( 'writing-status-complete', $output );
     }
 
     /** @test */
     public function draft_with_priority_shows_priority_badge(): void {
         // Test renderPriorityBadge directly (bootstrap can't be overridden for get_post_meta).
-        $method = new ReflectionMethod( DraftStatus::class, 'renderPriorityBadge' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderPriorityBadge' );
         $method->setAccessible( true );
 
         WP_Mock::userFunction( '__' )->andReturnArg( 0 );
@@ -92,7 +92,7 @@ class DisplayCompletionColumnTest extends TestCase {
         $this->plugin->displayCompletionColumn( 'draft_completion', 1 );
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'draft-status-incomplete', $output );
+        $this->assertStringContainsString( 'writing-status-incomplete', $output );
     }
 
     /** @test */

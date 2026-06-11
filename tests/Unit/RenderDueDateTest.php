@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatusRenderer::renderDueDate() — output guard and span rendering.
+ * Unit tests for WritingStatusRenderer::renderDueDate() — output guard and span rendering.
  *
  * Tests that the method produces no output for empty input and emits a correctly
  * classed <span> for future and overdue dates.
@@ -10,12 +10,12 @@ use PHPUnit\Framework\TestCase;
 
 class RenderDueDateTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {
@@ -24,7 +24,7 @@ class RenderDueDateTest extends TestCase {
 
     /** @test */
     public function empty_due_date_produces_no_output(): void {
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDueDate' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
         $method->setAccessible( true );
 
         ob_start();
@@ -45,7 +45,7 @@ class RenderDueDateTest extends TestCase {
         WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDueDate' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
         $method->setAccessible( true );
 
         ob_start();
@@ -66,7 +66,7 @@ class RenderDueDateTest extends TestCase {
         WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDueDate' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
         $method->setAccessible( true );
 
         ob_start();
@@ -85,7 +85,7 @@ class RenderDueDateTest extends TestCase {
         WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDueDate' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
         $method->setAccessible( true );
 
         ob_start();

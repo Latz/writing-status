@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::sanitizePriorityValue().
+ * Unit tests for WritingStatus::sanitizePriorityValue().
  *
  * These tests run entirely with WP_Mock — no database required.
  */
@@ -9,12 +9,12 @@ use PHPUnit\Framework\TestCase;
 
 class SanitizePriorityValueTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {

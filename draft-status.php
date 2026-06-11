@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: Draft Status
- * Plugin URI: https://github.com/yourusername/draft-status
+ * Plugin Name: Writing Status
+ * Plugin URI: https://github.com/yourusername/writing-status
  * Description: Mark draft posts by completion status (complete/incomplete) with priority levels
  * Version: 1.5.0
  * Author: Latz
  * Author URI: https://elektroelch.de
  * * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: draft-status
+ * Text Domain: writing-status
  * Domain Path: /languages
  */
 
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once plugin_dir_path(__FILE__) . 'class-draft-status-renderer.php';
+require_once plugin_dir_path(__FILE__) . 'class-writing-status-renderer.php';
 
 /**
  * Main Plugin Class
@@ -28,7 +28,7 @@ require_once plugin_dir_path(__FILE__) . 'class-draft-status-renderer.php';
  *
  * @since 1.0.0
  */
-class DraftStatus extends DraftStatusRenderer {
+class WritingStatus extends WritingStatusRenderer {
 
     /**
      * Constructor - Initialize the plugin
@@ -113,8 +113,8 @@ class DraftStatus extends DraftStatusRenderer {
 
         // Enqueue the plugin stylesheet with versioning for cache busting
         wp_enqueue_style(
-            'draft-status',                      // Handle
-            plugin_dir_url(__FILE__) . 'draft-status.css', // Source
+            'writing-status',                      // Handle
+            plugin_dir_url(__FILE__) . 'writing-status.css', // Source
             array(),                                      // Dependencies
             '1.5.0'                                      // Version
         );
@@ -122,8 +122,8 @@ class DraftStatus extends DraftStatusRenderer {
         // Enqueue the plugin JavaScript for post editor pages
         if ($hook === 'post.php' || $hook === 'post-new.php') {
             wp_enqueue_script(
-                'draft-status',                      // Handle
-                plugin_dir_url(__FILE__) . 'draft-status.js', // Source
+                'writing-status',                      // Handle
+                plugin_dir_url(__FILE__) . 'writing-status.js', // Source
                 array(),                                      // Dependencies
                 '1.5.0',                                     // Version
                 true                                          // Load in footer
@@ -142,7 +142,7 @@ class DraftStatus extends DraftStatusRenderer {
      */
     public function addCompletionColumn($columns) {
         // Add the "Writing Status" column to the posts list
-        $columns['draft_completion'] = __('Writing Status', 'draft-status');
+        $columns['draft_completion'] = __('Writing Status', 'writing-status');
         return $columns;
     }
 
@@ -165,9 +165,9 @@ class DraftStatus extends DraftStatusRenderer {
         // Check if post is published
         if (get_post_status($post_id) === 'publish') {
             printf(
-                '<span class="draft-status-indicator draft-status-published" aria-label="%s">● %s</span>',
-                esc_attr__('Post status: Published', 'draft-status'),
-                esc_html__('Published', 'draft-status')
+                '<span class="writing-status-indicator writing-status-published" aria-label="%s">● %s</span>',
+                esc_attr__('Post status: Published', 'writing-status'),
+                esc_html__('Published', 'writing-status')
             );
             return;
         }
@@ -337,7 +337,7 @@ class DraftStatus extends DraftStatusRenderer {
     public function addCompletionMetaBox() {
         add_meta_box(
             'draft_completion_box',                          // Meta box ID
-            __('Completion Status', 'draft-status'), // Title
+            __('Completion Status', 'writing-status'), // Title
             array($this, 'renderCompletionMetaBox'),      // Callback function
             'post',                                           // Post type
             'side',                                           // Context (sidebar)
@@ -362,11 +362,11 @@ class DraftStatus extends DraftStatusRenderer {
         // Show published status for published posts
         if ($post_status === 'publish') {
             ?>
-            <p class="draft-status-metabox-published">
-                <span class="draft-status-indicator draft-status-published">● <?php esc_html_e('Published', 'draft-status'); ?></span>
+            <p class="writing-status-metabox-published">
+                <span class="writing-status-indicator writing-status-published">● <?php esc_html_e('Published', 'writing-status'); ?></span>
             </p>
             <p class="description">
-                <?php esc_html_e('This post has been published.', 'draft-status'); ?>
+                <?php esc_html_e('This post has been published.', 'writing-status'); ?>
             </p>
             <?php
             return;
@@ -381,20 +381,20 @@ class DraftStatus extends DraftStatusRenderer {
         ?>
         <input type="hidden" id="draft_complete_hidden" name="draft_complete" value="<?php echo esc_attr($is_complete === 'yes' ? 'yes' : 'no'); ?>">
         <p>
-            <button type="button" id="draft_complete_button" class="button button-large draft-complete-toggle <?php echo esc_attr($is_complete === 'yes' ? 'is-complete' : 'is-incomplete'); ?>" aria-describedby="draft_complete_description" aria-pressed="<?php echo esc_attr($is_complete === 'yes' ? 'true' : 'false'); ?>" data-complete-text="<?php echo esc_attr__('Complete', 'draft-status'); ?>" data-incomplete-text="<?php echo esc_attr__('Incomplete', 'draft-status'); ?>">
-                <span class="draft-status-icon"><?php echo $is_complete === 'yes' ? '✓' : '✗'; ?></span>
-                <span class="draft-status-text"><?php echo $is_complete === 'yes' ? esc_html__('Complete', 'draft-status') : esc_html__('Incomplete', 'draft-status'); ?></span>
+            <button type="button" id="draft_complete_button" class="button button-large draft-complete-toggle <?php echo esc_attr($is_complete === 'yes' ? 'is-complete' : 'is-incomplete'); ?>" aria-describedby="draft_complete_description" aria-pressed="<?php echo esc_attr($is_complete === 'yes' ? 'true' : 'false'); ?>" data-complete-text="<?php echo esc_attr__('Complete', 'writing-status'); ?>" data-incomplete-text="<?php echo esc_attr__('Incomplete', 'writing-status'); ?>">
+                <span class="writing-status-icon"><?php echo $is_complete === 'yes' ? '✓' : '✗'; ?></span>
+                <span class="writing-status-text"><?php echo $is_complete === 'yes' ? esc_html__('Complete', 'writing-status') : esc_html__('Incomplete', 'writing-status'); ?></span>
             </button>
         </p>
         <p class="description" id="draft_complete_description">
-            <?php esc_html_e('Click to toggle the completion status of this draft. This helps you sort and track your writing progress.', 'draft-status'); ?>
+            <?php esc_html_e('Click to toggle the completion status of this draft. This helps you sort and track your writing progress.', 'writing-status'); ?>
         </p>
 
         <hr style="margin: 15px 0;">
 
         <p>
             <label for="draft_due_date">
-                <strong><?php esc_html_e('Due Date', 'draft-status'); ?></strong>
+                <strong><?php esc_html_e('Due Date', 'writing-status'); ?></strong>
             </label>
         </p>
         <p>
@@ -405,14 +405,14 @@ class DraftStatus extends DraftStatusRenderer {
                    style="width: 100%;">
         </p>
         <p class="description">
-            <?php esc_html_e('Set a target completion date for this draft.', 'draft-status'); ?>
+            <?php esc_html_e('Set a target completion date for this draft.', 'writing-status'); ?>
         </p>
 
         <hr style="margin: 15px 0;">
 
         <p>
             <label for="draft_priority">
-                <strong><?php esc_html_e('Priority', 'draft-status'); ?></strong>
+                <strong><?php esc_html_e('Priority', 'writing-status'); ?></strong>
             </label>
         </p>
         <p>
@@ -423,15 +423,15 @@ class DraftStatus extends DraftStatusRenderer {
             }
             ?>
             <select id="draft_priority" name="draft_priority" style="width: 100%;">
-                <option value="none" <?php selected($priority, 'none'); ?>><?php esc_html_e('None', 'draft-status'); ?></option>
-                <option value="low" <?php selected($priority, 'low'); ?>><?php esc_html_e('Low', 'draft-status'); ?></option>
-                <option value="medium" <?php selected($priority, 'medium'); ?>><?php esc_html_e('Medium', 'draft-status'); ?></option>
-                <option value="high" <?php selected($priority, 'high'); ?>><?php esc_html_e('High', 'draft-status'); ?></option>
-                <option value="urgent" <?php selected($priority, 'urgent'); ?>><?php esc_html_e('Urgent', 'draft-status'); ?></option>
+                <option value="none" <?php selected($priority, 'none'); ?>><?php esc_html_e('None', 'writing-status'); ?></option>
+                <option value="low" <?php selected($priority, 'low'); ?>><?php esc_html_e('Low', 'writing-status'); ?></option>
+                <option value="medium" <?php selected($priority, 'medium'); ?>><?php esc_html_e('Medium', 'writing-status'); ?></option>
+                <option value="high" <?php selected($priority, 'high'); ?>><?php esc_html_e('High', 'writing-status'); ?></option>
+                <option value="urgent" <?php selected($priority, 'urgent'); ?>><?php esc_html_e('Urgent', 'writing-status'); ?></option>
             </select>
         </p>
         <p class="description">
-            <?php esc_html_e('Set the priority level for this draft.', 'draft-status'); ?>
+            <?php esc_html_e('Set the priority level for this draft.', 'writing-status'); ?>
         </p>
         <?php
     }
@@ -481,7 +481,7 @@ class DraftStatus extends DraftStatusRenderer {
 
         $this->saveDraftDueDate($post_id);
         $this->saveDraftPriority($post_id);
-        delete_transient('draft_status_overdue_count');
+        delete_transient('writing_status_overdue_count');
     }
 
     /**
@@ -494,11 +494,11 @@ class DraftStatus extends DraftStatusRenderer {
      * @param int $post_id The post ID being saved.
      */
     public function saveBulkEdit($post_id) {
-        if (!isset($_REQUEST['_draft_status_bulk_nonce'])) {
+        if (!isset($_REQUEST['_writing_status_bulk_nonce'])) {
             return;
         }
 
-        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_draft_status_bulk_nonce'])), 'draft_status_bulk_edit')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_writing_status_bulk_nonce'])), 'writing_status_bulk_edit')) {
             return;
         }
 
@@ -532,7 +532,7 @@ class DraftStatus extends DraftStatusRenderer {
             }
         }
 
-        delete_transient('draft_status_overdue_count');
+        delete_transient('writing_status_overdue_count');
     }
 
     /**
@@ -550,10 +550,10 @@ class DraftStatus extends DraftStatusRenderer {
             return;
         }
 
-        $count = get_transient('draft_status_overdue_count');
+        $count = get_transient('writing_status_overdue_count');
         if (false === $count) {
             $count = $this->countOverdueDrafts();
-            set_transient('draft_status_overdue_count', $count, HOUR_IN_SECONDS);
+            set_transient('writing_status_overdue_count', $count, HOUR_IN_SECONDS);
         }
 
         if ($count < 1) {
@@ -567,10 +567,10 @@ class DraftStatus extends DraftStatusRenderer {
                 sprintf(
                     /* translators: %1$d: number of overdue drafts, %2$s: URL to drafts list */
                     _n(
-                        'Draft Status: <strong>%1$d incomplete draft is overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
-                        'Draft Status: <strong>%1$d incomplete drafts are overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
+                        'Writing Status: <strong>%1$d incomplete draft is overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
+                        'Writing Status: <strong>%1$d incomplete drafts are overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
                         $count,
-                        'draft-status'
+                        'writing-status'
                     ),
                     $count,
                     esc_url($url)
@@ -602,10 +602,10 @@ class DraftStatus extends DraftStatusRenderer {
         $selected = isset($_GET['draft_completion_filter']) ? sanitize_text_field(wp_unslash($_GET['draft_completion_filter'])) : '';
 
         ?>
-        <select name="draft_completion_filter" id="draft_completion_filter" aria-label="<?php esc_attr_e('Filter posts by completion status', 'draft-status'); ?>">
-            <option value=""><?php esc_html_e('All Completion Status', 'draft-status'); ?></option>
-            <option value="complete" <?php selected($selected, 'complete'); ?>><?php esc_html_e('Complete', 'draft-status'); ?></option>
-            <option value="incomplete" <?php selected($selected, 'incomplete'); ?>><?php esc_html_e('Incomplete', 'draft-status'); ?></option>
+        <select name="draft_completion_filter" id="draft_completion_filter" aria-label="<?php esc_attr_e('Filter posts by completion status', 'writing-status'); ?>">
+            <option value=""><?php esc_html_e('All Completion Status', 'writing-status'); ?></option>
+            <option value="complete" <?php selected($selected, 'complete'); ?>><?php esc_html_e('Complete', 'writing-status'); ?></option>
+            <option value="incomplete" <?php selected($selected, 'incomplete'); ?>><?php esc_html_e('Incomplete', 'writing-status'); ?></option>
         </select>
 
         <?php
@@ -613,12 +613,12 @@ class DraftStatus extends DraftStatusRenderer {
         $priority_selected = isset($_GET['draft_priority_filter']) ? sanitize_text_field(wp_unslash($_GET['draft_priority_filter'])) : '';
         ?>
         <select name="draft_priority_filter">
-            <option value=""><?php esc_html_e('All Priorities', 'draft-status'); ?></option>
-            <option value="urgent" <?php selected($priority_selected, 'urgent'); ?>><?php esc_html_e('Urgent', 'draft-status'); ?></option>
-            <option value="high" <?php selected($priority_selected, 'high'); ?>><?php esc_html_e('High', 'draft-status'); ?></option>
-            <option value="medium" <?php selected($priority_selected, 'medium'); ?>><?php esc_html_e('Medium', 'draft-status'); ?></option>
-            <option value="low" <?php selected($priority_selected, 'low'); ?>><?php esc_html_e('Low', 'draft-status'); ?></option>
-            <option value="none" <?php selected($priority_selected, 'none'); ?>><?php esc_html_e('None', 'draft-status'); ?></option>
+            <option value=""><?php esc_html_e('All Priorities', 'writing-status'); ?></option>
+            <option value="urgent" <?php selected($priority_selected, 'urgent'); ?>><?php esc_html_e('Urgent', 'writing-status'); ?></option>
+            <option value="high" <?php selected($priority_selected, 'high'); ?>><?php esc_html_e('High', 'writing-status'); ?></option>
+            <option value="medium" <?php selected($priority_selected, 'medium'); ?>><?php esc_html_e('Medium', 'writing-status'); ?></option>
+            <option value="low" <?php selected($priority_selected, 'low'); ?>><?php esc_html_e('Low', 'writing-status'); ?></option>
+            <option value="none" <?php selected($priority_selected, 'none'); ?>><?php esc_html_e('None', 'writing-status'); ?></option>
         </select>
         <?php
     }
@@ -734,8 +734,8 @@ class DraftStatus extends DraftStatusRenderer {
      */
     public function addDashboardWidget() {
         wp_add_dashboard_widget(
-            'draft_status_widget',                           // Widget ID
-            __('Draft Writing Status', 'draft-status'), // Widget title
+            'writing_status_widget',                           // Widget ID
+            __('Draft Writing Status', 'writing-status'), // Widget title
             array($this, 'renderDashboardWidget')          // Callback function
         );
     }
@@ -753,17 +753,17 @@ class DraftStatus extends DraftStatusRenderer {
         list($incomplete_query, $complete_query) = $this->getDashboardQueries();
 
         ?>
-        <div class="draft-status-widget">
+        <div class="writing-status-widget">
             <?php $this->renderDashboardIncompletePosts($incomplete_query); ?>
             <?php $this->renderDashboardCompletePosts($complete_query); ?>
 
             <?php if (!$incomplete_query->have_posts() && !$complete_query->have_posts()): ?>
-                <output><?php esc_html_e('No drafts found. Start writing!', 'draft-status'); ?></output>
+                <output><?php esc_html_e('No drafts found. Start writing!', 'writing-status'); ?></output>
             <?php endif; ?>
 
-            <p class="draft-status-link">
-                <a href="<?php echo esc_url(admin_url('edit.php?post_status=draft&post_type=post')); ?>" aria-label="<?php esc_attr_e('View all draft posts in the posts list', 'draft-status'); ?>">
-                    <?php esc_html_e('View All Drafts →', 'draft-status'); ?>
+            <p class="writing-status-link">
+                <a href="<?php echo esc_url(admin_url('edit.php?post_status=draft&post_type=post')); ?>" aria-label="<?php esc_attr_e('View all draft posts in the posts list', 'writing-status'); ?>">
+                    <?php esc_html_e('View All Drafts →', 'writing-status'); ?>
                 </a>
             </p>
         </div>
@@ -785,7 +785,7 @@ class DraftStatus extends DraftStatusRenderer {
         // Register completion status field
         register_post_meta('post', '_draft_complete', array(
             'type' => 'string',
-            'description' => __('Draft completion status', 'draft-status'),
+            'description' => __('Draft completion status', 'writing-status'),
             'single' => true,
             'show_in_rest' => true,
             'default' => 'no',
@@ -802,7 +802,7 @@ class DraftStatus extends DraftStatusRenderer {
         // Register due date field
         register_post_meta('post', '_draft_due_date', array(
             'type' => 'string',
-            'description' => __('Draft due date', 'draft-status'),
+            'description' => __('Draft due date', 'writing-status'),
             'single' => true,
             'show_in_rest' => true,
             'default' => '',
@@ -822,7 +822,7 @@ class DraftStatus extends DraftStatusRenderer {
         // Register priority field
         register_post_meta('post', '_draft_priority', array(
             'type' => 'string',
-            'description' => __('Draft priority level', 'draft-status'),
+            'description' => __('Draft priority level', 'writing-status'),
             'single' => true,
             'show_in_rest' => true,
             'default' => 'none',
@@ -839,9 +839,9 @@ class DraftStatus extends DraftStatusRenderer {
 /**
  * Initialize the plugin
  *
- * Creates a new instance of the DraftStatus class.
+ * Creates a new instance of the WritingStatus class.
  * This is executed immediately when the plugin file is loaded.
  *
  * @since 1.0.0
  */
-$draft_status = new DraftStatus();
+$writing_status = new WritingStatus();

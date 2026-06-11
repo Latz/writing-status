@@ -1,6 +1,6 @@
 <?php
 /**
- * Bootstrap for Draft Status integration tests.
+ * Bootstrap for Writing Status integration tests.
  *
  * Loads the real WordPress test library, which boots the full WordPress
  * environment and creates a temporary test database.
@@ -29,7 +29,7 @@ require_once $_tests_dir . '/includes/functions.php';
 
 // Hook into the muplugins_loaded action to load our plugin before tests run.
 tests_add_filter( 'muplugins_loaded', function () {
-    require_once dirname( __DIR__ ) . '/draft-status.php';
+    require_once dirname( __DIR__ ) . '/writing-status.php';
 } );
 
 // Bootstrap WordPress itself — this sets up the DB, loads WP, etc.

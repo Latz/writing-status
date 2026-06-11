@@ -1,7 +1,7 @@
 <?php
 /**
- * Integration tests for DraftStatus::sortByCompletion() and
- * DraftStatus::customPriorityOrderby().
+ * Integration tests for WritingStatus::sortByCompletion() and
+ * WritingStatus::customPriorityOrderby().
  *
  * Because is_admin() returns false in the WP integration test environment,
  * these tests focus on verifiable, end-to-end database behaviour: confirming
@@ -11,7 +11,7 @@
 
 class SortByCompletionIntegrationTest extends WP_UnitTestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     /** @var int[] Post IDs keyed by priority label */
@@ -20,7 +20,7 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
 
         // Create one draft post for each supported priority level.
         $this->post_ids['low']    = self::factory()->post->create( [ 'post_status' => 'draft' ] );

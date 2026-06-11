@@ -1,7 +1,7 @@
 <?php
 /**
- * Unit tests for DraftStatusRenderer::renderPriorityBadge() and
- * DraftStatusRenderer::renderPriorityBadgeForDashboard().
+ * Unit tests for WritingStatusRenderer::renderPriorityBadge() and
+ * WritingStatusRenderer::renderPriorityBadgeForDashboard().
  *
  * Both methods are non-public, so they are accessed via ReflectionMethod.
  * Output is captured with ob_start() / ob_get_clean().
@@ -11,12 +11,12 @@ use PHPUnit\Framework\TestCase;
 
 class RenderPriorityBadgeTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {
@@ -28,7 +28,7 @@ class RenderPriorityBadgeTest extends TestCase {
     // -----------------------------------------------------------------------
 
     private function callRenderPriorityBadge( string $priority ): string {
-        $ref    = new ReflectionClass( DraftStatus::class );
+        $ref    = new ReflectionClass( WritingStatus::class );
         $method = $ref->getMethod( 'renderPriorityBadge' );
         $method->setAccessible( true );
 
@@ -38,7 +38,7 @@ class RenderPriorityBadgeTest extends TestCase {
     }
 
     private function callRenderPriorityBadgeForDashboard( string $priority ): string {
-        $ref    = new ReflectionClass( DraftStatus::class );
+        $ref    = new ReflectionClass( WritingStatus::class );
         $method = $ref->getMethod( 'renderPriorityBadgeForDashboard' );
         $method->setAccessible( true );
 

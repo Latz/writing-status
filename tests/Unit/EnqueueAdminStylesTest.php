@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::enqueueAdminStyles() — hook guard conditions.
+ * Unit tests for WritingStatus::enqueueAdminStyles() — hook guard conditions.
  *
  * wp_enqueue_style and wp_enqueue_script are pre-stubbed as no-ops in
  * bootstrap.php, so WP_Mock cannot intercept them. Tests verify that the
@@ -12,12 +12,12 @@ use PHPUnit\Framework\TestCase;
 
 class EnqueueAdminStylesTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {

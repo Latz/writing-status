@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for DraftStatus post-meta save behaviour.
+ * Integration tests for WritingStatus post-meta save behaviour.
  *
  * These tests use the real WordPress database (WP_UnitTestCase) so every
  * update_post_meta / get_post_meta call hits actual MySQL.
@@ -11,7 +11,7 @@
 
 class SaveMetaIntegrationTest extends WP_UnitTestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     /** @var int Editor-role user ID */
@@ -20,7 +20,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $this->plugin    = new DraftStatus();
+        $this->plugin    = new WritingStatus();
         $this->editor_id = self::factory()->user->create( [ 'role' => 'editor' ] );
     }
 

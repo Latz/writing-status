@@ -1,4 +1,4 @@
-=== Draft Status ===
+=== Writing Status ===
 Contributors: yourwordpressusername
 Tags: draft, posts, writing, status, productivity
 Requires at least: 5.0
@@ -12,7 +12,7 @@ Track and sort your draft posts by completion status. See published posts clearl
 
 == Description ==
 
-Draft Status helps content creators and site administrators manage their writing workflow more efficiently. This plugin adds a "Writing Status" column to the WordPress posts list and a sidebar meta box on the post editor, providing clear visual indicators of your content status.
+Writing Status helps content creators and site administrators manage their writing workflow more efficiently. This plugin adds a "Writing Status" column to the WordPress posts list and a sidebar meta box on the post editor, providing clear visual indicators of your content status.
 
 = Key Features =
 
@@ -57,7 +57,7 @@ Draft Status helps content creators and site administrators manage their writing
 
 1. Log in to your WordPress admin panel
 2. Navigate to Plugins > Add New
-3. Search for "Draft Status"
+3. Search for "Writing Status"
 4. Click "Install Now" and then "Activate"
 
 = Manual Installation =
@@ -124,7 +124,7 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 = 1.5.0 =
 * Unsaved changes warning: editor prompts before navigation if meta box changes are pending
 * Warning integrates with Gutenberg's built-in "unsaved changes" system via wp.data
-* Refactored rendering logic into a separate DraftStatusRenderer class
+* Refactored rendering logic into a separate WritingStatusRenderer class
 
 = 1.4.0 =
 * Added priority levels: Low, Medium, High, Urgent
@@ -151,7 +151,7 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 Adds Bulk Edit support for Writing Status fields. No database changes required.
 
 = 1.0.0 =
-Initial release of Draft Status.
+Initial release of Writing Status.
 
 == Additional Information ==
 

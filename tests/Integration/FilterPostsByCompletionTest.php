@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for DraftStatus::filterPostsByCompletion().
+ * Integration tests for WritingStatus::filterPostsByCompletion().
  *
  * Verifies that the completion and priority filter dropdowns correctly
  * constrain WP_Query results.
@@ -8,7 +8,7 @@
 
 class FilterPostsByCompletionTest extends WP_UnitTestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     /** @var int[] Post IDs created for tests */
@@ -17,7 +17,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
 
         // Create three draft posts with different completion/priority combos.
         $this->post_ids['complete_urgent']   = self::factory()->post->create( [ 'post_status' => 'draft' ] );

@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::getDueDateDisplay() via renderDueDate() output.
+ * Unit tests for WritingStatus::getDueDateDisplay() via renderDueDate() output.
  *
  * getDueDateDisplay() is private, so we test it through renderDueDate() by
  * capturing output. The four states under test:
@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 class GetDueDateDisplayTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     /** @var ReflectionMethod */
@@ -22,10 +22,10 @@ class GetDueDateDisplayTest extends TestCase {
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
 
         // Access getDueDateDisplay() directly via reflection since it is private.
-        $ref          = new ReflectionClass( DraftStatus::class );
+        $ref          = new ReflectionClass( WritingStatus::class );
         $this->method = $ref->getMethod( 'getDueDateDisplay' );
         $this->method->setAccessible( true );
     }

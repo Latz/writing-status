@@ -1,18 +1,18 @@
 <?php
 /**
- * Unit tests for DraftStatus meta box and dashboard widget registration methods.
+ * Unit tests for WritingStatus meta box and dashboard widget registration methods.
  */
 
 use PHPUnit\Framework\TestCase;
 
 class AddCompletionMetaBoxTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {

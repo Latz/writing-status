@@ -1,0 +1,473 @@
+/**
+ * Writing Status Indexer Styles
+ *
+ * Provides visual styling for draft completion status indicators
+ * in the WordPress admin area. Used in both the posts list column
+ * and the post editor meta box.
+ *
+ * @package WritingStatus
+ * @since 1.0.0
+ */
+
+/*
+ * Status Indicator Base Styles
+ * =============================
+ * Base class applied to all status indicators.
+ * Ensures consistent bold font weight across all statuses.
+ */
+.writing-status-indicator {
+	font-weight: bold;
+}
+
+/*
+ * Published Status - Blue
+ * ========================
+ * Applied to posts that have been published.
+ * Uses WordPress admin blue color (#2271b1) for consistency with
+ * the WordPress admin interface.
+ *
+ * Symbol: ● (filled circle)
+ */
+.writing-status-published {
+	color: #2271b1; /* WordPress admin blue */
+	font-weight: bold;
+}
+
+/*
+ * Complete Status - Green
+ * ========================
+ * Applied to draft posts that are marked as complete.
+ * Uses WordPress success green (#46b450) to indicate positive status.
+ *
+ * Symbol: ✓ (checkmark)
+ */
+.writing-status-complete {
+	color: #46b450; /* WordPress success green */
+	font-weight: bold;
+}
+
+/*
+ * Incomplete Status - Red
+ * ========================
+ * Applied to draft posts that are not yet complete.
+ * Uses WordPress error red (#dc3232) to draw attention to unfinished work.
+ *
+ * Symbol: ✗ (X mark)
+ */
+.writing-status-incomplete {
+	color: #dc3232; /* WordPress error red */
+	font-weight: bold;
+}
+
+/*
+ * Meta Box Published Status Container
+ * ====================================
+ * Removes default margin for published post indicator in the meta box.
+ * Creates a cleaner, more compact layout in the sidebar.
+ */
+.writing-status-metabox-published {
+	margin: 0;
+}
+
+/*
+ * Meta Box Published Status Text
+ * ===============================
+ * Increases font size for the published indicator in the meta box
+ * to make it more prominent and easier to read at a glance.
+ */
+.writing-status-metabox-published .writing-status-published {
+	font-size: 14px;
+}
+
+/*
+ * Dashboard Widget Styles
+ * ========================
+ * Styles for the draft status dashboard widget that displays
+ * statistics about draft completion on the WordPress dashboard.
+ */
+
+/*
+ * Dashboard Widget Container
+ * ===========================
+ * Main container for the dashboard widget content.
+ */
+.writing-status-widget {
+	font-size: 14px;
+}
+
+/*
+ * Section Container
+ * =================
+ * Container for each section (incomplete/complete drafts).
+ */
+.writing-status-section {
+	margin-bottom: 20px;
+}
+
+.writing-status-section:last-of-type {
+	margin-bottom: 15px;
+}
+
+/*
+ * Section Title
+ * =============
+ * Title for each section with icon and count.
+ */
+.writing-status-section-title {
+	margin: 0 0 10px 0;
+	font-size: 14px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+/*
+ * Draft List
+ * ==========
+ * List of draft titles.
+ */
+.writing-status-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/*
+ * Draft List Item
+ * ===============
+ * Individual draft item in the list.
+ */
+.writing-status-item {
+	margin: 0 0 8px 0;
+	padding: 0;
+}
+
+.writing-status-item:last-child {
+	margin-bottom: 0;
+}
+
+/*
+ * Draft Item Link
+ * ===============
+ * The clickable link container for each draft item.
+ */
+.writing-status-item-link {
+	display: block;
+	text-decoration: none;
+	padding: 8px 10px;
+	border-radius: 3px;
+	background: #f6f7f7;
+	transition: background 0.2s;
+}
+
+.writing-status-item-link:hover {
+	background: #dcdcde;
+}
+
+/*
+ * Draft Title
+ * ===========
+ * The title of the draft with ellipsis truncation.
+ */
+.writing-status-title {
+	color: #2271b1;
+	font-weight: 500;
+	margin-bottom: 3px;
+
+	/* Ellipsis truncation */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.writing-status-item-link:hover .writing-status-title {
+	color: #135e96;
+}
+
+/*
+ * Draft Modified Date
+ * ===================
+ * The last modified date displayed below the title.
+ */
+.writing-status-date {
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+/*
+ * Draft Meta Information
+ * ======================
+ * Meta information displayed below draft titles (modified date, due date).
+ */
+.writing-status-meta {
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+/*
+ * Due Date Styles
+ * ===============
+ * Styles for due date indicators in posts list and dashboard widget.
+ */
+
+/*
+ * Base Due Date Style
+ * ===================
+ * Applied to all due date indicators.
+ */
+.draft-due-date {
+	font-size: 12px;
+	display: inline-block;
+}
+
+/*
+ * Overdue Date Style
+ * ==================
+ * Red color for overdue drafts.
+ */
+.draft-due-overdue {
+	color: #dc3232;
+	font-weight: 600;
+}
+
+/*
+ * Due Today Style
+ * ===============
+ * Orange color for drafts due today.
+ */
+.draft-due-today {
+	color: #f56e28;
+	font-weight: 600;
+}
+
+/*
+ * Due Soon Style
+ * ==============
+ * Yellow/amber color for drafts due within 3 days.
+ */
+.draft-due-soon {
+	color: #dba617;
+	font-weight: 600;
+}
+
+/*
+ * View All Drafts Link
+ * =====================
+ * Link at the bottom of the widget to navigate to the drafts list.
+ * Styled to stand out as a call-to-action.
+ */
+.writing-status-link {
+	margin-top: 15px;
+	text-align: center;
+}
+
+.writing-status-link a {
+	text-decoration: none;
+	color: #2271b1;
+	font-weight: 500;
+}
+
+.writing-status-link a:hover {
+	color: #135e96;
+}
+
+/*
+ * Priority Indicator Styles
+ * ==========================
+ * Styles for priority level badges displayed in posts list,
+ * dashboard widget, and other areas. Priority badges use
+ * distinct colors to quickly identify importance level.
+ */
+
+/*
+ * Base Priority Style
+ * ===================
+ * Applied to all priority indicators. Creates a small, subtle badge
+ * with minimal styling for clean appearance.
+ */
+.draft-priority {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 2px;
+	font-size: 10px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.2px;
+	white-space: nowrap;
+	opacity: 0.8;
+}
+
+/*
+ * Urgent Priority - Red
+ * =====================
+ * Highest priority level. Subtle red to indicate urgency
+ * without overwhelming the interface.
+ */
+.draft-priority-urgent {
+	background: #fff0f0;
+	color: #b91c1c;
+	border: 1px solid #f0d0d0;
+}
+
+/*
+ * High Priority - Orange
+ * ======================
+ * High priority level. Subtle orange to indicate importance.
+ */
+.draft-priority-high {
+	background: #fff8f0;
+	color: #9a4a1a;
+	border: 1px solid #f5e0cc;
+}
+
+/*
+ * Medium Priority - Blue/Gray
+ * ===========================
+ * Standard priority level. Subtle neutral color.
+ */
+.draft-priority-medium {
+	background: #f5f8fa;
+	color: #50575e;
+	border: 1px solid #dfe4e8;
+}
+
+/*
+ * Low Priority - Green
+ * ====================
+ * Lowest priority level. Very subtle muted green.
+ */
+.draft-priority-low {
+	background: #f6faf7;
+	color: #2d7a2e;
+	border: 1px solid #e0f0e0;
+}
+
+/*
+ * Priority Badge in Dashboard Widget Title
+ * =========================================
+ * Adjusts priority badge styling when displayed in dashboard widget
+ * draft titles to ensure it doesn't break the layout.
+ * Adds spacing after the badge before the title text.
+ */
+.writing-status-title .draft-priority {
+	vertical-align: middle;
+	margin-right: 6px;
+}
+
+/*
+ * Completion Status Toggle Button
+ * ================================
+ * Styles for the toggle button in the post editor meta box.
+ * The button changes appearance based on completion status.
+ */
+
+/*
+ * Base Toggle Button Style
+ * ========================
+ * Applied to the completion status toggle button.
+ */
+.draft-complete-toggle {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	transition: all 0.2s ease;
+	border-width: 2px;
+	padding: 8px 12px;
+}
+
+.draft-complete-toggle:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.draft-complete-toggle:active {
+	transform: translateY(0);
+}
+
+/*
+ * Button Icon
+ * ===========
+ * The checkmark or X icon in the button.
+ */
+.writing-status-icon {
+	font-size: 16px;
+	line-height: 1;
+	font-weight: bold;
+}
+
+/*
+ * Incomplete State
+ * ================
+ * Red styling for incomplete drafts.
+ */
+.draft-complete-toggle.is-incomplete {
+	background: #fff;
+	border-color: #dc3232;
+	color: #dc3232;
+}
+
+.draft-complete-toggle.is-incomplete:hover {
+	background: #fff0f0;
+	border-color: #b02a2a;
+}
+
+.draft-complete-toggle.is-incomplete:focus {
+	border-color: #dc3232;
+	box-shadow: 0 0 0 1px #dc3232;
+}
+
+/*
+ * Complete State
+ * ==============
+ * Green styling for complete drafts.
+ */
+.draft-complete-toggle.is-complete {
+	background: #fff;
+	border-color: #1e7a24;
+	color: #1e7a24;
+}
+
+.draft-complete-toggle.is-complete:hover {
+	background: #f0faf0;
+	border-color: #175e1b;
+}
+
+.draft-complete-toggle.is-complete:focus {
+	border-color: #1e7a24;
+	box-shadow: 0 0 0 1px #1e7a24;
+}
+
+/*
+ * Bulk Edit Panel
+ * ===============
+ * Styles for the Writing Status section inside the Bulk Edit row.
+ */
+.writing-status-bulk-edit .inline-edit-group {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.writing-status-bulk-edit .inline-edit-group .title {
+	min-width: 80px;
+	font-weight: 600;
+}
+
+.writing-status-bulk-edit .inline-edit-group select,
+.writing-status-bulk-edit .inline-edit-group input[type="date"] {
+	flex: 1;
+	max-width: 200px;
+}
+
+.writing-status-bulk-edit .description {
+	color: #757575;
+	font-size: 11px;
+	margin: 2px 0 0;
+}

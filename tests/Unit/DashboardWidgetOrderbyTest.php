@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::dashboardWidgetOrderby().
+ * Unit tests for WritingStatus::dashboardWidgetOrderby().
  */
 
 use PHPUnit\Framework\TestCase;
@@ -14,12 +14,12 @@ class MockWPQuery3 {
 
 class DashboardWidgetOrderbyTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {

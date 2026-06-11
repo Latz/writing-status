@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::saveCompletionStatus() — security guards.
+ * Unit tests for WritingStatus::saveCompletionStatus() — security guards.
  *
  * Tests that the method bails early without writing post meta under the
  * three security conditions: missing nonce, autosave, insufficient capability.
@@ -10,12 +10,12 @@ use PHPUnit\Framework\TestCase;
 
 class SaveCompletionStatusTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {

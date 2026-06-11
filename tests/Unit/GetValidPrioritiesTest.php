@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::getValidPriorities(), getPriorityLabels(),
+ * Unit tests for WritingStatus::getValidPriorities(), getPriorityLabels(),
  * and registerMetaField().
  *
  * These tests run entirely with WP_Mock — no database required.
@@ -10,12 +10,12 @@ use PHPUnit\Framework\TestCase;
 
 class GetValidPrioritiesTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {
@@ -28,7 +28,7 @@ class GetValidPrioritiesTest extends TestCase {
 
     /** @test */
     public function returns_array_with_five_priorities(): void {
-        $method = new ReflectionMethod( DraftStatus::class, 'getValidPriorities' );
+        $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
         $method->setAccessible( true );
 
         $result = $method->invoke( $this->plugin );
@@ -38,7 +38,7 @@ class GetValidPrioritiesTest extends TestCase {
 
     /** @test */
     public function contains_all_expected_priorities(): void {
-        $method = new ReflectionMethod( DraftStatus::class, 'getValidPriorities' );
+        $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
         $method->setAccessible( true );
 
         $result = $method->invoke( $this->plugin );
@@ -50,7 +50,7 @@ class GetValidPrioritiesTest extends TestCase {
 
     /** @test */
     public function urgent_is_in_valid_priorities(): void {
-        $method = new ReflectionMethod( DraftStatus::class, 'getValidPriorities' );
+        $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
         $method->setAccessible( true );
 
         $result = $method->invoke( $this->plugin );
@@ -64,7 +64,7 @@ class GetValidPrioritiesTest extends TestCase {
 
     /** @test */
     public function returns_four_labels(): void {
-        $method = new ReflectionMethod( DraftStatus::class, 'getPriorityLabels' );
+        $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
         $method->setAccessible( true );
 
         $result = $method->invoke( $this->plugin );
@@ -74,7 +74,7 @@ class GetValidPrioritiesTest extends TestCase {
 
     /** @test */
     public function does_not_contain_none_key(): void {
-        $method = new ReflectionMethod( DraftStatus::class, 'getPriorityLabels' );
+        $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
         $method->setAccessible( true );
 
         $result = $method->invoke( $this->plugin );
@@ -84,7 +84,7 @@ class GetValidPrioritiesTest extends TestCase {
 
     /** @test */
     public function contains_high_key(): void {
-        $method = new ReflectionMethod( DraftStatus::class, 'getPriorityLabels' );
+        $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
         $method->setAccessible( true );
 
         $result = $method->invoke( $this->plugin );

@@ -1,12 +1,12 @@
 <?php
 
-class Test_DraftStatusRenderer extends WP_UnitTestCase {
+class Test_WritingStatusRenderer extends WP_UnitTestCase {
 
     protected $renderer;
 
     public function setUp(): void {
         parent::setUp();
-        $this->renderer = new DraftStatus();
+        $this->renderer = new WritingStatus();
     }
 
     /**

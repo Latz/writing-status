@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for DraftStatus dashboard widget methods.
+ * Integration tests for WritingStatus dashboard widget methods.
  *
  * Covers getDashboardQueries(), renderDashboardWidget(),
  * renderDashboardIncompletePosts(), and renderDashboardCompletePosts()
@@ -9,7 +9,7 @@
 
 class DashboardWidgetTest extends WP_UnitTestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     /** @var int[] Post IDs created for tests */
@@ -18,7 +18,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
 
         // incomplete_urgent: draft, _draft_complete=no, _draft_priority=urgent
         $this->post_ids['incomplete_urgent'] = self::factory()->post->create( [
@@ -48,7 +48,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // -----------------------------------------------------------------------
 
     private function callGetDashboardQueries(): array {
-        $method = new ReflectionMethod( DraftStatus::class, 'getDashboardQueries' );
+        $method = new ReflectionMethod( WritingStatus::class, 'getDashboardQueries' );
         $method->setAccessible( true );
         return $method->invoke( $this->plugin );
     }
@@ -113,7 +113,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
         $this->plugin->renderDashboardWidget();
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'draft-status-widget', $output );
+        $this->assertStringContainsString( 'writing-status-widget', $output );
     }
 
     // -----------------------------------------------------------------------
@@ -138,7 +138,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
         $result          = $this->callGetDashboardQueries();
         $incomplete_query = $result[0];
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardIncompletePosts' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardIncompletePosts' );
         $method->setAccessible( true );
 
         ob_start();
@@ -146,7 +146,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
         $output = ob_get_clean();
 
         $this->assertStringContainsString( '✗', $output );
-        $this->assertStringContainsString( 'draft-status-incomplete', $output );
+        $this->assertStringContainsString( 'writing-status-incomplete', $output );
     }
 
     // -----------------------------------------------------------------------
@@ -158,7 +158,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
         $result         = $this->callGetDashboardQueries();
         $complete_query = $result[1];
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardCompletePosts' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardCompletePosts' );
         $method->setAccessible( true );
 
         ob_start();
@@ -166,6 +166,6 @@ class DashboardWidgetTest extends WP_UnitTestCase {
         $output = ob_get_clean();
 
         $this->assertStringContainsString( '✓', $output );
-        $this->assertStringContainsString( 'draft-status-complete', $output );
+        $this->assertStringContainsString( 'writing-status-complete', $output );
     }
 }

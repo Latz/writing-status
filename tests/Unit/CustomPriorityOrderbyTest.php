@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::customPriorityOrderby().
+ * Unit tests for WritingStatus::customPriorityOrderby().
  *
  * These tests run entirely with WP_Mock — no database required.
  */
@@ -17,17 +17,17 @@ class MockWPQuery2 {
 
 class CustomPriorityOrderbyTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {
         WP_Mock::tearDown();
-        unset( $GLOBALS['_draft_status_is_admin'] );
+        unset( $GLOBALS['_writing_status_is_admin'] );
     }
 
     /** @test */
@@ -66,7 +66,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $wpdb->postmeta = 'wp_postmeta';
         $wpdb->posts    = 'wp_posts';
 
-        $GLOBALS['_draft_status_is_admin'] = true;
+        $GLOBALS['_writing_status_is_admin'] = true;
 
         $query           = new MockWPQuery2();
         $query->_is_main = true;
@@ -84,7 +84,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $wpdb->postmeta = 'wp_postmeta';
         $wpdb->posts    = 'wp_posts';
 
-        $GLOBALS['_draft_status_is_admin'] = true;
+        $GLOBALS['_writing_status_is_admin'] = true;
 
         $query           = new MockWPQuery2();
         $query->_is_main = true;
@@ -101,7 +101,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $wpdb->postmeta = 'wp_postmeta';
         $wpdb->posts    = 'wp_posts';
 
-        $GLOBALS['_draft_status_is_admin'] = true;
+        $GLOBALS['_writing_status_is_admin'] = true;
 
         $query           = new MockWPQuery2();
         $query->_is_main = true;
@@ -118,7 +118,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $wpdb->postmeta = 'wp_postmeta';
         $wpdb->posts    = 'wp_posts';
 
-        $GLOBALS['_draft_status_is_admin'] = true;
+        $GLOBALS['_writing_status_is_admin'] = true;
 
         $query                   = new MockWPQuery2();
         $query->_is_main         = true;

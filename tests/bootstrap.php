@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit bootstrap for Draft Status plugin tests.
+ * PHPUnit bootstrap for Writing Status plugin tests.
  *
  * Unit tests use WP_Mock so they run without a database.
  * Integration tests need WP_TESTS_DIR to point at the WordPress
@@ -28,7 +28,7 @@ $wp_stub_functions = [
     'esc_attr'              => function( $text ) { return htmlspecialchars( (string) $text, ENT_QUOTES ); },
     'esc_url'               => function( $url ) { return $url; },
     'esc_attr_e'            => function( $text, $domain = 'default' ) { echo htmlspecialchars( $text, ENT_QUOTES ); },
-    'plugin_dir_url'        => function( $file ) { return 'http://example.com/wp-content/plugins/draft-status/'; },
+    'plugin_dir_url'        => function( $file ) { return 'http://example.com/wp-content/plugins/writing-status/'; },
     'plugin_dir_path'       => function( $file ) { return rtrim( dirname( $file ), '/' ) . '/'; },
     'get_option'            => function( $option, $default = false ) { return $default; },
     'date_i18n'             => function( $format, $timestamp = 0 ) { return date( $format, $timestamp ); },
@@ -61,7 +61,7 @@ $wp_stub_functions = [
 
 foreach ( $wp_stub_functions as $name => $fn ) {
     if ( $fn !== null && ! function_exists( $name ) ) {
-        $GLOBALS['_draft_status_stubs'][ $name ] = $fn;
+        $GLOBALS['_writing_status_stubs'][ $name ] = $fn;
         // Use create_function equivalent via Closure::bind trick isn't needed —
         // just define them normally using eval-free approach.
     }
@@ -93,7 +93,7 @@ if ( ! function_exists( 'esc_url' ) ) {
     function esc_url( $url ) { return $url; }
 }
 if ( ! function_exists( 'plugin_dir_url' ) ) {
-    function plugin_dir_url( $file ) { return 'http://example.com/wp-content/plugins/draft-status/'; }
+    function plugin_dir_url( $file ) { return 'http://example.com/wp-content/plugins/writing-status/'; }
 }
 if ( ! function_exists( 'plugin_dir_path' ) ) {
     function plugin_dir_path( $file ) { return rtrim( dirname( $file ), '/' ) . '/'; }
@@ -181,7 +181,7 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 if ( ! function_exists( 'is_admin' ) ) {
     function is_admin() {
-        return isset( $GLOBALS['_draft_status_is_admin'] ) ? (bool) $GLOBALS['_draft_status_is_admin'] : false;
+        return isset( $GLOBALS['_writing_status_is_admin'] ) ? (bool) $GLOBALS['_writing_status_is_admin'] : false;
     }
 }
 if ( ! function_exists( 'current_user_can' ) ) {
@@ -231,9 +231,9 @@ if ( ! class_exists( 'WP_Query' ) ) {
 WP_Mock::bootstrap();
 
 // Load the plugin class. The ABSPATH guard at the top of the file is already
-// satisfied, so this will define the DraftStatus class without running
-// `new DraftStatus()` (that line is at file scope, but ABSPATH is defined
+// satisfied, so this will define the WritingStatus class without running
+// `new WritingStatus()` (that line is at file scope, but ABSPATH is defined
 // so it won't exit — we need to suppress it).
 // We load via a wrapper that prevents the bottom-of-file instantiation from
 // firing hooks into a non-existent WordPress environment.
-require_once __DIR__ . '/../draft-status.php';
+require_once __DIR__ . '/../writing-status.php';

@@ -1,18 +1,18 @@
 <?php
 /**
- * Unit tests for DraftStatus::makeCompletionSortable().
+ * Unit tests for WritingStatus::makeCompletionSortable().
  */
 
 use PHPUnit\Framework\TestCase;
 
 class MakeCompletionSortableTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {

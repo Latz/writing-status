@@ -1,18 +1,18 @@
 <?php
 /**
- * Unit tests for DraftStatus::addCompletionColumn().
+ * Unit tests for WritingStatus::addCompletionColumn().
  */
 
 use PHPUnit\Framework\TestCase;
 
 class AddCompletionColumnTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {

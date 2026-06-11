@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus::saveDraftDueDate() and DraftStatus::saveDraftPriority().
+ * Unit tests for WritingStatus::saveDraftDueDate() and WritingStatus::saveDraftPriority().
  *
  * Both methods are protected. They are exercised via ReflectionMethod.
  *
@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 class SaveDraftMetaTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     /** @var \ReflectionMethod */
@@ -25,12 +25,12 @@ class SaveDraftMetaTest extends TestCase {
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
 
-        $this->saveDraftDueDate = new \ReflectionMethod( DraftStatus::class, 'saveDraftDueDate' );
+        $this->saveDraftDueDate = new \ReflectionMethod( WritingStatus::class, 'saveDraftDueDate' );
         $this->saveDraftDueDate->setAccessible( true );
 
-        $this->saveDraftPriority = new \ReflectionMethod( DraftStatus::class, 'saveDraftPriority' );
+        $this->saveDraftPriority = new \ReflectionMethod( WritingStatus::class, 'saveDraftPriority' );
         $this->saveDraftPriority->setAccessible( true );
     }
 

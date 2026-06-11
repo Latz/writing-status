@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for DraftStatus dashboard widget and meta field registration.
+ * Unit tests for WritingStatus dashboard widget and meta field registration.
  *
  * Covers:
  * - addDashboardWidget()
@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 class DashboardAndMetaFieldTest extends TestCase {
 
-    /** @var DraftStatus */
+    /** @var WritingStatus */
     private $plugin;
 
     public function setUp(): void {
@@ -23,7 +23,7 @@ class DashboardAndMetaFieldTest extends TestCase {
         $wpdb            = new stdClass();
         $wpdb->postmeta  = 'wp_postmeta';
         $wpdb->posts     = 'wp_posts';
-        $this->plugin = new DraftStatus();
+        $this->plugin = new WritingStatus();
     }
 
     public function tearDown(): void {
@@ -63,7 +63,7 @@ class DashboardAndMetaFieldTest extends TestCase {
         $this->plugin->renderDashboardWidget();
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'draft-status-widget', $output );
+        $this->assertStringContainsString( 'writing-status-widget', $output );
     }
 
     /** @test */
@@ -86,7 +86,7 @@ class DashboardAndMetaFieldTest extends TestCase {
     public function render_dashboard_incomplete_posts_produces_no_output_when_query_is_empty(): void {
         $query = new WP_Query();
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardIncompletePosts' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardIncompletePosts' );
         $method->setAccessible( true );
 
         ob_start();
@@ -103,7 +103,7 @@ class DashboardAndMetaFieldTest extends TestCase {
         // One fake post so have_posts() returns true once.
         $query->set_posts( [ 1 ] );
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardIncompletePosts' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardIncompletePosts' );
         $method->setAccessible( true );
 
         ob_start();
@@ -111,7 +111,7 @@ class DashboardAndMetaFieldTest extends TestCase {
         $output = ob_get_clean();
 
         $this->assertStringContainsString( '<section', $output );
-        $this->assertStringContainsString( 'draft-status-incomplete', $output );
+        $this->assertStringContainsString( 'writing-status-incomplete', $output );
     }
 
     // -------------------------------------------------------------------------
@@ -122,7 +122,7 @@ class DashboardAndMetaFieldTest extends TestCase {
     public function render_dashboard_complete_posts_produces_no_output_when_query_is_empty(): void {
         $query = new WP_Query();
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardCompletePosts' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardCompletePosts' );
         $method->setAccessible( true );
 
         ob_start();
@@ -137,7 +137,7 @@ class DashboardAndMetaFieldTest extends TestCase {
         $query = new WP_Query();
         $query->set_posts( [ 1 ] );
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardCompletePosts' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardCompletePosts' );
         $method->setAccessible( true );
 
         ob_start();
@@ -145,7 +145,7 @@ class DashboardAndMetaFieldTest extends TestCase {
         $output = ob_get_clean();
 
         $this->assertStringContainsString( '<section', $output );
-        $this->assertStringContainsString( 'draft-status-complete', $output );
+        $this->assertStringContainsString( 'writing-status-complete', $output );
     }
 
     // -------------------------------------------------------------------------
@@ -157,7 +157,7 @@ class DashboardAndMetaFieldTest extends TestCase {
         $query = new WP_Query();
         $query->set_posts( [ 1 ] );
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardPostSection' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardPostSection' );
         $method->setAccessible( true );
 
         ob_start();
@@ -175,7 +175,7 @@ class DashboardAndMetaFieldTest extends TestCase {
         $query = new WP_Query();
         $query->set_posts( [ 1 ] );
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardPostSection' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardPostSection' );
         $method->setAccessible( true );
 
         ob_start();
@@ -192,7 +192,7 @@ class DashboardAndMetaFieldTest extends TestCase {
     public function render_dashboard_post_section_returns_empty_string_when_no_posts(): void {
         $query = new WP_Query(); // No posts set — have_posts() returns false.
 
-        $method = new ReflectionMethod( DraftStatus::class, 'renderDashboardPostSection' );
+        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardPostSection' );
         $method->setAccessible( true );
 
         ob_start();

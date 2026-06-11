@@ -1,5 +1,5 @@
 {
-	"name": "latz/draft-status",
+	"name": "latz/writing-status",
 	"description": "Mark draft posts by completion status (complete/incomplete) with priority levels",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
