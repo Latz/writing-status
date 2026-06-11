@@ -496,6 +496,45 @@
 	max-width: 200px;
 }
 
+/* Gutenberg sidebar panel */
+.ws-panel-wrap {
+	padding: 0 16px 8px;
+}
+
+.ws-panel-field {
+	margin-bottom: 8px;
+}
+
+.ws-panel-label {
+	display: block;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	margin-bottom: 4px;
+	color: #1e1e1e;
+}
+
+.ws-panel-ctrl {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 6px 8px;
+	border: 1px solid #949494;
+	border-radius: 2px;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #1e1e1e;
+	background-color: #fff;
+}
+
+.ws-panel-btn {
+	width: 100%;
+	box-sizing: border-box;
+	justify-content: center;
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
 .writing-status-bulk-edit .description {
 	color: #757575;
 	font-size: 11px;

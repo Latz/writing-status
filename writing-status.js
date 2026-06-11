@@ -232,11 +232,6 @@
 		var useDispatch = wp.data.useDispatch;
 		var Button      = wp.components.Button;
 
-		var wrapStyle  = { padding: '0 16px 8px' };
-		var fieldStyle = { marginBottom: '8px' };
-		var labelStyle = { display: 'block', fontSize: '11px', fontWeight: '500', textTransform: 'uppercase', marginBottom: '4px', color: '#1e1e1e' };
-		var ctrlStyle  = { display: 'block', width: '100%', boxSizing: 'border-box', padding: '6px 8px', border: '1px solid #949494', borderRadius: '2px', fontSize: '13px', lineHeight: '1.4', color: '#1e1e1e', backgroundColor: '#fff' };
-
 		function WritingStatusPanel() {
 			var meta = useSelect(function (select) {
 				return select('core/editor').getEditedPostAttribute('meta') || {};
@@ -255,34 +250,35 @@
 
 			var btnColor = isComplete ? '#00a32a' : '#d63638';
 
-			return el('div', { style: wrapStyle },
-				el('div', { style: fieldStyle },
+			return el('div', { className: 'ws-panel-wrap' },
+				el('div', { className: 'ws-panel-field' },
 					el(Button, {
 						variant:   'secondary',
 						isPressed: isComplete,
-						style:     { width: '100%', boxSizing: 'border-box', justifyContent: 'center', background: 'transparent', color: btnColor, border: '1px solid ' + btnColor, boxShadow: 'none' },
+						className: 'ws-panel-btn',
+						style:     { color: btnColor, border: '1px solid ' + btnColor },
 						onClick: function () {
 							updateMeta('_writing_complete', isComplete ? 'no' : 'yes');
 						}
 					}, isComplete ? __('Complete', 'writing-status') : __('Incomplete', 'writing-status'))
 				),
-				el('div', { style: fieldStyle },
-					el('label', { htmlFor: 'ws-due-date', style: labelStyle }, __('Due Date', 'writing-status')),
+				el('div', { className: 'ws-panel-field' },
+					el('label', { htmlFor: 'ws-due-date', className: 'ws-panel-label' }, __('Due Date', 'writing-status')),
 					el('input', {
-						id:       'ws-due-date',
-						type:     'date',
-						value:    dueDate,
-						style:    ctrlStyle,
-						onChange: function (e) { updateMeta('_writing_due_date', e.target.value); }
+						id:        'ws-due-date',
+						type:      'date',
+						value:     dueDate,
+						className: 'ws-panel-ctrl',
+						onChange:  function (e) { updateMeta('_writing_due_date', e.target.value); }
 					})
 				),
-				el('div', { style: fieldStyle },
-					el('label', { htmlFor: 'ws-priority', style: labelStyle }, __('Priority', 'writing-status')),
+				el('div', { className: 'ws-panel-field' },
+					el('label', { htmlFor: 'ws-priority', className: 'ws-panel-label' }, __('Priority', 'writing-status')),
 					el('select', {
-						id:       'ws-priority',
-						value:    priority,
-						style:    ctrlStyle,
-						onChange: function (e) { updateMeta('_writing_priority', e.target.value); }
+						id:        'ws-priority',
+						value:     priority,
+						className: 'ws-panel-ctrl',
+						onChange:  function (e) { updateMeta('_writing_priority', e.target.value); }
 					},
 						el('option', { value: 'none'   }, __('None',   'writing-status')),
 						el('option', { value: 'low'    }, __('Low',    'writing-status')),
@@ -300,8 +296,10 @@
 					wp.editPost.PluginDocumentSettingPanel,
 					{
 						name:  'writing-status-panel',
-						title: __('Writing Status', 'writing-status'),
-						icon:  'edit'
+						title: el('span', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+							el(wp.components.Icon, { icon: 'edit' }),
+							__('Writing Status', 'writing-status')
+						)
 					},
 					el(WritingStatusPanel)
 				);
