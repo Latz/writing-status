@@ -3,7 +3,7 @@
  * Plugin Name: Writing Status
  * Plugin URI: https://github.com/yourusername/writing-status
  * Description: Mark draft posts by completion status (complete/incomplete) with priority levels
- * Version: 1.5.0
+ * Version: 1.7.0
  * Author: Latz
  * Author URI: https://elektroelch.de
  * * License: GPL v2 or later
@@ -116,7 +116,7 @@ class WritingStatus extends WritingStatusRenderer {
             'writing-status',                      // Handle
             plugin_dir_url(__FILE__) . 'writing-status.css', // Source
             array(),                                      // Dependencies
-            '1.5.0'                                      // Version
+            '1.7.0'                                      // Version
         );
 
         // Enqueue the plugin JavaScript for post editor pages
@@ -125,7 +125,7 @@ class WritingStatus extends WritingStatusRenderer {
                 'writing-status',                      // Handle
                 plugin_dir_url(__FILE__) . 'writing-status.js', // Source
                 array(),                                      // Dependencies
-                '1.5.0',                                     // Version
+                '1.7.0',                                     // Version
                 true                                          // Load in footer
             );
         }
