@@ -65,27 +65,15 @@
 			return;
 		}
 
-		var initial = {
-			complete: hiddenInput    ? hiddenInput.value    : null,
-			dueDate:  dueDateInput   ? dueDateInput.value   : null,
-			priority: prioritySelect ? prioritySelect.value : null
-		};
+		// Explicit flag: set true on any field change, reset after a confirmed save.
+		// Avoids DOM-comparison pitfalls when Gutenberg saves without reloading the page.
+		var dirty = false;
 
-		function isDirty() {
-			return (
-				(hiddenInput    && hiddenInput.value    !== initial.complete) ||
-				(dueDateInput   && dueDateInput.value   !== initial.dueDate)  ||
-				(prioritySelect && prioritySelect.value !== initial.priority)
-			);
-		}
-
-		// Gutenberg renders meta boxes in an iframe; attach to the top window.
 		var targetWindow = window.parent || window;
 
 		function beforeUnloadHandler(e) {
-			if (isDirty()) {
+			if (dirty) {
 				e.preventDefault();
-				// Non-empty string required by some browsers to trigger the dialog.
 				e.returnValue = 'You have unsaved changes.';
 				return e.returnValue;
 			}
@@ -93,23 +81,20 @@
 
 		targetWindow.addEventListener('beforeunload', beforeUnloadHandler);
 
-		// Remove the parent-window listener when this iframe (or page) unloads.
-		// In Gutenberg the meta box iframe is reloaded after every save, so without
-		// this the old closure — with stale DOM references — would keep firing.
-		window.addEventListener('unload', function () {
+		function removeBeforeUnload() {
 			targetWindow.removeEventListener('beforeunload', beforeUnloadHandler);
-		});
-
-		// Classic editor: also remove on form submit so the save redirect is clean.
-		var postForm = document.getElementById('post');
-		if (postForm) {
-			postForm.addEventListener('submit', function () {
-				targetWindow.removeEventListener('beforeunload', beforeUnloadHandler);
-			});
 		}
 
-		// Gutenberg: also integrate with wp.data so the editor's own
-		// "unsaved changes" system is aware of our field changes.
+		// Clean up when this frame navigates or unloads (Gutenberg iframe reload, classic editor redirect).
+		window.addEventListener('unload', removeBeforeUnload);
+
+		// Classic editor: clear on form submit so the save redirect is clean.
+		var postForm = document.getElementById('post');
+		if (postForm) {
+			postForm.addEventListener('submit', removeBeforeUnload);
+		}
+
+		// Mark the meta box dirty and sync Gutenberg's own unsaved-changes state.
 		function markGutenbergDirty() {
 			if (
 				typeof window.parent.wp === 'undefined' ||
@@ -133,14 +118,53 @@
 			}
 		}
 
+		function onFieldChange() {
+			dirty = true;
+			markGutenbergDirty();
+		}
+
 		var fields = [hiddenInput, dueDateInput, prioritySelect].filter(Boolean);
 		fields.forEach(function (field) {
-			field.addEventListener('change', markGutenbergDirty);
+			field.addEventListener('change', onFieldChange);
 		});
-		// Toggle button fires a click, not a change event on the hidden input.
 		var toggleButton = document.getElementById('draft_complete_button');
 		if (toggleButton) {
-			toggleButton.addEventListener('click', markGutenbergDirty);
+			toggleButton.addEventListener('click', onFieldChange);
+		}
+
+		// Gutenberg: reset dirty after an explicit (non-autosave) save succeeds.
+		// wp.data.subscribe fires on every state change; we track the saving
+		// transition to detect completion without depending on an iframe reload.
+		if (
+			typeof window.parent.wp !== 'undefined' &&
+			typeof window.parent.wp.data !== 'undefined' &&
+			typeof window.parent.wp.data.subscribe === 'function'
+		) {
+			var wasSaving     = false;
+			var wasAutosaving = false;
+
+			var unsubscribe = window.parent.wp.data.subscribe(function () {
+				var select = window.parent.wp.data.select('core/editor');
+				if (!select) {
+					return;
+				}
+				var isSaving     = select.isSavingPost();
+				var isAutosaving = typeof select.isAutosavingPost === 'function' && select.isAutosavingPost();
+
+				// Transition: was saving (not autosaving) → finished successfully.
+				if (wasSaving && !wasAutosaving && !isSaving) {
+					if (typeof select.didPostSaveRequestSucceed === 'function' &&
+						select.didPostSaveRequestSucceed()) {
+						dirty = false;
+					}
+				}
+
+				wasSaving     = isSaving;
+				wasAutosaving = isAutosaving;
+			});
+
+			// Unsubscribe when the frame unloads to prevent leaking listeners.
+			window.addEventListener('unload', unsubscribe);
 		}
 	}
 
