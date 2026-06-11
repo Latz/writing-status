@@ -93,7 +93,14 @@
 
 		targetWindow.addEventListener('beforeunload', beforeUnloadHandler);
 
-		// Classic editor: remove warning on normal post save.
+		// Remove the parent-window listener when this iframe (or page) unloads.
+		// In Gutenberg the meta box iframe is reloaded after every save, so without
+		// this the old closure — with stale DOM references — would keep firing.
+		window.addEventListener('unload', function () {
+			targetWindow.removeEventListener('beforeunload', beforeUnloadHandler);
+		});
+
+		// Classic editor: also remove on form submit so the save redirect is clean.
 		var postForm = document.getElementById('post');
 		if (postForm) {
 			postForm.addEventListener('submit', function () {
