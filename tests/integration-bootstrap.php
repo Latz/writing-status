@@ -5,9 +5,8 @@
  * Loads the real WordPress test library, which boots the full WordPress
  * environment and creates a temporary test database.
  *
- * Required environment: must run inside the wp-wordpress-1 Docker container
- * (or any environment where /var/www/html is the WordPress root and the
- * wp-db-1 database host is reachable as "db").
+ * Requires WP_TESTS_DIR to point at a checked-out WordPress test library.
+ * Run bin/install-wp-tests.sh to set it up, or set the env var manually.
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' ) ?: '/tmp/wordpress-tests-lib';

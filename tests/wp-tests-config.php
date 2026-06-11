@@ -2,12 +2,13 @@
 /**
  * WordPress test configuration for Writing Status integration tests.
  *
- * This file is used by the WordPress test library to set up the test
- * database. Credentials match the Docker environment.
+ * Values fall back to local-dev defaults when env vars are not set.
+ * In CI (GitHub Actions) the workflow sets WP_ABSPATH, DB_HOST,
+ * DB_NAME, DB_USER, and DB_PASSWORD via the job's env block.
  */
 
 /* Path to the WordPress codebase you'd like to test. Add a trailing slash. */
-define( 'ABSPATH', '/home/latz/www/wp/' );
+define( 'ABSPATH', getenv( 'WP_ABSPATH' ) ?: '/home/latz/www/wp/' );
 
 /* Path to the theme directory */
 define( 'WP_DEFAULT_THEME', 'default' );
@@ -19,16 +20,16 @@ define( 'WP_DEFAULT_THEME', 'default' );
 // define( 'WP_TESTS_FORCE_KNOWN_BUGS', true );
 
 /* The hostname of the database server */
-define( 'DB_HOST', '127.0.0.1' );
+define( 'DB_HOST', getenv( 'DB_HOST' ) ?: '127.0.0.1' );
 
 /* The name of the database */
-define( 'DB_NAME', 'wordpress_tests' );
+define( 'DB_NAME', getenv( 'DB_NAME' ) ?: 'wordpress_tests' );
 
 /* The database username */
-define( 'DB_USER', 'latz' );
+define( 'DB_USER', getenv( 'DB_USER' ) ?: 'latz' );
 
 /* The database password */
-define( 'DB_PASSWORD', 'x' );
+define( 'DB_PASSWORD', getenv( 'DB_PASSWORD' ) ?: 'x' );
 
 /* The table prefix */
 $table_prefix = 'wptests_';
