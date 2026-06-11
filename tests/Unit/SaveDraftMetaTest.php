@@ -10,6 +10,7 @@
  * verifying call arguments.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class SaveDraftMetaTest extends TestCase {
@@ -43,7 +44,7 @@ class SaveDraftMetaTest extends TestCase {
     // saveDraftDueDate
     // -------------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function save_due_date_with_valid_date_executes_without_error(): void {
         $_POST['writing_due_date'] = '2026-12-31';
 
@@ -52,7 +53,7 @@ class SaveDraftMetaTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function save_due_date_with_empty_string_executes_without_error(): void {
         $_POST['writing_due_date'] = '';
 
@@ -61,7 +62,7 @@ class SaveDraftMetaTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function save_due_date_with_invalid_format_executes_without_error(): void {
         $_POST['writing_due_date'] = 'not-a-date';
 
@@ -70,7 +71,7 @@ class SaveDraftMetaTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function save_due_date_without_post_key_executes_without_error(): void {
         // $_POST['writing_due_date'] is intentionally not set.
 
@@ -83,7 +84,7 @@ class SaveDraftMetaTest extends TestCase {
     // saveDraftPriority
     // -------------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function save_priority_with_valid_priority_executes_without_error(): void {
         $_POST['writing_priority'] = 'high';
 
@@ -92,7 +93,7 @@ class SaveDraftMetaTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function save_priority_with_invalid_priority_executes_without_error(): void {
         $_POST['writing_priority'] = 'invalid';
 
@@ -101,7 +102,7 @@ class SaveDraftMetaTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function save_priority_with_none_executes_without_error(): void {
         $_POST['writing_priority'] = 'none';
 
@@ -110,7 +111,7 @@ class SaveDraftMetaTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function save_priority_without_post_key_executes_without_error(): void {
         // $_POST['writing_priority'] is intentionally not set.
 

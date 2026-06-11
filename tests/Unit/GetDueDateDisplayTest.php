@@ -10,6 +10,7 @@
  *   - due later (more than 3 days away)
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class GetDueDateDisplayTest extends TestCase {
@@ -38,7 +39,7 @@ class GetDueDateDisplayTest extends TestCase {
         return $this->method->invoke( $this->plugin, $date );
     }
 
-    /** @test */
+    #[Test]
     public function overdue_date_returns_overdue_css_class(): void {
         $yesterday = date( 'Y-m-d', strtotime( '-1 day' ) );
         $result    = $this->call( $yesterday );
@@ -46,7 +47,7 @@ class GetDueDateDisplayTest extends TestCase {
         $this->assertStringContainsString( 'draft-due-overdue', $result['class'] );
     }
 
-    /** @test */
+    #[Test]
     public function overdue_date_label_contains_overdue_text(): void {
         $yesterday = date( 'Y-m-d', strtotime( '-7 days' ) );
         $result    = $this->call( $yesterday );
@@ -54,7 +55,7 @@ class GetDueDateDisplayTest extends TestCase {
         $this->assertStringContainsString( 'Overdue', $result['label'] );
     }
 
-    /** @test */
+    #[Test]
     public function today_returns_due_today_css_class(): void {
         $today  = date( 'Y-m-d' );
         $result = $this->call( $today );
@@ -62,7 +63,7 @@ class GetDueDateDisplayTest extends TestCase {
         $this->assertStringContainsString( 'draft-due-today', $result['class'] );
     }
 
-    /** @test */
+    #[Test]
     public function today_label_says_due_today(): void {
         $today  = date( 'Y-m-d' );
         $result = $this->call( $today );
@@ -70,7 +71,7 @@ class GetDueDateDisplayTest extends TestCase {
         $this->assertSame( 'Due today', $result['label'] );
     }
 
-    /** @test */
+    #[Test]
     public function three_days_away_returns_due_soon_css_class(): void {
         $soon   = date( 'Y-m-d', strtotime( '+3 days' ) );
         $result = $this->call( $soon );
@@ -78,7 +79,7 @@ class GetDueDateDisplayTest extends TestCase {
         $this->assertStringContainsString( 'draft-due-soon', $result['class'] );
     }
 
-    /** @test */
+    #[Test]
     public function one_day_away_returns_due_soon_css_class(): void {
         $tomorrow = date( 'Y-m-d', strtotime( '+1 day' ) );
         $result   = $this->call( $tomorrow );
@@ -86,7 +87,7 @@ class GetDueDateDisplayTest extends TestCase {
         $this->assertStringContainsString( 'draft-due-soon', $result['class'] );
     }
 
-    /** @test */
+    #[Test]
     public function four_days_away_returns_base_class_only(): void {
         $later  = date( 'Y-m-d', strtotime( '+4 days' ) );
         $result = $this->call( $later );
@@ -97,7 +98,7 @@ class GetDueDateDisplayTest extends TestCase {
         $this->assertStringContainsString( 'draft-due-date', $result['class'] );
     }
 
-    /** @test */
+    #[Test]
     public function four_days_away_label_contains_due_prefix(): void {
         $later  = date( 'Y-m-d', strtotime( '+4 days' ) );
         $result = $this->call( $later );
@@ -105,7 +106,7 @@ class GetDueDateDisplayTest extends TestCase {
         $this->assertStringContainsString( 'Due:', $result['label'] );
     }
 
-    /** @test */
+    #[Test]
     public function result_always_contains_class_and_label_keys(): void {
         foreach ( [ '-5 days', 'today', '+2 days', '+10 days' ] as $offset ) {
             $date   = date( 'Y-m-d', strtotime( $offset ) );

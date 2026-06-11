@@ -8,6 +8,7 @@
  * will always be '' (falsy / not 'yes') in these tests.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class RenderCompletionMetaBoxTest extends TestCase {
@@ -50,7 +51,7 @@ class RenderCompletionMetaBoxTest extends TestCase {
     // Tests
     // ---------------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function draft_post_outputs_nonce_field(): void {
         // The bootstrap stub for wp_nonce_field echoes '' (empty string), so the
         // nonce field name never appears as literal text in the captured output.
@@ -64,7 +65,7 @@ class RenderCompletionMetaBoxTest extends TestCase {
         $this->assertStringContainsString( 'writing_complete_hidden', $output );
     }
 
-    /** @test */
+    #[Test]
     public function draft_post_outputs_complete_button(): void {
         $output = $this->captureOutput( $this->makePost() );
 
@@ -76,21 +77,21 @@ class RenderCompletionMetaBoxTest extends TestCase {
         );
     }
 
-    /** @test */
+    #[Test]
     public function draft_post_outputs_due_date_field(): void {
         $output = $this->captureOutput( $this->makePost() );
 
         $this->assertStringContainsString( 'writing_due_date', $output );
     }
 
-    /** @test */
+    #[Test]
     public function draft_post_outputs_priority_select(): void {
         $output = $this->captureOutput( $this->makePost() );
 
         $this->assertStringContainsString( 'writing_priority', $output );
     }
 
-    /** @test */
+    #[Test]
     public function draft_post_outputs_incomplete_state_by_default(): void {
         // Bootstrap stub returns '' for get_post_meta single lookups,
         // so is_complete === '' (not 'yes') → the button gets the 'is-incomplete' class.

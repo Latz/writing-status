@@ -3,6 +3,7 @@
  * Unit tests for WritingStatus::addCompletionFilterDropdown().
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class AddCompletionFilterDropdownTest extends TestCase {
@@ -20,7 +21,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
         unset( $_GET['writing_completion_filter'], $_GET['writing_priority_filter'] );
     }
 
-    /** @test */
+    #[Test]
     public function wrong_post_type_produces_no_output(): void {
         ob_start();
         $this->plugin->addCompletionFilterDropdown( 'page' );
@@ -29,7 +30,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
         $this->assertSame( '', $output );
     }
 
-    /** @test */
+    #[Test]
     public function post_type_outputs_completion_select(): void {
         ob_start();
         $this->plugin->addCompletionFilterDropdown( 'post' );
@@ -38,7 +39,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
         $this->assertStringContainsString( 'writing_completion_filter', $output );
     }
 
-    /** @test */
+    #[Test]
     public function post_type_outputs_priority_select(): void {
         ob_start();
         $this->plugin->addCompletionFilterDropdown( 'post' );
@@ -47,7 +48,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
         $this->assertStringContainsString( 'writing_priority_filter', $output );
     }
 
-    /** @test */
+    #[Test]
     public function outputs_complete_and_incomplete_options(): void {
         ob_start();
         $this->plugin->addCompletionFilterDropdown( 'post' );
@@ -57,7 +58,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
         $this->assertStringContainsString( 'incomplete', $output );
     }
 
-    /** @test */
+    #[Test]
     public function outputs_priority_options(): void {
         ob_start();
         $this->plugin->addCompletionFilterDropdown( 'post' );

@@ -6,6 +6,7 @@
  * These tests run entirely with WP_Mock — no database required.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class GetValidPrioritiesTest extends TestCase {
@@ -26,7 +27,7 @@ class GetValidPrioritiesTest extends TestCase {
     // getValidPriorities
     // -------------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function returns_array_with_five_priorities(): void {
         $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
         $method->setAccessible( true );
@@ -36,7 +37,7 @@ class GetValidPrioritiesTest extends TestCase {
         $this->assertCount( 5, $result );
     }
 
-    /** @test */
+    #[Test]
     public function contains_all_expected_priorities(): void {
         $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
         $method->setAccessible( true );
@@ -48,7 +49,7 @@ class GetValidPrioritiesTest extends TestCase {
         }
     }
 
-    /** @test */
+    #[Test]
     public function urgent_is_in_valid_priorities(): void {
         $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
         $method->setAccessible( true );
@@ -62,7 +63,7 @@ class GetValidPrioritiesTest extends TestCase {
     // getPriorityLabels
     // -------------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function returns_four_labels(): void {
         $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
         $method->setAccessible( true );
@@ -72,7 +73,7 @@ class GetValidPrioritiesTest extends TestCase {
         $this->assertCount( 4, $result );
     }
 
-    /** @test */
+    #[Test]
     public function does_not_contain_none_key(): void {
         $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
         $method->setAccessible( true );
@@ -82,7 +83,7 @@ class GetValidPrioritiesTest extends TestCase {
         $this->assertFalse( array_key_exists( 'none', $result ) );
     }
 
-    /** @test */
+    #[Test]
     public function contains_high_key(): void {
         $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
         $method->setAccessible( true );
@@ -96,7 +97,7 @@ class GetValidPrioritiesTest extends TestCase {
     // registerMetaField
     // -------------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function register_meta_field_executes_without_error(): void {
         $this->plugin->registerMetaField();
 

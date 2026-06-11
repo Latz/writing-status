@@ -3,6 +3,7 @@
  * Unit tests for WritingStatus::makeCompletionSortable().
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class MakeCompletionSortableTest extends TestCase {
@@ -19,19 +20,19 @@ class MakeCompletionSortableTest extends TestCase {
         WP_Mock::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function adds_writing_completion_to_sortable_columns(): void {
         $result = $this->plugin->makeCompletionSortable( [] );
         $this->assertArrayHasKey( 'writing_completion', $result );
     }
 
-    /** @test */
+    #[Test]
     public function sortable_key_maps_to_writing_completion_orderby(): void {
         $result = $this->plugin->makeCompletionSortable( [] );
         $this->assertSame( 'writing_completion', $result['writing_completion'] );
     }
 
-    /** @test */
+    #[Test]
     public function preserves_existing_sortable_columns(): void {
         $existing = [ 'title' => 'title', 'date' => 'date' ];
         $result   = $this->plugin->makeCompletionSortable( $existing );

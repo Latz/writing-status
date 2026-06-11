@@ -6,6 +6,7 @@
  * classed <span> for future and overdue dates.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class RenderDueDateTest extends TestCase {
@@ -22,7 +23,7 @@ class RenderDueDateTest extends TestCase {
         WP_Mock::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function empty_due_date_produces_no_output(): void {
         $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
         $method->setAccessible( true );
@@ -34,7 +35,7 @@ class RenderDueDateTest extends TestCase {
         $this->assertSame( '', $output );
     }
 
-    /** @test */
+    #[Test]
     public function non_empty_due_date_outputs_span(): void {
         $future_date = date( 'Y-m-d', strtotime( '+10 days' ) );
 
@@ -55,7 +56,7 @@ class RenderDueDateTest extends TestCase {
         $this->assertStringContainsString( '<span', $output );
     }
 
-    /** @test */
+    #[Test]
     public function future_date_span_has_due_date_class(): void {
         $future_date = date( 'Y-m-d', strtotime( '+10 days' ) );
 
@@ -76,7 +77,7 @@ class RenderDueDateTest extends TestCase {
         $this->assertStringContainsString( 'draft-due-date', $output );
     }
 
-    /** @test */
+    #[Test]
     public function overdue_date_span_has_overdue_class(): void {
         WP_Mock::userFunction( 'current_time' )->andReturn( time() );
         WP_Mock::userFunction( 'get_option' )->andReturn( 'Y-m-d' );

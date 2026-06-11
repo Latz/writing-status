@@ -6,6 +6,7 @@
  * processing the main query, with an orderby of 'writing_completion'.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -43,7 +44,7 @@ class SortByCompletionTest extends TestCase {
         unset( $GLOBALS['_writing_status_is_admin'] );
     }
 
-    /** @test */
+    #[Test]
     public function does_nothing_when_not_admin(): void {
         WP_Mock::userFunction( 'is_admin' )->andReturn( false );
 
@@ -56,7 +57,7 @@ class SortByCompletionTest extends TestCase {
         $this->assertArrayNotHasKey( 'meta_query', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function does_nothing_when_not_main_query(): void {
         WP_Mock::userFunction( 'is_admin' )->andReturn( true );
 
@@ -69,7 +70,7 @@ class SortByCompletionTest extends TestCase {
         $this->assertArrayNotHasKey( 'meta_query', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function does_nothing_when_orderby_is_not_writing_completion(): void {
         WP_Mock::userFunction( 'is_admin' )->andReturn( true );
 
@@ -82,7 +83,7 @@ class SortByCompletionTest extends TestCase {
         $this->assertArrayNotHasKey( 'meta_query', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function sets_meta_query_clauses_when_admin_main_query_with_writing_completion_orderby(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
 
@@ -96,7 +97,7 @@ class SortByCompletionTest extends TestCase {
         $this->assertArrayHasKey( 'priority_clause', $query->data['meta_query'] );
     }
 
-    /** @test */
+    #[Test]
     public function sets_orderby_array_when_admin_main_query_with_writing_completion_orderby(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
 
@@ -109,7 +110,7 @@ class SortByCompletionTest extends TestCase {
         $this->assertIsArray( $query->data['orderby'] );
     }
 
-    /** @test */
+    #[Test]
     public function preserves_existing_meta_query_when_sorting(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
 
@@ -129,7 +130,7 @@ class SortByCompletionTest extends TestCase {
         $this->assertArrayHasKey( 'existing_clause', $query->data['meta_query'] );
     }
 
-    /** @test */
+    #[Test]
     public function does_nothing_when_all_three_guards_fail(): void {
         // is_admin() is bootstrapped as false; WP_Mock cannot override pre-defined functions.
         // Verify: even with orderby=writing_completion on main query, is_admin=false prevents changes.

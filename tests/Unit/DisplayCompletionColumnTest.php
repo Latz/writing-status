@@ -3,6 +3,7 @@
  * Unit tests for WritingStatus::displayCompletionColumn().
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class DisplayCompletionColumnTest extends TestCase {
@@ -19,7 +20,7 @@ class DisplayCompletionColumnTest extends TestCase {
         WP_Mock::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function wrong_column_produces_no_output(): void {
         ob_start();
         $this->plugin->displayCompletionColumn( 'title', 1 );
@@ -28,7 +29,7 @@ class DisplayCompletionColumnTest extends TestCase {
         $this->assertSame( '', $output );
     }
 
-    /** @test */
+    #[Test]
     public function draft_column_calls_completion_status_render(): void {
         // get_post_status is stubbed in bootstrap to return 'draft', which is what we need.
         // get_post_meta is stubbed in bootstrap to return '' for single lookups.
@@ -44,7 +45,7 @@ class DisplayCompletionColumnTest extends TestCase {
         $this->assertStringContainsString( 'writing-status-incomplete', $output );
     }
 
-    /** @test */
+    #[Test]
     public function writing_complete_post_shows_complete_span(): void {
         // get_post_status bootstrap stub returns 'draft' — correct for this test.
         // Override get_post_meta via WP_Mock to return 'yes' for _writing_complete.
@@ -64,7 +65,7 @@ class DisplayCompletionColumnTest extends TestCase {
         $this->assertStringContainsString( 'writing-status-complete', $output );
     }
 
-    /** @test */
+    #[Test]
     public function draft_with_priority_shows_priority_badge(): void {
         // Test renderPriorityBadge directly (bootstrap can't be overridden for get_post_meta).
         $method = new ReflectionMethod( WritingStatus::class, 'renderPriorityBadge' );
@@ -81,7 +82,7 @@ class DisplayCompletionColumnTest extends TestCase {
         $this->assertStringContainsString( 'draft-priority-high', $output );
     }
 
-    /** @test */
+    #[Test]
     public function draft_incomplete_shows_incomplete_span(): void {
         // get_post_status bootstrap stub returns 'draft'.
         // get_post_meta bootstrap stub returns '' for single lookups.
@@ -95,7 +96,7 @@ class DisplayCompletionColumnTest extends TestCase {
         $this->assertStringContainsString( 'writing-status-incomplete', $output );
     }
 
-    /** @test */
+    #[Test]
     public function draft_column_outputs_no_due_date_for_empty_meta(): void {
         // get_post_meta returns '' (bootstrap stub), so renderDueDate returns early.
         WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
@@ -108,7 +109,7 @@ class DisplayCompletionColumnTest extends TestCase {
         $this->assertStringNotContainsString( 'draft-due-date', $output );
     }
 
-    /** @test */
+    #[Test]
     public function draft_column_outputs_no_priority_badge_for_empty_meta(): void {
         // get_post_meta returns '' (bootstrap stub), so renderPriorityBadge returns early.
         WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );

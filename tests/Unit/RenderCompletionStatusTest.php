@@ -6,6 +6,7 @@
  * and incomplete states, including CSS classes and Unicode symbols.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class RenderCompletionStatusTest extends TestCase {
@@ -22,7 +23,7 @@ class RenderCompletionStatusTest extends TestCase {
         WP_Mock::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function complete_status_outputs_complete_span(): void {
         WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
@@ -37,7 +38,7 @@ class RenderCompletionStatusTest extends TestCase {
         $this->assertStringContainsString( 'writing-status-complete', $output );
     }
 
-    /** @test */
+    #[Test]
     public function complete_status_outputs_checkmark(): void {
         WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
@@ -52,7 +53,7 @@ class RenderCompletionStatusTest extends TestCase {
         $this->assertStringContainsString( '✓', $output );
     }
 
-    /** @test */
+    #[Test]
     public function incomplete_status_outputs_incomplete_span(): void {
         WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
@@ -67,7 +68,7 @@ class RenderCompletionStatusTest extends TestCase {
         $this->assertStringContainsString( 'writing-status-incomplete', $output );
     }
 
-    /** @test */
+    #[Test]
     public function incomplete_status_outputs_x_symbol(): void {
         WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
@@ -82,7 +83,7 @@ class RenderCompletionStatusTest extends TestCase {
         $this->assertStringContainsString( '✗', $output );
     }
 
-    /** @test */
+    #[Test]
     public function empty_string_status_outputs_incomplete_span(): void {
         WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );

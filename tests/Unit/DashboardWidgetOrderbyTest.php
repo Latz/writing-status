@@ -3,6 +3,7 @@
  * Unit tests for WritingStatus::dashboardWidgetOrderby().
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class MockWPQuery3 {

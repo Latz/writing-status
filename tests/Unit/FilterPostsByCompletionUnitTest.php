@@ -6,6 +6,7 @@
  * bootstrap). Private helpers are exercised directly via ReflectionMethod.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class MockWPQueryFilter {
@@ -34,7 +35,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $pagenow = '';
     }
 
-    /** @test */
+    #[Test]
     public function returns_early_when_not_admin(): void {
         global $pagenow;
         $pagenow = 'edit.php';
@@ -46,7 +47,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertArrayNotHasKey( 'meta_query', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function apply_completion_filter_complete_sets_meta_query(): void {
         $_GET['writing_completion_filter'] = 'complete';
 
@@ -62,7 +63,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertSame( 'draft', $query->get( 'post_status' ) );
     }
 
-    /** @test */
+    #[Test]
     public function apply_completion_filter_incomplete_sets_or_meta_query(): void {
         $_GET['writing_completion_filter'] = 'incomplete';
 
@@ -78,7 +79,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertSame( 'draft', $query->get( 'post_status' ) );
     }
 
-    /** @test */
+    #[Test]
     public function apply_completion_filter_unknown_value_does_nothing(): void {
         $_GET['writing_completion_filter'] = 'unknown';
 
@@ -93,7 +94,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertCount( 1, $filter_meta_query );
     }
 
-    /** @test */
+    #[Test]
     public function apply_priority_filter_valid_priority_adds_clause(): void {
         $_GET['writing_priority_filter'] = 'high';
 
@@ -110,7 +111,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertSame( 'draft', $query->get( 'post_status' ) );
     }
 
-    /** @test */
+    #[Test]
     public function apply_priority_filter_invalid_priority_does_nothing(): void {
         $_GET['writing_priority_filter'] = 'invalid';
 
@@ -126,7 +127,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertCount( 1, $filter_meta_query );
     }
 
-    /** @test */
+    #[Test]
     public function apply_priority_filter_with_completion_filter_does_not_set_post_status(): void {
         $_GET['writing_priority_filter'] = 'high';
 
@@ -142,7 +143,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertArrayNotHasKey( 'post_status', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function sets_meta_query_when_admin_with_completion_filter(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;
@@ -155,7 +156,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertArrayHasKey( 'meta_query', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function returns_early_when_no_filters_set(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;
@@ -167,7 +168,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertArrayNotHasKey( 'meta_query', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function returns_early_when_pagenow_is_not_edit_php(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;
@@ -180,7 +181,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertArrayNotHasKey( 'meta_query', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function sets_meta_query_when_admin_with_priority_filter(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;
@@ -193,7 +194,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $this->assertArrayHasKey( 'meta_query', $query->data );
     }
 
-    /** @test */
+    #[Test]
     public function sets_meta_query_when_both_filters_set(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;

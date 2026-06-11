@@ -3,6 +3,7 @@
  * Unit tests for WritingStatus meta box and dashboard widget registration methods.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class AddCompletionMetaBoxTest extends TestCase {
@@ -19,38 +20,38 @@ class AddCompletionMetaBoxTest extends TestCase {
         WP_Mock::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function add_completion_meta_box_executes_without_error(): void {
         $this->plugin->addCompletionMetaBox();
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function add_dashboard_widget_executes_without_error(): void {
         $this->plugin->addDashboardWidget();
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function add_completion_column_adds_writing_completion_key(): void {
         $result = $this->plugin->addCompletionColumn( [ 'title' => 'Title' ] );
         $this->assertArrayHasKey( 'writing_completion', $result );
     }
 
-    /** @test */
+    #[Test]
     public function add_completion_column_preserves_existing_columns(): void {
         $result = $this->plugin->addCompletionColumn( [ 'title' => 'Title', 'date' => 'Date' ] );
         $this->assertArrayHasKey( 'title', $result );
     }
 
-    /** @test */
+    #[Test]
     public function make_completion_sortable_adds_writing_completion(): void {
         $result = $this->plugin->makeCompletionSortable( [] );
         $this->assertArrayHasKey( 'writing_completion', $result );
         $this->assertSame( 'writing_completion', $result['writing_completion'] );
     }
 
-    /** @test */
+    #[Test]
     public function make_completion_sortable_preserves_existing(): void {
         $result = $this->plugin->makeCompletionSortable( [ 'title' => 'Title' ] );
         $this->assertArrayHasKey( 'title', $result );

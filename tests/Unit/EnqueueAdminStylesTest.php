@@ -8,6 +8,7 @@
  * returns early (without error) for an irrelevant hook.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class EnqueueAdminStylesTest extends TestCase {
@@ -24,35 +25,35 @@ class EnqueueAdminStylesTest extends TestCase {
         WP_Mock::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function irrelevant_hook_returns_early_without_error(): void {
         $this->plugin->enqueueAdminStyles( 'dashboard' );
 
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function edit_php_hook_executes_without_error(): void {
         $this->plugin->enqueueAdminStyles( 'edit.php' );
 
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function post_php_hook_executes_without_error(): void {
         $this->plugin->enqueueAdminStyles( 'post.php' );
 
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function post_new_php_hook_executes_without_error(): void {
         $this->plugin->enqueueAdminStyles( 'post-new.php' );
 
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function index_php_hook_executes_without_error(): void {
         $this->plugin->enqueueAdminStyles( 'index.php' );
 

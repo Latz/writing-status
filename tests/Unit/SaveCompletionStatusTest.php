@@ -6,6 +6,7 @@
  * three security conditions: missing nonce, autosave, insufficient capability.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class SaveCompletionStatusTest extends TestCase {
@@ -28,7 +29,7 @@ class SaveCompletionStatusTest extends TestCase {
         );
     }
 
-    /** @test */
+    #[Test]
     public function returns_early_when_nonce_field_is_missing(): void {
         unset( $_POST['writing_completion_nonce_field'] );
 
@@ -40,7 +41,7 @@ class SaveCompletionStatusTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function returns_early_when_nonce_verification_fails(): void {
         $_POST['writing_completion_nonce_field'] = 'bad_nonce';
 
@@ -54,7 +55,7 @@ class SaveCompletionStatusTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function returns_early_during_autosave_even_with_valid_nonce(): void {
         if ( defined( 'DOING_AUTOSAVE' ) ) {
             // Constant already set by a previous test run in the same process.
@@ -75,7 +76,7 @@ class SaveCompletionStatusTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function returns_early_when_user_lacks_edit_capability(): void {
         if ( defined( 'DOING_AUTOSAVE' ) ) {
             $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, capability check cannot be reached.' );
@@ -96,7 +97,7 @@ class SaveCompletionStatusTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function saves_no_when_writing_complete_not_in_post(): void {
         if ( defined( 'DOING_AUTOSAVE' ) ) {
             $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, else branch cannot be reached.' );
@@ -129,7 +130,7 @@ class SaveCompletionStatusTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function saves_yes_when_writing_complete_is_yes_in_post(): void {
         if ( defined( 'DOING_AUTOSAVE' ) ) {
             $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, save branch cannot be reached.' );
@@ -160,7 +161,7 @@ class SaveCompletionStatusTest extends TestCase {
         $this->assertTrue( true );
     }
 
-    /** @test */
+    #[Test]
     public function saves_no_when_writing_complete_value_is_invalid(): void {
         if ( defined( 'DOING_AUTOSAVE' ) ) {
             $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, save branch cannot be reached.' );

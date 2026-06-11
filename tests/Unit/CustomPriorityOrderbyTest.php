@@ -5,6 +5,7 @@
  * These tests run entirely with WP_Mock — no database required.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class MockWPQuery2 {
@@ -30,7 +31,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         unset( $GLOBALS['_writing_status_is_admin'] );
     }
 
-    /** @test */
+    #[Test]
     public function returns_original_orderby_when_not_admin(): void {
         WP_Mock::userFunction('is_admin', [
             'return' => false,
@@ -45,7 +46,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $this->assertSame('original', $result);
     }
 
-    /** @test */
+    #[Test]
     public function returns_original_orderby_when_not_main_query(): void {
         // is_admin() is bootstrapped as false; WP_Mock cannot override pre-defined functions.
         // The first condition (!is_admin()) is always true in the unit test environment,
@@ -59,7 +60,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $this->assertSame('original_2', $result);
     }
 
-    /** @test */
+    #[Test]
     public function returns_sql_orderby_when_admin_and_main_query(): void {
         global $wpdb;
         $wpdb           = new stdClass();
@@ -77,7 +78,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $this->assertNotSame( 'original', $result );
     }
 
-    /** @test */
+    #[Test]
     public function sql_contains_urgent_priority_ordering(): void {
         global $wpdb;
         $wpdb           = new stdClass();
@@ -94,7 +95,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $this->assertStringContainsString( 'urgent', $result );
     }
 
-    /** @test */
+    #[Test]
     public function sql_contains_asc_order_by_default(): void {
         global $wpdb;
         $wpdb           = new stdClass();
@@ -111,7 +112,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $this->assertStringContainsString( 'ASC', $result );
     }
 
-    /** @test */
+    #[Test]
     public function sql_contains_desc_order_when_query_order_is_desc(): void {
         global $wpdb;
         $wpdb           = new stdClass();
@@ -129,7 +130,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         $this->assertStringContainsString( 'DESC', $result );
     }
 
-    /** @test */
+    #[Test]
     public function returns_original_orderby_when_orderby_is_not_writing_completion(): void {
         $query = new MockWPQuery2();
         $query->_is_main = true;

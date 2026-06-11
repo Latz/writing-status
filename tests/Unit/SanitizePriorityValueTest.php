@@ -5,6 +5,7 @@
  * These tests run entirely with WP_Mock — no database required.
  */
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class SanitizePriorityValueTest extends TestCase {
@@ -21,7 +22,7 @@ class SanitizePriorityValueTest extends TestCase {
         WP_Mock::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function returns_value_unchanged_for_each_valid_priority(): void {
         foreach ( [ 'none', 'low', 'medium', 'high', 'urgent' ] as $priority ) {
             $this->assertSame(
@@ -32,22 +33,22 @@ class SanitizePriorityValueTest extends TestCase {
         }
     }
 
-    /** @test */
+    #[Test]
     public function returns_none_for_unknown_string(): void {
         $this->assertSame( 'none', $this->plugin->sanitizePriorityValue( 'critical' ) );
     }
 
-    /** @test */
+    #[Test]
     public function returns_none_for_empty_string(): void {
         $this->assertSame( 'none', $this->plugin->sanitizePriorityValue( '' ) );
     }
 
-    /** @test */
+    #[Test]
     public function returns_none_for_sql_injection_attempt(): void {
         $this->assertSame( 'none', $this->plugin->sanitizePriorityValue( "' OR 1=1 --" ) );
     }
 
-    /** @test */
+    #[Test]
     public function is_case_sensitive_and_rejects_uppercase(): void {
         $this->assertSame( 'none', $this->plugin->sanitizePriorityValue( 'URGENT' ) );
         $this->assertSame( 'none', $this->plugin->sanitizePriorityValue( 'High' ) );
