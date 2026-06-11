@@ -3,7 +3,7 @@
  * Plugin Name: Writing Status
  * Plugin URI: https://github.com/yourusername/writing-status
  * Description: Mark draft posts by completion status (complete/incomplete) with priority levels
- * Version: 1.8.0
+ * Version: 1.9.0
  * Author: Latz
  * Author URI: https://elektroelch.de
  * * License: GPL v2 or later
@@ -78,6 +78,9 @@ class WritingStatus extends WritingStatusRenderer {
         // Quick Edit panel fields
         add_action('quick_edit_custom_box', array($this, 'renderQuickEditBox'), 10, 2);
 
+        // Gutenberg block editor panel (fired only when block editor is active)
+        add_action('enqueue_block_editor_assets', array($this, 'enqueueBlockEditorAssets'));
+
         // Overdue drafts notice on Posts list and Dashboard
         add_action('admin_notices', array($this, 'showOverdueNotice'));
     }
@@ -119,16 +122,16 @@ class WritingStatus extends WritingStatusRenderer {
             'writing-status',                      // Handle
             plugin_dir_url(__FILE__) . 'writing-status.css', // Source
             array(),                                      // Dependencies
-            '1.8.0'                                      // Version
+            '1.9.0'                                      // Version
         );
 
-        // Enqueue the plugin JavaScript for post editor and posts list pages
-        if ($hook === 'post.php' || $hook === 'post-new.php' || $hook === 'edit.php') {
+        // Enqueue Quick Edit JavaScript only on the posts list page
+        if ($hook === 'edit.php') {
             wp_enqueue_script(
                 'writing-status',                      // Handle
                 plugin_dir_url(__FILE__) . 'writing-status.js', // Source
                 array('inline-edit-post'),                    // Dependencies
-                '1.8.0',                                     // Version
+                '1.9.0',                                     // Version
                 true                                          // Load in footer
             );
         }
@@ -353,7 +356,26 @@ class WritingStatus extends WritingStatusRenderer {
             array($this, 'renderCompletionMetaBox'),      // Callback function
             'post',                                           // Post type
             'side',                                           // Context (sidebar)
-            'default'                                            // Priority
+            'default',                                        // Priority
+            array('__back_compat_meta_box' => true)           // Hide in block editor
+        );
+    }
+
+    /**
+     * Enqueue scripts for the block editor (Gutenberg)
+     *
+     * Fires only when the block editor is active. Loads the plugin JS with
+     * block editor package dependencies so it can register a PluginDocumentSettingPanel.
+     *
+     * @since 1.9.0
+     */
+    public function enqueueBlockEditorAssets() {
+        wp_enqueue_script(
+            'writing-status-gutenberg',
+            plugin_dir_url(__FILE__) . 'writing-status.js',
+            array('wp-plugins', 'wp-edit-post', 'wp-element', 'wp-data', 'wp-components', 'wp-i18n'),
+            '1.9.0',
+            true
         );
     }
 

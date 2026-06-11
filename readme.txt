@@ -3,7 +3,7 @@ Contributors: yourwordpressusername
 Tags: draft, posts, writing, status, productivity
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.8.0
+Stable tag: 1.9.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -123,6 +123,11 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 
 == Changelog ==
 
+= 1.9.0 =
+* Added native Gutenberg panel in the Document tab sidebar (completion toggle, priority, due date)
+* Panel integrates with Gutenberg's save system — fields save automatically with the post via REST API
+* Legacy PHP meta box now hidden in the block editor; Classic Editor users retain it unchanged
+
 = 1.8.0 =
 * Added Writing Status fields (completion, priority, due date) to the Quick Edit panel
 * Quick Edit pre-populates current values so only the fields you want to change need updating
@@ -163,6 +168,9 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 * Color-coded visual indicators (blue for published, green for complete, red for incomplete)
 
 == Upgrade Notice ==
+
+= 1.9.0 =
+Adds a native Gutenberg sidebar panel. No database changes required.
 
 = 1.8.0 =
 Adds Quick Edit support. No database changes required.

@@ -206,16 +206,121 @@
 		};
 	}
 
+	/**
+	 * Register a native Gutenberg panel in the Document tab sidebar.
+	 *
+	 * Reads and writes the three Writing Status meta keys via wp.data so
+	 * Gutenberg's own save cycle persists them through the REST API. Bails
+	 * immediately when wp.plugins is absent (Classic Editor, edit.php).
+	 */
+	function initGutenbergPanel() {
+		if (
+			typeof wp === 'undefined' ||
+			!wp.plugins ||
+			!wp.editPost ||
+			!wp.element ||
+			!wp.data ||
+			!wp.components ||
+			!wp.i18n
+		) {
+			return;
+		}
+
+		var el          = wp.element.createElement;
+		var __          = wp.i18n.__;
+		var useSelect   = wp.data.useSelect;
+		var useDispatch = wp.data.useDispatch;
+		var Button      = wp.components.Button;
+
+		var wrapStyle  = { padding: '0 16px 8px' };
+		var fieldStyle = { marginBottom: '8px' };
+		var labelStyle = { display: 'block', fontSize: '11px', fontWeight: '500', textTransform: 'uppercase', marginBottom: '4px', color: '#1e1e1e' };
+		var ctrlStyle  = { display: 'block', width: '100%', boxSizing: 'border-box', padding: '6px 8px', border: '1px solid #949494', borderRadius: '2px', fontSize: '13px', lineHeight: '1.4', color: '#1e1e1e', backgroundColor: '#fff' };
+
+		function WritingStatusPanel() {
+			var meta = useSelect(function (select) {
+				return select('core/editor').getEditedPostAttribute('meta') || {};
+			});
+			var editPost = useDispatch('core/editor').editPost;
+
+			var isComplete = meta._writing_complete === 'yes';
+			var priority   = meta._writing_priority || 'none';
+			var dueDate    = meta._writing_due_date  || '';
+
+			function updateMeta(key, value) {
+				var update = {};
+				update[key] = value;
+				editPost({ meta: update });
+			}
+
+			var btnColor = isComplete ? '#00a32a' : '#d63638';
+
+			return el('div', { style: wrapStyle },
+				el('div', { style: fieldStyle },
+					el(Button, {
+						variant:   'secondary',
+						isPressed: isComplete,
+						style:     { width: '100%', boxSizing: 'border-box', justifyContent: 'center', background: 'transparent', color: btnColor, border: '1px solid ' + btnColor, boxShadow: 'none' },
+						onClick: function () {
+							updateMeta('_writing_complete', isComplete ? 'no' : 'yes');
+						}
+					}, isComplete ? __('Complete', 'writing-status') : __('Incomplete', 'writing-status'))
+				),
+				el('div', { style: fieldStyle },
+					el('label', { htmlFor: 'ws-due-date', style: labelStyle }, __('Due Date', 'writing-status')),
+					el('input', {
+						id:       'ws-due-date',
+						type:     'date',
+						value:    dueDate,
+						style:    ctrlStyle,
+						onChange: function (e) { updateMeta('_writing_due_date', e.target.value); }
+					})
+				),
+				el('div', { style: fieldStyle },
+					el('label', { htmlFor: 'ws-priority', style: labelStyle }, __('Priority', 'writing-status')),
+					el('select', {
+						id:       'ws-priority',
+						value:    priority,
+						style:    ctrlStyle,
+						onChange: function (e) { updateMeta('_writing_priority', e.target.value); }
+					},
+						el('option', { value: 'none'   }, __('None',   'writing-status')),
+						el('option', { value: 'low'    }, __('Low',    'writing-status')),
+						el('option', { value: 'medium' }, __('Medium', 'writing-status')),
+						el('option', { value: 'high'   }, __('High',   'writing-status')),
+						el('option', { value: 'urgent' }, __('Urgent', 'writing-status'))
+					)
+				)
+			);
+		}
+
+		wp.plugins.registerPlugin('writing-status', {
+			render: function () {
+				return el(
+					wp.editPost.PluginDocumentSettingPanel,
+					{
+						name:  'writing-status-panel',
+						title: __('Writing Status', 'writing-status'),
+						icon:  'edit'
+					},
+					el(WritingStatusPanel)
+				);
+			}
+		});
+	}
+
 	// Initialize when DOM is ready
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', function () {
 			initCompletionToggle();
 			initUnsavedWarning();
 			initQuickEdit();
+			initGutenbergPanel();
 		});
 	} else {
 		initCompletionToggle();
 		initUnsavedWarning();
 		initQuickEdit();
+		initGutenbergPanel();
 	}
 })();
