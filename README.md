@@ -1,272 +1,228 @@
-# Draft Status Indexer
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Latz_draft-status&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Latz_draft-status)
+
+# Writing Status
 
-A WordPress plugin that helps you manage draft posts with completion tracking, priority levels, and due dates.
+**Contributors:** yourwordpressusername  
+**Tags:** draft, posts, writing, status, productivity  
+**Requires at least:** 5.0  
+**Tested up to:** 6.4  
+**Stable tag:** 1.9.0  
+**Requires PHP:** 7.0  
+**License:** GPLv2 or later  
+**License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
-## The Problem
+Track and sort your draft posts by completion status. See published posts clearly marked in blue with visual indicators.
 
-I was managing a blog with 47 draft posts. Some were half-written ideas, others were complete and just needed a final review before publishing. Every time I opened the Posts screen, I had to click into each draft to remember which ones were actually ready to go and which still needed work.
+## Description
 
-WordPress shows you when drafts were last modified, but that doesn't tell you anything about whether they're complete. A draft modified yesterday might be 10% done, while one from three weeks ago could be ready to publish. I needed a way to track this without leaving WordPress or using a separate project management tool.
+Writing Status helps content creators and site administrators manage their writing workflow more efficiently. This plugin adds a "Writing Status" column to the WordPress posts list and a sidebar meta box on the post editor, providing clear visual indicators of your content status.
 
-So I built this plugin to solve that exact problem.
+### Key Features
 
-## What It Does
+* **Visual Status Indicators**: Instantly see which posts are published, complete drafts, or incomplete drafts
+* **Published Posts Highlighting**: Published posts are clearly marked with a blue dot (●) and "Published" label in blue
+* **Draft Completion Tracking**: Mark draft posts as complete or incomplete to track your writing progress
+* **Priority Levels**: Assign Low, Medium, High, or Urgent priority to any draft
+* **Due Dates**: Set a due date per post; overdue and soon-due dates are highlighted automatically
+* **Filter by Status or Priority**: Dropdowns above the posts list let you filter by completion and priority
+* **Sortable Column**: Click the "Writing Status" column header to sort posts by status and priority
+* **Bulk Edit Support**: Set completion, priority, and due date across multiple posts at once from the Bulk Edit panel
+* **Quick Edit Support**: Update completion, priority, and due date for a single post inline from the posts list
+* **Dashboard Widget**: See incomplete and complete drafts at a glance from the WordPress dashboard
+* **Unsaved Changes Warning**: The post editor warns you before navigating away with unsaved meta box changes
+* **Clean Interface**: Integrates seamlessly with WordPress admin design
 
-Draft Status Indexer adds three metadata fields to your draft posts:
+### How It Works
 
-- **Completion status**: Mark drafts as "Complete" (ready for review) or "Incomplete" (still in progress)
-- **Priority levels**: Tag drafts with Urgent, High, Medium, or Low priority
-- **Due dates**: Set target completion dates to track deadlines
+**For Published Posts:**
+* Posts with "Published" status automatically display "● Published" in blue
+* This appears in both the posts list column and the post editor sidebar
+* No manual marking required
 
-Everything appears right in your WordPress admin—no external tools required. The posts list gets a new "Writing Status" column showing visual indicators for each draft's status, and you can filter and sort by any of these fields.
+**For Draft Posts:**
+* A toggle button appears in the post editor meta box: mark the draft complete or incomplete
+* Optionally set a priority (Low / Medium / High / Urgent) and a due date
+* Complete drafts show "✓ Complete" in green; incomplete drafts show "✗ Incomplete" in red
+* Overdue and soon-due dates are highlighted automatically
+* Sort your drafts to prioritize incomplete work
+* Use the Bulk Edit panel to update completion, priority, or due date across many posts at once
+* Use Quick Edit to update a single post's Writing Status inline without opening the full editor
+* The editor warns you if you try to navigate away without saving meta box changes
 
-## Quick Start
+### Use Cases
 
-```bash
-# Clone into your WordPress plugins directory
-cd wp-content/plugins/
-git clone https://github.com/Latz/DraftStatusIndexer.git
+* **Content Teams**: Coordinate multiple writers and track which drafts need attention
+* **Bloggers**: Manage your editorial calendar and see which posts are ready to publish
+* **Site Administrators**: Get a quick overview of content status across your site
+* **Freelance Writers**: Track your progress on client work
 
-# Or download and extract
-cd wp-content/plugins/
-wget https://github.com/Latz/DraftStatusIndexer/archive/refs/heads/main.zip
-unzip main.zip
-```
+## Installation
 
-Then activate through WordPress Admin → Plugins.
+### Automatic Installation
 
-No configuration needed. Start using it immediately by editing any draft post.
+1. Log in to your WordPress admin panel
+2. Navigate to Plugins > Add New
+3. Search for "Writing Status"
+4. Click "Install Now" and then "Activate"
 
-## Features
+### Manual Installation
 
-### Completion Status Tracking
+1. Download the plugin ZIP file
+2. Log in to your WordPress admin panel
+3. Navigate to Plugins > Add New > Upload Plugin
+4. Choose the ZIP file and click "Install Now"
+5. Activate the plugin through the Plugins menu
 
-When editing a draft, you'll see a new meta box in the sidebar with a checkbox: "Mark this draft as complete."
+### After Activation
 
-Check it when your draft is ready for review or publication. The posts list will show:
-- ✓ **Complete** in green
-- ✗ **Incomplete** in red
+1. Go to Posts > All Posts to see the new "Writing Status" column
+2. Edit any draft post to see the "Completion Status" meta box
+3. Toggle the button to mark the draft complete or incomplete, and optionally set a priority and due date
+4. Published posts automatically show as "● Published" in blue
+5. Use the filter dropdowns above the posts list to narrow by completion or priority
+6. Select multiple posts and open Bulk Edit to update Writing Status fields in one action
+7. Check the dashboard widget for a live summary of incomplete and complete drafts
 
-You can filter the posts list to show only complete or incomplete drafts, making it easy to find posts that need attention or are ready to publish.
+## Frequently Asked Questions
 
-### Priority Levels
+**Does this plugin work with custom post types?**  
+Currently, the plugin only works with standard WordPress posts. Support for custom post types may be added in future versions.
 
-Set priority on any draft using five levels: Urgent, High, Medium, Low, or None. Each priority gets a color-coded badge:
+**Can I change the colors of the status indicators?**  
+The current version uses fixed colors that match WordPress admin design standards. Future versions may include customization options.
 
-- **Urgent**: Red badge
-- **High**: Orange badge
-- **Medium**: Blue badge
-- **Low**: Green badge
+**What happens when I publish a draft that's marked as complete?**  
+When you publish a post, it will automatically show "● Published" in blue, regardless of its previous completion status. The completion status only applies to drafts.
 
-The posts list can be sorted by priority, and the dashboard widget (described below) automatically organizes drafts with urgent items at the top.
+**Does this affect the front-end of my site?**  
+No, this plugin only adds functionality to the WordPress admin area. It has no impact on your site's front-end appearance or performance.
 
-This is particularly useful when managing multiple drafts and you need to decide what to work on next. I added this feature when I realized I was mentally categorizing my drafts anyway—might as well make it explicit.
+**Can I sort posts by writing status?**  
+Yes! Click on the "Writing Status" column header in the posts list to sort by status. Posts are ordered by priority first, then completion.
 
-### Due Dates
+**Can I update multiple posts at once?**  
+Yes. Select multiple posts in the posts list, open the Bulk Edit panel, and the Writing Status section lets you set completion, priority, and due date for all selected posts in one action. Leave a field at "— No Change —" to leave it untouched.
 
-Add a target completion date to any draft. The plugin shows visual indicators for:
-- **Overdue** drafts (past the due date)
-- **Due today** drafts
-- **Due soon** drafts (within 7 days)
+**Can I update a single post's status without opening the editor?**  
+Yes. Hover over any post in the posts list and click "Quick Edit". The Writing Status section appears pre-filled with the post's current completion, priority, and due date — change only what you need and click Update.
 
-This helps with editorial calendar management and deadline tracking without needing a separate calendar tool.
+**Will this work with the Block Editor (Gutenberg)?**  
+Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenberg). The editor warns you before navigating away if you have unsaved meta box changes.
 
-### Dashboard Widget
+## Screenshots
 
-The plugin adds a "Draft Posts Overview" widget to your WordPress dashboard showing all drafts at a glance:
-
-- Incomplete drafts appear first, then complete ones
-- Sorted by priority (urgent first) then modification date
-- Shows each draft's title, priority badge, modification date, and due date if set
-- Displays total counts: "Showing X incomplete and Y complete drafts"
-
-It's designed to answer the question "What should I work on right now?" as soon as you log into WordPress.
-
-### Accessibility (WCAG 2.1 Level AA)
-
-The latest version includes full accessibility support:
-
-- ARIA labels on all status indicators and interactive elements
-- Screen reader descriptions for completion status, priority badges, and due dates
-- Semantic HTML5 structure (using `<section>` elements with proper ARIA attributes)
-- Keyboard navigation support
-
-All status indicators include `role="status"` and descriptive `aria-label` attributes. For example, the dashboard widget's edit links announce "Edit incomplete draft: [Title], last modified [Date]" to screen reader users.
-
-### REST API Support
-
-The plugin registers meta fields with WordPress's REST API, making it compatible with:
-
-- Gutenberg block editor
-- Headless WordPress setups
-- Custom admin interfaces
-- Third-party tools that use the WordPress API
-
-Meta fields exposed: `_draft_complete`, `_draft_priority`, `_draft_due_date`
-
-## Technical Implementation
-
-### Database Structure
-
-The plugin stores three post meta fields:
-
-```php
-_draft_complete   // 'yes' or empty string
-_draft_priority   // 'urgent', 'high', 'medium', 'low', 'none'
-_draft_due_date   // YYYY-MM-DD format
-```
-
-Using the underscore prefix keeps these fields hidden from custom fields UI, and they're registered with the REST API for Gutenberg compatibility.
-
-### Security
-
-- Nonce verification on all form submissions
-- Capability checks (only users with `edit_post` permission can modify status)
-- Input sanitization using `sanitize_text_field()` and validation against allowed values
-- Output escaping with `esc_html()`, `esc_attr()`, and `esc_url()`
-
-### Performance
-
-The plugin uses WordPress's standard query modifications rather than custom queries. Sorting and filtering work through `pre_get_posts` hooks with proper meta query clauses, which means they leverage existing database indexes.
-
-The dashboard widget limits queries to draft posts only and includes pagination (showing up to 50 drafts). Admin styles are only enqueued on relevant pages.
-
-### Internationalization
-
-All user-facing strings use the `draft-status-indexer` text domain and are translation-ready. The `/languages/` directory contains POT files for translators.
-
-## Usage Examples
-
-### Basic Workflow
-
-1. Write a new post and save it as a draft
-2. In the sidebar meta box, leave "Mark this draft as complete" unchecked
-3. Set a priority (if desired) and due date
-4. When you finish writing, check the completion box
-5. Go to Posts → All Posts and filter by "Complete" to see all drafts ready for publication
-
-### Editorial Team Scenario
-
-If you're coordinating multiple writers:
-
-1. Writers mark their drafts as complete when ready for review
-2. Editors filter the posts list to show only complete drafts
-3. Use priority levels to coordinate which posts to review first
-4. The dashboard widget gives editors a quick overview when they log in
-
-### Content Calendar Management
-
-1. Create draft posts for upcoming content
-2. Set due dates based on your editorial calendar
-3. Set priority levels based on importance or traffic potential
-4. The dashboard widget shows overdue drafts at a glance
-5. Sort the posts list by due date to see what's coming up
-
-## Browser Compatibility
-
-Tested with:
-- Chrome 120+
-- Firefox 121+
-- Safari 17+
-- Edge 120+
-
-Works with WordPress 5.0+ (tested up to 6.4).
-
-## Comparison with Alternatives
-
-There are WordPress plugins for project management (like WP Project Manager) and editorial calendars (like Edit Flow or PublishPress), but they're comprehensive solutions with team features, complex workflows, and often paid tiers.
-
-Draft Status Indexer does one thing: it helps you track which drafts are done and which aren't. No user roles, no Gantt charts, no subscription. If you need full editorial workflow management, those plugins are better choices. If you just need to mark your drafts as complete and see that status at a glance, this plugin is simpler.
-
-Think of it as the difference between a todo app and a full project management suite.
-
-## Contributing
-
-Contributions are welcome! The codebase follows WordPress coding standards.
-
-### Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/Latz/DraftStatusIndexer.git
-cd DraftStatusIndexer
-
-# Install in a local WordPress instance
-ln -s $(pwd) /path/to/wordpress/wp-content/plugins/DraftStatusIndexer
-```
-
-### Coding Standards
-
-- Follow [WordPress PHP Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/php/)
-- Use meaningful variable names and add inline documentation
-- Include translation functions for all user-facing strings
-- Test with Gutenberg and Classic Editor
-
-### Submitting Changes
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes with clear messages
-4. Push to your fork
-5. Open a pull request with a description of what you've changed and why
-
-### Areas for Contribution
-
-Some ideas if you're looking for something to work on:
-
-- **Custom post type support**: Currently works only with posts
-- **Bulk actions**: Mark multiple drafts as complete/incomplete at once
-- **Email notifications**: Alert when drafts are overdue
-- **Export functionality**: Export draft status reports to CSV
-- **Additional filters**: More granular filtering options in the posts list
+1. Writing Status column in the posts list showing published, complete, and incomplete posts
+2. Completion Status meta box in the post editor sidebar for draft posts
+3. Published post editor showing blue "Published" indicator
+4. Sortable Writing Status column in action
 
 ## Changelog
 
-### Version 1.4.0 (Current)
-- Added ARIA attributes and semantic HTML for WCAG 2.1 Level AA compliance
-- Improved screen reader support with descriptive labels
-- Enhanced keyboard navigation
+### 1.9.0
+* Added native Gutenberg panel in the Document tab sidebar (completion toggle, priority, due date)
+* Panel integrates with Gutenberg's save system — fields save automatically with the post via REST API
+* Legacy PHP meta box now hidden in the block editor; Classic Editor users retain it unchanged
 
-### Version 1.3.0
-- Added REST API support for Gutenberg compatibility
-- Registered meta fields for headless WordPress setups
+### 1.8.0
+* Added Writing Status fields (completion, priority, due date) to the Quick Edit panel
+* Quick Edit pre-populates current values so only the fields you want to change need updating
 
-### Version 1.2.0
-- Added dashboard widget showing draft overview
-- Implemented priority-based sorting
-- Added due date tracking
+### 1.7.0
+* Renamed plugin from "Draft Status" to "Writing Status"
+* Renamed database meta keys: `_draft_complete` → `_writing_complete`, `_draft_due_date` → `_writing_due_date`, `_draft_priority` → `_writing_priority`
+* Migration runs automatically on plugin (re)activation to rename existing post meta rows
+* Added overdue drafts admin notice on Posts list and Dashboard (cached, no performance impact)
+* Fixed unsaved-changes warning persisting after saving in Gutenberg
 
-### Version 1.1.0
-- Added priority levels (Urgent, High, Medium, Low, None)
-- Added priority filtering and sorting
-- Improved performance with optimized queries
+### 1.6.0
+* Added Writing Status fields to the Bulk Edit panel (completion, priority, due date)
+* "— No Change —" sentinel ensures unmodified fields are never overwritten during bulk edits
 
-### Version 1.0.0
-- Initial release
-- Basic completion status tracking
-- Sortable status column in posts list
-- Meta box in post editor
+### 1.5.0
+* Unsaved changes warning: editor prompts before navigation if meta box changes are pending
+* Warning integrates with Gutenberg's built-in "unsaved changes" system via wp.data
+* Refactored rendering logic into a separate WritingStatusRenderer class
 
-## License
+### 1.4.0
+* Added priority levels: Low, Medium, High, Urgent
+* Added per-post due dates with automatic overdue / soon-due highlighting
+* Added filter dropdowns to the posts list for completion and priority
+* Added dashboard widget showing incomplete and complete draft counts
+* Sort order now considers priority alongside completion status
 
-GPL v2 or later. See [LICENSE](https://www.gnu.org/licenses/gpl-2.0.html).
+### 1.2.0
+* Registered meta fields with REST API support for Gutenberg and headless usage
 
-This plugin is free software. You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
+### 1.0.0
+* Initial release
+* Added Writing Status column to posts list
+* Added Completion Status meta box to post editor
+* Published posts display with blue dot and "Published" label
+* Draft posts can be marked as complete or incomplete
+* Sortable status column
+* Color-coded visual indicators (blue for published, green for complete, red for incomplete)
 
-## Credits
+## Upgrade Notice
 
-Created by [Latz](https://elektroelch.de)
+### 1.9.0
+Adds a native Gutenberg sidebar panel. No database changes required.
 
-If you find this plugin useful, consider starring the repository or contributing a feature.
+### 1.8.0
+Adds Quick Edit support. No database changes required.
 
-## Support
+### 1.7.0
+Renames the plugin and its database meta keys. After updating, deactivate and reactivate the plugin once so the migration can rename existing post meta rows. No data is lost.
 
-- **Issues**: [GitHub Issues](https://github.com/Latz/DraftStatusIndexer/issues)
-- **Feature Requests**: Open an issue with the "enhancement" label
-- **Questions**: Check existing issues or open a new one
+### 1.6.0
+Adds Bulk Edit support for Writing Status fields. No database changes required.
 
-## Links
+### 1.0.0
+Initial release of Writing Status.
 
-- **GitHub**: https://github.com/Latz/DraftStatusIndexer
-- **Author Website**: https://elektroelch.de
-- **WordPress Plugin Directory**: Coming soon
+## Additional Information
+
+### Support
+
+For support, please visit the plugin's support forum on WordPress.org or contact us through our website.
+
+### Privacy Policy
+
+This plugin does not collect, store, or transmit any user data. All completion status information is stored locally in your WordPress database as post meta data.
+
+### Contributing
+
+We welcome contributions! Visit our GitHub repository to submit issues or pull requests.
+
+## Technical Details
+
+### Database Storage
+
+The plugin stores Writing Status data as post meta:
+
+* `_writing_complete` — `yes` or `no`
+* `_writing_priority` — `none`, `low`, `medium`, `high`, or `urgent`
+* `_writing_due_date` — date string in `YYYY-MM-DD` format, or absent if not set
+
+All keys are prefixed with an underscore so they are hidden from the custom fields UI. All three fields are registered with REST API support.
+
+### Filters and Actions
+
+The plugin uses standard WordPress hooks:
+
+* `manage_posts_columns` — Adds the Writing Status column
+* `manage_posts_custom_column` — Displays column content
+* `manage_edit-post_sortable_columns` — Makes column sortable
+* `pre_get_posts` — Handles sorting and filter logic
+* `add_meta_boxes` — Adds the post editor meta box
+* `save_post` — Saves meta box and bulk edit values
+* `restrict_manage_posts` — Adds filter dropdowns to the posts list
+* `parse_query` — Applies completion and priority filters
+* `bulk_edit_custom_box` — Renders Writing Status fields in the Bulk Edit panel
+* `quick_edit_custom_box` — Renders Writing Status fields in the Quick Edit panel
+* `wp_dashboard_setup` — Registers the dashboard widget
+* `init` — Registers meta fields for REST API support
+* `register_activation_hook` — Migrates legacy `_draft_*` meta keys to `_writing_*` on activation
+
+### Performance
+
+The plugin is lightweight and has minimal impact on performance. It only loads in the WordPress admin area and uses standard WordPress functions for all operations.
