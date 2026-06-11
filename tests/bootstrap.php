@@ -30,6 +30,7 @@ $wp_stub_functions = [
     'esc_attr_e'            => function( $text, $domain = 'default' ) { echo htmlspecialchars( $text, ENT_QUOTES ); },
     'plugin_dir_url'        => function( $file ) { return 'http://example.com/wp-content/plugins/writing-status/'; },
     'plugin_dir_path'       => function( $file ) { return rtrim( dirname( $file ), '/' ) . '/'; },
+    'register_activation_hook' => function( $file, $callback ) {},
     'get_option'            => function( $option, $default = false ) { return $default; },
     'date_i18n'             => function( $format, $timestamp = 0 ) { return date( $format, $timestamp ); },
     'sanitize_text_field'   => function( $str ) { return trim( strip_tags( $str ) ); },
@@ -191,6 +192,9 @@ if ( ! function_exists( 'current_time' ) ) {
     function current_time( $type, $gmt = 0 ) {
         return ( $type === 'timestamp' || $type === 'U' ) ? time() : date( 'Y-m-d H:i:s' );
     }
+}
+if ( ! function_exists( 'register_activation_hook' ) ) {
+    function register_activation_hook( $file, $callback ) {}
 }
 
 // Minimal WP_Query stub for unit tests.
