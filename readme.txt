@@ -43,6 +43,7 @@ Writing Status helps content creators and site administrators manage their writi
 * Overdue and soon-due dates are highlighted automatically
 * Sort your drafts to prioritize incomplete work
 * Use the Bulk Edit panel to update completion, priority, or due date across many posts at once
+* Use Quick Edit to update a single post's Writing Status inline without opening the full editor
 * The editor warns you if you try to navigate away without saving meta box changes
 
 = Use Cases =
@@ -104,6 +105,10 @@ Yes! Click on the "Writing Status" column header in the posts list to sort by st
 = Can I update multiple posts at once? =
 
 Yes. Select multiple posts in the posts list, open the Bulk Edit panel, and the Writing Status section lets you set completion, priority, and due date for all selected posts in one action. Leave a field at "— No Change —" to leave it untouched.
+
+= Can I update a single post's status without opening the editor? =
+
+Yes. Hover over any post in the posts list and click "Quick Edit". The Writing Status section appears pre-filled with the post's current completion, priority, and due date — change only what you need and click Update.
 
 = Will this work with the Block Editor (Gutenberg)? =
 
@@ -209,6 +214,7 @@ The plugin uses standard WordPress hooks:
 * `restrict_manage_posts` - Adds filter dropdowns to the posts list
 * `parse_query` - Applies completion and priority filters
 * `bulk_edit_custom_box` - Renders Writing Status fields in the Bulk Edit panel
+* `quick_edit_custom_box` - Renders Writing Status fields in the Quick Edit panel
 * `wp_dashboard_setup` - Registers the dashboard widget
 * `init` - Registers meta fields for REST API support
 * `register_activation_hook` - Migrates legacy `_draft_*` meta keys to `_writing_*` on activation
