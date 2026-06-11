@@ -103,6 +103,29 @@
 
 		// Gutenberg: also integrate with wp.data so the editor's own
 		// "unsaved changes" system is aware of our field changes.
+		function markGutenbergDirty() {
+			if (
+				typeof window.parent.wp === 'undefined' ||
+				typeof window.parent.wp.data === 'undefined'
+			) {
+				return;
+			}
+			var dispatch = window.parent.wp.data.dispatch;
+			if (!dispatch) {
+				return;
+			}
+			var editor = dispatch('core/editor');
+			if (editor && typeof editor.editPost === 'function') {
+				editor.editPost({
+					meta: {
+						_draft_complete: hiddenInput    ? hiddenInput.value    : undefined,
+						_draft_due_date: dueDateInput   ? dueDateInput.value   : undefined,
+						_draft_priority: prioritySelect ? prioritySelect.value : undefined
+					}
+				});
+			}
+		}
+
 		var fields = [hiddenInput, dueDateInput, prioritySelect].filter(Boolean);
 		fields.forEach(function (field) {
 			field.addEventListener('change', markGutenbergDirty);
@@ -111,31 +134,6 @@
 		var toggleButton = document.getElementById('draft_complete_button');
 		if (toggleButton) {
 			toggleButton.addEventListener('click', markGutenbergDirty);
-		}
-	}
-
-	function markGutenbergDirty() {
-		// Only meaningful in Gutenberg; wp.data is not present in classic editor.
-		if (
-			typeof window.parent.wp === 'undefined' ||
-			typeof window.parent.wp.data === 'undefined'
-		) {
-			return;
-		}
-		var dispatch = window.parent.wp.data.dispatch;
-		var select   = window.parent.wp.data.select;
-		if (!dispatch || !select) {
-			return;
-		}
-		var editor = dispatch('core/editor');
-		if (editor && typeof editor.editPost === 'function') {
-			// Touching meta triggers Gutenberg's dirty flag without altering content.
-			var postId = select('core/editor') && select('core/editor').getCurrentPostId
-				? select('core/editor').getCurrentPostId()
-				: null;
-			if (postId) {
-				editor.editPost({ meta: {} });
-			}
 		}
 	}
 
