@@ -28,8 +28,10 @@ define( 'DB_NAME', getenv( 'DB_NAME' ) ?: 'wordpress_tests' );
 /* The database username */
 define( 'DB_USER', getenv( 'DB_USER' ) ?: 'latz' );
 
-/* The database password */
-define( 'DB_PASSWORD', getenv( 'DB_PASSWORD' ) ?: 'x' );
+/* The database password — use !== false so an empty string is accepted */
+$_db_pass = getenv( 'DB_PASSWORD' );
+define( 'DB_PASSWORD', $_db_pass !== false ? $_db_pass : 'x' );
+unset( $_db_pass );
 
 /* The table prefix */
 $table_prefix = 'wptests_';
