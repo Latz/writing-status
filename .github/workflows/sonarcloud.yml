@@ -1,6 +1,25 @@
-name: SonarQube Cloud Scan
-uses: SonarSource/sonarqube-scan-action@v8
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    
+name: SonarQube Cloud
+
+on:
+  push:
+    branches:
+      - main # Falls dein Haupt-Branch anders heißt (z.B. master), hier anpassen
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarcloud:
+    name: SonarQube Cloud Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Wichtig für Sonar, damit die Git-Historie analysiert werden kann
+
+      - name: SonarQube Cloud Scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          
