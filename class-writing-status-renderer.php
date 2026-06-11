@@ -373,6 +373,10 @@ class WritingStatusRenderer {
             return $orderby;
         }
 
+        // Numbers map priority strings to a sort order SQL can understand.
+        // Direct string sorting would be alphabetical (high < low < medium < urgent),
+        // which is meaningless. The CASE translates each value to an integer so
+        // ORDER BY ASC puts the most important priority first.
         return "
             CASE (SELECT meta_value FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND meta_key = '_writing_priority' LIMIT 1)
                 WHEN 'urgent' THEN 1
