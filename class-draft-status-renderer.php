@@ -215,6 +215,50 @@ class DraftStatusRenderer {
     }
 
     /**
+     * Count incomplete drafts with an overdue due date
+     *
+     * Queries for drafts where _draft_due_date is in the past and
+     * _draft_complete is not 'yes'. Result is transient-cached for
+     * one hour; the transient is deleted on save_post so edits are
+     * reflected immediately.
+     *
+     * @since 1.6.0
+     * @return int Number of overdue incomplete drafts.
+     */
+    protected function countOverdueDrafts() {
+        $query = new WP_Query(array(
+            'post_type'      => 'post',
+            'post_status'    => 'draft',
+            'fields'         => 'ids',
+            'posts_per_page' => -1,
+            'no_found_rows'  => false,
+            'meta_query'     => array(
+                'relation' => 'AND',
+                array(
+                    'key'     => '_draft_due_date',
+                    'value'   => current_time('Y-m-d'),
+                    'compare' => '<',
+                    'type'    => 'DATE',
+                ),
+                array(
+                    'relation' => 'OR',
+                    array(
+                        'key'     => '_draft_complete',
+                        'value'   => 'no',
+                        'compare' => '=',
+                    ),
+                    array(
+                        'key'     => '_draft_complete',
+                        'compare' => 'NOT EXISTS',
+                    ),
+                ),
+            ),
+        ));
+
+        return (int) $query->found_posts;
+    }
+
+    /**
      * Render bulk edit fields
      *
      * Outputs the Writing Status fields inside the Bulk Edit panel.

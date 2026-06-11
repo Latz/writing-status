@@ -74,6 +74,9 @@ class DraftStatus extends DraftStatusRenderer {
         // Bulk Edit panel fields
         add_action('bulk_edit_custom_box', array($this, 'renderBulkEditBox'), 10, 2);
         add_action('save_post', array($this, 'saveBulkEdit'), 20, 1);
+
+        // Overdue drafts notice on Posts list and Dashboard
+        add_action('admin_notices', array($this, 'showOverdueNotice'));
     }
 
     /**
@@ -478,6 +481,7 @@ class DraftStatus extends DraftStatusRenderer {
 
         $this->saveDraftDueDate($post_id);
         $this->saveDraftPriority($post_id);
+        delete_transient('draft_status_overdue_count');
     }
 
     /**
@@ -527,6 +531,56 @@ class DraftStatus extends DraftStatusRenderer {
                 update_post_meta($post_id, '_draft_due_date', $due_date);
             }
         }
+
+        delete_transient('draft_status_overdue_count');
+    }
+
+    /**
+     * Show overdue drafts notice
+     *
+     * Displays a warning banner on the Posts list and Dashboard when there
+     * are incomplete drafts whose due date has passed. The count is cached
+     * in a transient for one hour and flushed immediately on any post save.
+     *
+     * @since 1.6.0
+     */
+    public function showOverdueNotice() {
+        $screen = get_current_screen();
+        if (!$screen || !in_array($screen->id, array('edit-post', 'dashboard'), true)) {
+            return;
+        }
+
+        $count = get_transient('draft_status_overdue_count');
+        if (false === $count) {
+            $count = $this->countOverdueDrafts();
+            set_transient('draft_status_overdue_count', $count, HOUR_IN_SECONDS);
+        }
+
+        if ($count < 1) {
+            return;
+        }
+
+        $url = admin_url('edit.php?post_status=draft&post_type=post');
+        printf(
+            '<div class="notice notice-warning"><p>%s</p></div>',
+            wp_kses(
+                sprintf(
+                    /* translators: %1$d: number of overdue drafts, %2$s: URL to drafts list */
+                    _n(
+                        'Draft Status: <strong>%1$d incomplete draft is overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
+                        'Draft Status: <strong>%1$d incomplete drafts are overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
+                        $count,
+                        'draft-status'
+                    ),
+                    $count,
+                    esc_url($url)
+                ),
+                array(
+                    'strong' => array(),
+                    'a'      => array('href' => array()),
+                )
+            )
+        );
     }
 
     /**
