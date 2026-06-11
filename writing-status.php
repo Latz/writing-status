@@ -32,11 +32,16 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-writing-status-dashboar
  */
 class WritingStatus extends WritingStatusRenderer {
 
+    private WritingStatusColumn    $column;
+    private WritingStatusMetaBox   $metaBox;
+    private WritingStatusFilters   $filters;
+    private WritingStatusDashboard $dashboard;
+
     public function __construct() {
-        new WritingStatusColumn();
-        new WritingStatusMetaBox();
-        new WritingStatusFilters();
-        new WritingStatusDashboard();
+        $this->column    = new WritingStatusColumn();
+        $this->metaBox   = new WritingStatusMetaBox();
+        $this->filters   = new WritingStatusFilters();
+        $this->dashboard = new WritingStatusDashboard();
 
         add_action('admin_enqueue_scripts',       array($this, 'enqueueAdminStyles'));
         add_action('enqueue_block_editor_assets', array($this, 'enqueueBlockEditorAssets'));
@@ -132,20 +137,21 @@ class WritingStatus extends WritingStatusRenderer {
         return 'none';
     }
 
-    public function saveBulkEdit($post_id) {
+    private function isValidBulkEditRequest(int $post_id): bool {
         if (!isset($_REQUEST['_writing_status_bulk_nonce'])) {
-            return;
+            return false;
         }
-
         if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_writing_status_bulk_nonce'])), 'writing_status_bulk_edit')) {
-            return;
+            return false;
         }
-
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
+            return false;
         }
+        return (bool) current_user_can('edit_post', $post_id);
+    }
 
-        if (!current_user_can('edit_post', $post_id)) {
+    public function saveBulkEdit($post_id) {
+        if (!$this->isValidBulkEditRequest($post_id)) {
             return;
         }
 
