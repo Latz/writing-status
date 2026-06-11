@@ -215,6 +215,57 @@ class DraftStatusRenderer {
     }
 
     /**
+     * Render bulk edit fields
+     *
+     * Outputs the Writing Status fields inside the Bulk Edit panel.
+     * Triggered by the bulk_edit_custom_box action on the draft_completion column.
+     *
+     * @since 1.6.0
+     * @param string $column_name The column being rendered.
+     * @param string $post_type   The current post type.
+     */
+    public function renderBulkEditBox($column_name, $post_type) {
+        if ($column_name !== 'draft_completion' || $post_type !== 'post') {
+            return;
+        }
+        ?>
+        <fieldset class="inline-edit-col-left draft-status-bulk-edit">
+            <div class="inline-edit-col">
+                <h4><?php esc_html_e('Writing Status', 'draft-status'); ?></h4>
+
+                <label class="inline-edit-group">
+                    <span class="title"><?php esc_html_e('Completion', 'draft-status'); ?></span>
+                    <select name="draft_complete_bulk">
+                        <option value=""><?php esc_html_e('— No Change —', 'draft-status'); ?></option>
+                        <option value="yes"><?php esc_html_e('Complete', 'draft-status'); ?></option>
+                        <option value="no"><?php esc_html_e('Incomplete', 'draft-status'); ?></option>
+                    </select>
+                </label>
+
+                <label class="inline-edit-group">
+                    <span class="title"><?php esc_html_e('Priority', 'draft-status'); ?></span>
+                    <select name="draft_priority_bulk">
+                        <option value=""><?php esc_html_e('— No Change —', 'draft-status'); ?></option>
+                        <option value="none"><?php esc_html_e('None', 'draft-status'); ?></option>
+                        <?php foreach ($this->getPriorityLabels() as $value => $label) : ?>
+                            <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+
+                <label class="inline-edit-group">
+                    <span class="title"><?php esc_html_e('Due Date', 'draft-status'); ?></span>
+                    <input type="date" name="draft_due_date_bulk" value="">
+                    <p class="description"><?php esc_html_e('Leave blank for no change', 'draft-status'); ?></p>
+                </label>
+
+                <?php wp_nonce_field('draft_status_bulk_edit', '_draft_status_bulk_nonce'); ?>
+            </div>
+        </fieldset>
+        <?php
+    }
+
+    /**
      * Get dashboard widget queries
      *
      * Builds and returns both incomplete and complete draft queries with proper ordering.

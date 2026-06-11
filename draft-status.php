@@ -70,6 +70,10 @@ class DraftStatus extends DraftStatusRenderer {
 
         // Register meta field for REST API support
         add_action('init', array($this, 'registerMetaField'));
+
+        // Bulk Edit panel fields
+        add_action('bulk_edit_custom_box', array($this, 'renderBulkEditBox'), 10, 2);
+        add_action('save_post', array($this, 'saveBulkEdit'), 20, 1);
     }
 
     /**
@@ -474,6 +478,55 @@ class DraftStatus extends DraftStatusRenderer {
 
         $this->saveDraftDueDate($post_id);
         $this->saveDraftPriority($post_id);
+    }
+
+    /**
+     * Save bulk edit fields
+     *
+     * Handles saving of Writing Status fields submitted via the Bulk Edit panel.
+     * Only processes requests that include the bulk edit nonce; skips all others.
+     *
+     * @since 1.6.0
+     * @param int $post_id The post ID being saved.
+     */
+    public function saveBulkEdit($post_id) {
+        if (!isset($_REQUEST['_draft_status_bulk_nonce'])) {
+            return;
+        }
+
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_draft_status_bulk_nonce'])), 'draft_status_bulk_edit')) {
+            return;
+        }
+
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+
+        // Completion status — empty string means "no change"
+        if (isset($_REQUEST['draft_complete_bulk']) && $_REQUEST['draft_complete_bulk'] !== '') {
+            $value = sanitize_text_field(wp_unslash($_REQUEST['draft_complete_bulk']));
+            update_post_meta($post_id, '_draft_complete', $value === 'yes' ? 'yes' : 'no');
+        }
+
+        // Priority — empty string means "no change"
+        if (isset($_REQUEST['draft_priority_bulk']) && $_REQUEST['draft_priority_bulk'] !== '') {
+            $priority = sanitize_text_field(wp_unslash($_REQUEST['draft_priority_bulk']));
+            if (in_array($priority, $this->getValidPriorities(), true)) {
+                update_post_meta($post_id, '_draft_priority', $priority);
+            }
+        }
+
+        // Due date — empty means "no change"; valid YYYY-MM-DD sets the date
+        if (!empty($_REQUEST['draft_due_date_bulk'])) {
+            $due_date = sanitize_text_field(wp_unslash($_REQUEST['draft_due_date_bulk']));
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $due_date)) {
+                update_post_meta($post_id, '_draft_due_date', $due_date);
+            }
+        }
     }
 
     /**

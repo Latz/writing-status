@@ -443,3 +443,31 @@
 	border-color: #1e7a24;
 	box-shadow: 0 0 0 1px #1e7a24;
 }
+
+/*
+ * Bulk Edit Panel
+ * ===============
+ * Styles for the Writing Status section inside the Bulk Edit row.
+ */
+.draft-status-bulk-edit .inline-edit-group {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.draft-status-bulk-edit .inline-edit-group .title {
+	min-width: 80px;
+	font-weight: 600;
+}
+
+.draft-status-bulk-edit .inline-edit-group select,
+.draft-status-bulk-edit .inline-edit-group input[type="date"] {
+	flex: 1;
+	max-width: 200px;
+}
+
+.draft-status-bulk-edit .description {
+	color: #757575;
+	font-size: 11px;
+	margin: 2px 0 0;
+}
