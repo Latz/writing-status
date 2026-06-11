@@ -178,15 +178,15 @@ class WritingStatusRenderer {
      */
     protected function saveDraftDueDate($post_id) {
         // Save due date
-        if (isset($_POST['draft_due_date'])) {
-            $due_date = sanitize_text_field(wp_unslash($_POST['draft_due_date']));
+        if (isset($_POST['writing_due_date'])) {
+            $due_date = sanitize_text_field(wp_unslash($_POST['writing_due_date']));
 
             // Validate date format (YYYY-MM-DD)
             if (!empty($due_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $due_date)) {
-                update_post_meta($post_id, '_draft_due_date', $due_date);
+                update_post_meta($post_id, '_writing_due_date', $due_date);
             } elseif (empty($due_date)) {
                 // If date is empty, delete the meta
-                delete_post_meta($post_id, '_draft_due_date');
+                delete_post_meta($post_id, '_writing_due_date');
             }
         }
     }
@@ -201,15 +201,15 @@ class WritingStatusRenderer {
      */
     protected function saveDraftPriority($post_id) {
         // Save priority
-        if (isset($_POST['draft_priority'])) {
-            $priority = sanitize_text_field(wp_unslash($_POST['draft_priority']));
+        if (isset($_POST['writing_priority'])) {
+            $priority = sanitize_text_field(wp_unslash($_POST['writing_priority']));
 
             // Whitelist validation: Only accept valid priority values
             if (in_array($priority, $this->getValidPriorities(), true)) {
-                update_post_meta($post_id, '_draft_priority', $priority);
+                update_post_meta($post_id, '_writing_priority', $priority);
             } else {
                 // Default to none if invalid value
-                update_post_meta($post_id, '_draft_priority', 'none');
+                update_post_meta($post_id, '_writing_priority', 'none');
             }
         }
     }
@@ -217,8 +217,8 @@ class WritingStatusRenderer {
     /**
      * Count incomplete drafts with an overdue due date
      *
-     * Queries for drafts where _draft_due_date is in the past and
-     * _draft_complete is not 'yes'. Result is transient-cached for
+     * Queries for drafts where _writing_due_date is in the past and
+     * _writing_complete is not 'yes'. Result is transient-cached for
      * one hour; the transient is deleted on save_post so edits are
      * reflected immediately.
      *
@@ -235,7 +235,7 @@ class WritingStatusRenderer {
             'meta_query'     => array(
                 'relation' => 'AND',
                 array(
-                    'key'     => '_draft_due_date',
+                    'key'     => '_writing_due_date',
                     'value'   => current_time('Y-m-d'),
                     'compare' => '<',
                     'type'    => 'DATE',
@@ -243,12 +243,12 @@ class WritingStatusRenderer {
                 array(
                     'relation' => 'OR',
                     array(
-                        'key'     => '_draft_complete',
+                        'key'     => '_writing_complete',
                         'value'   => 'no',
                         'compare' => '=',
                     ),
                     array(
-                        'key'     => '_draft_complete',
+                        'key'     => '_writing_complete',
                         'compare' => 'NOT EXISTS',
                     ),
                 ),
@@ -262,14 +262,14 @@ class WritingStatusRenderer {
      * Render bulk edit fields
      *
      * Outputs the Writing Status fields inside the Bulk Edit panel.
-     * Triggered by the bulk_edit_custom_box action on the draft_completion column.
+     * Triggered by the bulk_edit_custom_box action on the writing_completion column.
      *
      * @since 1.6.0
      * @param string $column_name The column being rendered.
      * @param string $post_type   The current post type.
      */
     public function renderBulkEditBox($column_name, $post_type) {
-        if ($column_name !== 'draft_completion' || $post_type !== 'post') {
+        if ($column_name !== 'writing_completion' || $post_type !== 'post') {
             return;
         }
         ?>
@@ -279,7 +279,7 @@ class WritingStatusRenderer {
 
                 <label class="inline-edit-group">
                     <span class="title"><?php esc_html_e('Completion', 'writing-status'); ?></span>
-                    <select name="draft_complete_bulk">
+                    <select name="writing_complete_bulk">
                         <option value=""><?php esc_html_e('— No Change —', 'writing-status'); ?></option>
                         <option value="yes"><?php esc_html_e('Complete', 'writing-status'); ?></option>
                         <option value="no"><?php esc_html_e('Incomplete', 'writing-status'); ?></option>
@@ -288,7 +288,7 @@ class WritingStatusRenderer {
 
                 <label class="inline-edit-group">
                     <span class="title"><?php esc_html_e('Priority', 'writing-status'); ?></span>
-                    <select name="draft_priority_bulk">
+                    <select name="writing_priority_bulk">
                         <option value=""><?php esc_html_e('— No Change —', 'writing-status'); ?></option>
                         <option value="none"><?php esc_html_e('None', 'writing-status'); ?></option>
                         <?php foreach ($this->getPriorityLabels() as $value => $label) : ?>
@@ -299,7 +299,7 @@ class WritingStatusRenderer {
 
                 <label class="inline-edit-group">
                     <span class="title"><?php esc_html_e('Due Date', 'writing-status'); ?></span>
-                    <input type="date" name="draft_due_date_bulk" value="">
+                    <input type="date" name="writing_due_date_bulk" value="">
                     <p class="description"><?php esc_html_e('Leave blank for no change', 'writing-status'); ?></p>
                 </label>
 
@@ -328,12 +328,12 @@ class WritingStatusRenderer {
             'meta_query' => array(
                 'relation' => 'OR',
                 array(
-                    'key' => '_draft_complete',
+                    'key' => '_writing_complete',
                     'value' => 'no',
                     'compare' => '='
                 ),
                 array(
-                    'key' => '_draft_complete',
+                    'key' => '_writing_complete',
                     'compare' => 'NOT EXISTS'
                 )
             ),
@@ -346,7 +346,7 @@ class WritingStatusRenderer {
         $complete_query = new WP_Query(array(
             'post_type' => 'post',
             'post_status' => 'draft',
-            'meta_key' => '_draft_complete',
+            'meta_key' => '_writing_complete',
             'meta_value' => 'yes',
             'posts_per_page' => 50,
             'orderby' => 'priority_then_modified',
@@ -389,9 +389,9 @@ class WritingStatusRenderer {
             <ul class="writing-status-list">
                 <?php while ($query->have_posts()): $query->the_post();
                     $post_id = get_the_ID();
-                    $due_date = get_post_meta($post_id, '_draft_due_date', true);
-                    $priority = get_post_meta($post_id, '_draft_priority', true);
-                    $is_complete = get_post_meta($post_id, '_draft_complete', true) === 'yes';
+                    $due_date = get_post_meta($post_id, '_writing_due_date', true);
+                    $priority = get_post_meta($post_id, '_writing_priority', true);
+                    $is_complete = get_post_meta($post_id, '_writing_complete', true) === 'yes';
                     $status_text = $is_complete ? __('complete', 'writing-status') : __('incomplete', 'writing-status');
                 ?>
                     <li class="writing-status-item">

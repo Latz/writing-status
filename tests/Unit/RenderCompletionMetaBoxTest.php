@@ -54,14 +54,14 @@ class RenderCompletionMetaBoxTest extends TestCase {
     public function draft_post_outputs_nonce_field(): void {
         // The bootstrap stub for wp_nonce_field echoes '' (empty string), so the
         // nonce field name never appears as literal text in the captured output.
-        // However, wp_nonce_field is called with 'draft_completion_nonce_field' as
+        // However, wp_nonce_field is called with 'writing_completion_nonce_field' as
         // the $name argument, and the hidden input immediately following it carries
-        // name="draft_complete" — both present only when the nonce path executes.
+        // name="writing_complete" — both present only when the nonce path executes.
         // We verify the nonce path ran by confirming the hidden completion input
         // (rendered directly after wp_nonce_field) is present in the output.
         $output = $this->captureOutput( $this->makePost() );
 
-        $this->assertStringContainsString( 'draft_complete_hidden', $output );
+        $this->assertStringContainsString( 'writing_complete_hidden', $output );
     }
 
     /** @test */
@@ -70,9 +70,9 @@ class RenderCompletionMetaBoxTest extends TestCase {
 
         // The button carries both an id and a CSS class referencing the toggle.
         $this->assertTrue(
-            str_contains( $output, 'draft_complete_button' ) ||
+            str_contains( $output, 'writing_complete_button' ) ||
             str_contains( $output, 'draft-complete-toggle' ),
-            'Output must contain draft_complete_button or draft-complete-toggle'
+            'Output must contain writing_complete_button or draft-complete-toggle'
         );
     }
 
@@ -80,14 +80,14 @@ class RenderCompletionMetaBoxTest extends TestCase {
     public function draft_post_outputs_due_date_field(): void {
         $output = $this->captureOutput( $this->makePost() );
 
-        $this->assertStringContainsString( 'draft_due_date', $output );
+        $this->assertStringContainsString( 'writing_due_date', $output );
     }
 
     /** @test */
     public function draft_post_outputs_priority_select(): void {
         $output = $this->captureOutput( $this->makePost() );
 
-        $this->assertStringContainsString( 'draft_priority', $output );
+        $this->assertStringContainsString( 'writing_priority', $output );
     }
 
     /** @test */

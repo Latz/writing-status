@@ -28,14 +28,14 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
         $this->post_ids['high']   = self::factory()->post->create( [ 'post_status' => 'draft' ] );
         $this->post_ids['medium'] = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
-        update_post_meta( $this->post_ids['low'],    '_draft_priority', 'low' );
-        update_post_meta( $this->post_ids['low'],    '_draft_complete', 'no' );
-        update_post_meta( $this->post_ids['urgent'], '_draft_priority', 'urgent' );
-        update_post_meta( $this->post_ids['urgent'], '_draft_complete', 'no' );
-        update_post_meta( $this->post_ids['high'],   '_draft_priority', 'high' );
-        update_post_meta( $this->post_ids['high'],   '_draft_complete', 'no' );
-        update_post_meta( $this->post_ids['medium'], '_draft_priority', 'medium' );
-        update_post_meta( $this->post_ids['medium'], '_draft_complete', 'no' );
+        update_post_meta( $this->post_ids['low'],    '_writing_priority', 'low' );
+        update_post_meta( $this->post_ids['low'],    '_writing_complete', 'no' );
+        update_post_meta( $this->post_ids['urgent'], '_writing_priority', 'urgent' );
+        update_post_meta( $this->post_ids['urgent'], '_writing_complete', 'no' );
+        update_post_meta( $this->post_ids['high'],   '_writing_priority', 'high' );
+        update_post_meta( $this->post_ids['high'],   '_writing_complete', 'no' );
+        update_post_meta( $this->post_ids['medium'], '_writing_priority', 'medium' );
+        update_post_meta( $this->post_ids['medium'], '_writing_complete', 'no' );
     }
 
     public function tearDown(): void {
@@ -56,7 +56,7 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
         $query = new WP_Query( [
             'post_type'   => 'post',
             'post_status' => 'draft',
-            'orderby'     => 'draft_completion',
+            'orderby'     => 'writing_completion',
             'fields'      => 'ids',
         ] );
 
@@ -81,7 +81,7 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
 
     /**
      * Verifies that the test fixture posts were created correctly and that a
-     * meta query for _draft_priority=urgent returns exactly the urgent post.
+     * meta query for _writing_priority=urgent returns exactly the urgent post.
      *
      * @test
      */
@@ -92,7 +92,7 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
             'fields'      => 'ids',
             'meta_query'  => [
                 [
-                    'key'     => '_draft_priority',
+                    'key'     => '_writing_priority',
                     'value'   => 'urgent',
                     'compare' => '=',
                 ],
@@ -115,14 +115,14 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
 
     /**
      * Creates a complete draft alongside the incomplete fixtures and confirms
-     * that a meta query for _draft_complete=yes returns only the complete post.
+     * that a meta query for _writing_complete=yes returns only the complete post.
      *
      * @test
      */
     public function complete_draft_ordered_before_incomplete_when_filtered(): void {
         $complete_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
-        update_post_meta( $complete_id, '_draft_complete', 'yes' );
-        update_post_meta( $complete_id, '_draft_priority', 'high' );
+        update_post_meta( $complete_id, '_writing_complete', 'yes' );
+        update_post_meta( $complete_id, '_writing_priority', 'high' );
 
         $complete_query = new WP_Query( [
             'post_type'   => 'post',
@@ -130,7 +130,7 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
             'fields'      => 'ids',
             'meta_query'  => [
                 [
-                    'key'     => '_draft_complete',
+                    'key'     => '_writing_complete',
                     'value'   => 'yes',
                     'compare' => '=',
                 ],
@@ -175,7 +175,7 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
                 'fields'      => 'ids',
                 'meta_query'  => [
                     [
-                        'key'     => '_draft_priority',
+                        'key'     => '_writing_priority',
                         'value'   => $priority,
                         'compare' => '=',
                     ],

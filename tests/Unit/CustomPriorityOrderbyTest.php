@@ -38,7 +38,7 @@ class CustomPriorityOrderbyTest extends TestCase {
 
         $query = new MockWPQuery2();
         $query->_is_main = true;
-        $query->set('orderby', 'draft_completion');
+        $query->set('orderby', 'writing_completion');
 
         $result = $this->plugin->customPriorityOrderby('original', $query);
 
@@ -52,7 +52,7 @@ class CustomPriorityOrderbyTest extends TestCase {
         // so the method always returns $orderby unchanged. Verify not-main-query path too.
         $query = new MockWPQuery2();
         $query->_is_main = false;
-        $query->set('orderby', 'draft_completion');
+        $query->set('orderby', 'writing_completion');
 
         $result = $this->plugin->customPriorityOrderby('original_2', $query);
 
@@ -130,7 +130,7 @@ class CustomPriorityOrderbyTest extends TestCase {
     }
 
     /** @test */
-    public function returns_original_orderby_when_orderby_is_not_draft_completion(): void {
+    public function returns_original_orderby_when_orderby_is_not_writing_completion(): void {
         $query = new MockWPQuery2();
         $query->_is_main = true;
         $query->set('orderby', 'date');

@@ -48,7 +48,7 @@ class DashboardAndMetaFieldTest extends TestCase {
     /** @test */
     public function register_meta_field_executes_without_error(): void {
         // register_post_meta() is a no-op stub; it should be called three times
-        // (_draft_complete, _draft_due_date, _draft_priority) without throwing.
+        // (_writing_complete, _writing_due_date, _writing_priority) without throwing.
         $this->plugin->registerMetaField();
         $this->assertTrue( true );
     }

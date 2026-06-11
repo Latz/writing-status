@@ -36,7 +36,7 @@ class DisplayCompletionColumnTest extends TestCase {
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
 
         ob_start();
-        $this->plugin->displayCompletionColumn( 'draft_completion', 1 );
+        $this->plugin->displayCompletionColumn( 'writing_completion', 1 );
         $output = ob_get_clean();
 
         // Bootstrap stubs get_post_status='draft', get_post_meta='' so is_complete=''.
@@ -45,9 +45,9 @@ class DisplayCompletionColumnTest extends TestCase {
     }
 
     /** @test */
-    public function draft_complete_post_shows_complete_span(): void {
+    public function writing_complete_post_shows_complete_span(): void {
         // get_post_status bootstrap stub returns 'draft' — correct for this test.
-        // Override get_post_meta via WP_Mock to return 'yes' for _draft_complete.
+        // Override get_post_meta via WP_Mock to return 'yes' for _writing_complete.
         // Note: bootstrap defines get_post_meta as a real function, so WP_Mock
         // cannot override it. Instead we call renderCompletionStatus directly
         // via reflection to verify the 'complete' path.
@@ -89,7 +89,7 @@ class DisplayCompletionColumnTest extends TestCase {
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
 
         ob_start();
-        $this->plugin->displayCompletionColumn( 'draft_completion', 1 );
+        $this->plugin->displayCompletionColumn( 'writing_completion', 1 );
         $output = ob_get_clean();
 
         $this->assertStringContainsString( 'writing-status-incomplete', $output );
@@ -102,7 +102,7 @@ class DisplayCompletionColumnTest extends TestCase {
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
 
         ob_start();
-        $this->plugin->displayCompletionColumn( 'draft_completion', 1 );
+        $this->plugin->displayCompletionColumn( 'writing_completion', 1 );
         $output = ob_get_clean();
 
         $this->assertStringNotContainsString( 'draft-due-date', $output );
@@ -115,7 +115,7 @@ class DisplayCompletionColumnTest extends TestCase {
         WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
 
         ob_start();
-        $this->plugin->displayCompletionColumn( 'draft_completion', 1 );
+        $this->plugin->displayCompletionColumn( 'writing_completion', 1 );
         $output = ob_get_clean();
 
         $this->assertStringNotContainsString( 'draft-priority', $output );

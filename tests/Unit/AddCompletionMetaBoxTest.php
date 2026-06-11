@@ -32,9 +32,9 @@ class AddCompletionMetaBoxTest extends TestCase {
     }
 
     /** @test */
-    public function add_completion_column_adds_draft_completion_key(): void {
+    public function add_completion_column_adds_writing_completion_key(): void {
         $result = $this->plugin->addCompletionColumn( [ 'title' => 'Title' ] );
-        $this->assertArrayHasKey( 'draft_completion', $result );
+        $this->assertArrayHasKey( 'writing_completion', $result );
     }
 
     /** @test */
@@ -44,10 +44,10 @@ class AddCompletionMetaBoxTest extends TestCase {
     }
 
     /** @test */
-    public function make_completion_sortable_adds_draft_completion(): void {
+    public function make_completion_sortable_adds_writing_completion(): void {
         $result = $this->plugin->makeCompletionSortable( [] );
-        $this->assertArrayHasKey( 'draft_completion', $result );
-        $this->assertSame( 'draft_completion', $result['draft_completion'] );
+        $this->assertArrayHasKey( 'writing_completion', $result );
+        $this->assertSame( 'writing_completion', $result['writing_completion'] );
     }
 
     /** @test */

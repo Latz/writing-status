@@ -17,7 +17,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
 
     public function tearDown(): void {
         WP_Mock::tearDown();
-        unset( $_GET['draft_completion_filter'], $_GET['draft_priority_filter'] );
+        unset( $_GET['writing_completion_filter'], $_GET['writing_priority_filter'] );
     }
 
     /** @test */
@@ -35,7 +35,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
         $this->plugin->addCompletionFilterDropdown( 'post' );
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'draft_completion_filter', $output );
+        $this->assertStringContainsString( 'writing_completion_filter', $output );
     }
 
     /** @test */
@@ -44,7 +44,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
         $this->plugin->addCompletionFilterDropdown( 'post' );
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'draft_priority_filter', $output );
+        $this->assertStringContainsString( 'writing_priority_filter', $output );
     }
 
     /** @test */

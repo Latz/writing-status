@@ -20,15 +20,15 @@ class MakeCompletionSortableTest extends TestCase {
     }
 
     /** @test */
-    public function adds_draft_completion_to_sortable_columns(): void {
+    public function adds_writing_completion_to_sortable_columns(): void {
         $result = $this->plugin->makeCompletionSortable( [] );
-        $this->assertArrayHasKey( 'draft_completion', $result );
+        $this->assertArrayHasKey( 'writing_completion', $result );
     }
 
     /** @test */
-    public function sortable_key_maps_to_draft_completion_orderby(): void {
+    public function sortable_key_maps_to_writing_completion_orderby(): void {
         $result = $this->plugin->makeCompletionSortable( [] );
-        $this->assertSame( 'draft_completion', $result['draft_completion'] );
+        $this->assertSame( 'writing_completion', $result['writing_completion'] );
     }
 
     /** @test */

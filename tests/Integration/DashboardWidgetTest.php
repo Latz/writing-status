@@ -20,21 +20,21 @@ class DashboardWidgetTest extends WP_UnitTestCase {
 
         $this->plugin = new WritingStatus();
 
-        // incomplete_urgent: draft, _draft_complete=no, _draft_priority=urgent
+        // incomplete_urgent: draft, _writing_complete=no, _writing_priority=urgent
         $this->post_ids['incomplete_urgent'] = self::factory()->post->create( [
             'post_status' => 'draft',
             'post_title'  => 'Urgent Draft',
         ] );
-        update_post_meta( $this->post_ids['incomplete_urgent'], '_draft_complete', 'no' );
-        update_post_meta( $this->post_ids['incomplete_urgent'], '_draft_priority', 'urgent' );
+        update_post_meta( $this->post_ids['incomplete_urgent'], '_writing_complete', 'no' );
+        update_post_meta( $this->post_ids['incomplete_urgent'], '_writing_priority', 'urgent' );
 
-        // complete_high: draft, _draft_complete=yes, _draft_priority=high
+        // complete_high: draft, _writing_complete=yes, _writing_priority=high
         $this->post_ids['complete_high'] = self::factory()->post->create( [
             'post_status' => 'draft',
             'post_title'  => 'Complete Draft',
         ] );
-        update_post_meta( $this->post_ids['complete_high'], '_draft_complete', 'yes' );
-        update_post_meta( $this->post_ids['complete_high'], '_draft_priority', 'high' );
+        update_post_meta( $this->post_ids['complete_high'], '_writing_complete', 'yes' );
+        update_post_meta( $this->post_ids['complete_high'], '_writing_priority', 'high' );
 
         // incomplete_no_meta: draft, no meta at all
         $this->post_ids['incomplete_no_meta'] = self::factory()->post->create( [

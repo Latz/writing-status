@@ -36,7 +36,7 @@ class SaveDraftMetaTest extends TestCase {
 
     public function tearDown(): void {
         WP_Mock::tearDown();
-        unset( $_POST['draft_due_date'], $_POST['draft_priority'] );
+        unset( $_POST['writing_due_date'], $_POST['writing_priority'] );
     }
 
     // -------------------------------------------------------------------------
@@ -45,7 +45,7 @@ class SaveDraftMetaTest extends TestCase {
 
     /** @test */
     public function save_due_date_with_valid_date_executes_without_error(): void {
-        $_POST['draft_due_date'] = '2026-12-31';
+        $_POST['writing_due_date'] = '2026-12-31';
 
         $this->saveDraftDueDate->invoke( $this->plugin, 1 );
 
@@ -54,7 +54,7 @@ class SaveDraftMetaTest extends TestCase {
 
     /** @test */
     public function save_due_date_with_empty_string_executes_without_error(): void {
-        $_POST['draft_due_date'] = '';
+        $_POST['writing_due_date'] = '';
 
         $this->saveDraftDueDate->invoke( $this->plugin, 1 );
 
@@ -63,7 +63,7 @@ class SaveDraftMetaTest extends TestCase {
 
     /** @test */
     public function save_due_date_with_invalid_format_executes_without_error(): void {
-        $_POST['draft_due_date'] = 'not-a-date';
+        $_POST['writing_due_date'] = 'not-a-date';
 
         $this->saveDraftDueDate->invoke( $this->plugin, 1 );
 
@@ -72,7 +72,7 @@ class SaveDraftMetaTest extends TestCase {
 
     /** @test */
     public function save_due_date_without_post_key_executes_without_error(): void {
-        // $_POST['draft_due_date'] is intentionally not set.
+        // $_POST['writing_due_date'] is intentionally not set.
 
         $this->saveDraftDueDate->invoke( $this->plugin, 1 );
 
@@ -85,7 +85,7 @@ class SaveDraftMetaTest extends TestCase {
 
     /** @test */
     public function save_priority_with_valid_priority_executes_without_error(): void {
-        $_POST['draft_priority'] = 'high';
+        $_POST['writing_priority'] = 'high';
 
         $this->saveDraftPriority->invoke( $this->plugin, 1 );
 
@@ -94,7 +94,7 @@ class SaveDraftMetaTest extends TestCase {
 
     /** @test */
     public function save_priority_with_invalid_priority_executes_without_error(): void {
-        $_POST['draft_priority'] = 'invalid';
+        $_POST['writing_priority'] = 'invalid';
 
         $this->saveDraftPriority->invoke( $this->plugin, 1 );
 
@@ -103,7 +103,7 @@ class SaveDraftMetaTest extends TestCase {
 
     /** @test */
     public function save_priority_with_none_executes_without_error(): void {
-        $_POST['draft_priority'] = 'none';
+        $_POST['writing_priority'] = 'none';
 
         $this->saveDraftPriority->invoke( $this->plugin, 1 );
 
@@ -112,7 +112,7 @@ class SaveDraftMetaTest extends TestCase {
 
     /** @test */
     public function save_priority_without_post_key_executes_without_error(): void {
-        // $_POST['draft_priority'] is intentionally not set.
+        // $_POST['writing_priority'] is intentionally not set.
 
         $this->saveDraftPriority->invoke( $this->plugin, 1 );
 

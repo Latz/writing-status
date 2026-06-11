@@ -3,7 +3,7 @@
  * Unit tests for WritingStatus::sortByCompletion() — query modification guards.
  *
  * Tests that the method only modifies WP_Query when in the admin context,
- * processing the main query, with an orderby of 'draft_completion'.
+ * processing the main query, with an orderby of 'writing_completion'.
  */
 
 use PHPUnit\Framework\TestCase;
@@ -49,7 +49,7 @@ class SortByCompletionTest extends TestCase {
 
         $query             = new MockWPQuery();
         $query->_is_main   = true;
-        $query->data['orderby'] = 'draft_completion';
+        $query->data['orderby'] = 'writing_completion';
 
         $this->plugin->sortByCompletion( $query );
 
@@ -62,7 +62,7 @@ class SortByCompletionTest extends TestCase {
 
         $query             = new MockWPQuery();
         $query->_is_main   = false;
-        $query->data['orderby'] = 'draft_completion';
+        $query->data['orderby'] = 'writing_completion';
 
         $this->plugin->sortByCompletion( $query );
 
@@ -70,7 +70,7 @@ class SortByCompletionTest extends TestCase {
     }
 
     /** @test */
-    public function does_nothing_when_orderby_is_not_draft_completion(): void {
+    public function does_nothing_when_orderby_is_not_writing_completion(): void {
         WP_Mock::userFunction( 'is_admin' )->andReturn( true );
 
         $query             = new MockWPQuery();
@@ -83,12 +83,12 @@ class SortByCompletionTest extends TestCase {
     }
 
     /** @test */
-    public function sets_meta_query_clauses_when_admin_main_query_with_draft_completion_orderby(): void {
+    public function sets_meta_query_clauses_when_admin_main_query_with_writing_completion_orderby(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
 
         $query             = new MockWPQuery();
         $query->_is_main   = true;
-        $query->data['orderby'] = 'draft_completion';
+        $query->data['orderby'] = 'writing_completion';
 
         $this->plugin->sortByCompletion( $query );
 
@@ -97,12 +97,12 @@ class SortByCompletionTest extends TestCase {
     }
 
     /** @test */
-    public function sets_orderby_array_when_admin_main_query_with_draft_completion_orderby(): void {
+    public function sets_orderby_array_when_admin_main_query_with_writing_completion_orderby(): void {
         $GLOBALS['_writing_status_is_admin'] = true;
 
         $query             = new MockWPQuery();
         $query->_is_main   = true;
-        $query->data['orderby'] = 'draft_completion';
+        $query->data['orderby'] = 'writing_completion';
 
         $this->plugin->sortByCompletion( $query );
 
@@ -115,7 +115,7 @@ class SortByCompletionTest extends TestCase {
 
         $query             = new MockWPQuery();
         $query->_is_main   = true;
-        $query->data['orderby']    = 'draft_completion';
+        $query->data['orderby']    = 'writing_completion';
         $query->data['meta_query'] = array(
             'existing_clause' => array(
                 'key'     => '_some_meta_key',
@@ -132,10 +132,10 @@ class SortByCompletionTest extends TestCase {
     /** @test */
     public function does_nothing_when_all_three_guards_fail(): void {
         // is_admin() is bootstrapped as false; WP_Mock cannot override pre-defined functions.
-        // Verify: even with orderby=draft_completion on main query, is_admin=false prevents changes.
+        // Verify: even with orderby=writing_completion on main query, is_admin=false prevents changes.
         $query             = new MockWPQuery();
         $query->_is_main   = true;
-        $query->data['orderby'] = 'draft_completion';
+        $query->data['orderby'] = 'writing_completion';
 
         $this->plugin->sortByCompletion( $query );
 

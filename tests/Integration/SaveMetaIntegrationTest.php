@@ -32,7 +32,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         wp_set_current_user( $this->editor_id );
 
         $_POST = array_merge( [
-            'draft_completion_nonce_field' => wp_create_nonce( 'draft_completion_nonce' ),
+            'writing_completion_nonce_field' => wp_create_nonce( 'writing_completion_nonce' ),
         ], $fields );
 
         $this->plugin->saveCompletionStatus( $post_id );
@@ -41,71 +41,71 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
     }
 
     // -----------------------------------------------------------------------
-    // Completion status (_draft_complete)
+    // Completion status (_writing_complete)
     // -----------------------------------------------------------------------
 
     /** @test */
-    public function saves_yes_when_draft_complete_is_yes(): void {
+    public function saves_yes_when_writing_complete_is_yes(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
-        $this->postWith( [ 'draft_complete' => 'yes' ], $post_id );
+        $this->postWith( [ 'writing_complete' => 'yes' ], $post_id );
 
-        $this->assertSame( 'yes', get_post_meta( $post_id, '_draft_complete', true ) );
+        $this->assertSame( 'yes', get_post_meta( $post_id, '_writing_complete', true ) );
     }
 
     /** @test */
-    public function saves_no_when_draft_complete_is_anything_else(): void {
+    public function saves_no_when_writing_complete_is_anything_else(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
-        $this->postWith( [ 'draft_complete' => 'maybe' ], $post_id );
+        $this->postWith( [ 'writing_complete' => 'maybe' ], $post_id );
 
-        $this->assertSame( 'no', get_post_meta( $post_id, '_draft_complete', true ) );
+        $this->assertSame( 'no', get_post_meta( $post_id, '_writing_complete', true ) );
     }
 
     /** @test */
-    public function saves_no_when_draft_complete_field_is_absent(): void {
+    public function saves_no_when_writing_complete_field_is_absent(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         $this->postWith( [], $post_id );
 
-        $this->assertSame( 'no', get_post_meta( $post_id, '_draft_complete', true ) );
+        $this->assertSame( 'no', get_post_meta( $post_id, '_writing_complete', true ) );
     }
 
     // -----------------------------------------------------------------------
-    // Due date (_draft_due_date)
+    // Due date (_writing_due_date)
     // -----------------------------------------------------------------------
 
     /** @test */
     public function saves_valid_due_date(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
-        $this->postWith( [ 'draft_due_date' => '2026-12-31' ], $post_id );
+        $this->postWith( [ 'writing_due_date' => '2026-12-31' ], $post_id );
 
-        $this->assertSame( '2026-12-31', get_post_meta( $post_id, '_draft_due_date', true ) );
+        $this->assertSame( '2026-12-31', get_post_meta( $post_id, '_writing_due_date', true ) );
     }
 
     /** @test */
     public function rejects_malformed_due_date(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
-        $this->postWith( [ 'draft_due_date' => '31-12-2026' ], $post_id );
+        $this->postWith( [ 'writing_due_date' => '31-12-2026' ], $post_id );
 
         // Meta should not have been written.
-        $this->assertEmpty( get_post_meta( $post_id, '_draft_due_date', true ) );
+        $this->assertEmpty( get_post_meta( $post_id, '_writing_due_date', true ) );
     }
 
     /** @test */
     public function deletes_due_date_meta_when_empty_string_submitted(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
-        update_post_meta( $post_id, '_draft_due_date', '2026-01-01' );
+        update_post_meta( $post_id, '_writing_due_date', '2026-01-01' );
 
-        $this->postWith( [ 'draft_due_date' => '' ], $post_id );
+        $this->postWith( [ 'writing_due_date' => '' ], $post_id );
 
-        $this->assertEmpty( get_post_meta( $post_id, '_draft_due_date', true ) );
+        $this->assertEmpty( get_post_meta( $post_id, '_writing_due_date', true ) );
     }
 
     // -----------------------------------------------------------------------
-    // Priority (_draft_priority)
+    // Priority (_writing_priority)
     // -----------------------------------------------------------------------
 
     /** @test */
@@ -113,10 +113,10 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         foreach ( [ 'none', 'low', 'medium', 'high', 'urgent' ] as $priority ) {
-            $this->postWith( [ 'draft_priority' => $priority ], $post_id );
+            $this->postWith( [ 'writing_priority' => $priority ], $post_id );
             $this->assertSame(
                 $priority,
-                get_post_meta( $post_id, '_draft_priority', true ),
+                get_post_meta( $post_id, '_writing_priority', true ),
                 "Priority '$priority' was not saved correctly"
             );
         }
@@ -126,9 +126,9 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
     public function saves_none_for_invalid_priority(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
-        $this->postWith( [ 'draft_priority' => 'critical' ], $post_id );
+        $this->postWith( [ 'writing_priority' => 'critical' ], $post_id );
 
-        $this->assertSame( 'none', get_post_meta( $post_id, '_draft_priority', true ) );
+        $this->assertSame( 'none', get_post_meta( $post_id, '_writing_priority', true ) );
     }
 
     // -----------------------------------------------------------------------
@@ -140,11 +140,11 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
         wp_set_current_user( $this->editor_id );
 
-        $_POST = [ 'draft_complete' => 'yes' ];
+        $_POST = [ 'writing_complete' => 'yes' ];
         $this->plugin->saveCompletionStatus( $post_id );
         $_POST = [];
 
-        $this->assertEmpty( get_post_meta( $post_id, '_draft_complete', true ) );
+        $this->assertEmpty( get_post_meta( $post_id, '_writing_complete', true ) );
     }
 
     /** @test */
@@ -154,13 +154,13 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         wp_set_current_user( $subscriber );
 
         $_POST = [
-            'draft_completion_nonce_field' => wp_create_nonce( 'draft_completion_nonce' ),
-            'draft_complete'               => 'yes',
+            'writing_completion_nonce_field' => wp_create_nonce( 'writing_completion_nonce' ),
+            'writing_complete'               => 'yes',
         ];
 
         $this->plugin->saveCompletionStatus( $post_id );
         $_POST = [];
 
-        $this->assertEmpty( get_post_meta( $post_id, '_draft_complete', true ) );
+        $this->assertEmpty( get_post_meta( $post_id, '_writing_complete', true ) );
     }
 }

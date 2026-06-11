@@ -15,8 +15,8 @@
 	 * Initialize the completion status toggle button
 	 */
 	function initCompletionToggle() {
-		var button = document.getElementById('draft_complete_button');
-		var hiddenInput = document.getElementById('draft_complete_hidden');
+		var button = document.getElementById('writing_complete_button');
+		var hiddenInput = document.getElementById('writing_complete_hidden');
 
 		if (!button || !hiddenInput) {
 			return;
@@ -57,9 +57,9 @@
 	 * editor window === window.parent, so the same code path works for both.
 	 */
 	function initUnsavedWarning() {
-		var hiddenInput    = document.getElementById('draft_complete_hidden');
-		var dueDateInput   = document.querySelector('input[name="draft_due_date"]');
-		var prioritySelect = document.getElementById('draft_priority');
+		var hiddenInput    = document.getElementById('writing_complete_hidden');
+		var dueDateInput   = document.querySelector('input[name="writing_due_date"]');
+		var prioritySelect = document.getElementById('writing_priority');
 
 		if (!hiddenInput && !dueDateInput && !prioritySelect) {
 			return;
@@ -110,9 +110,9 @@
 			if (editor && typeof editor.editPost === 'function') {
 				editor.editPost({
 					meta: {
-						_draft_complete: hiddenInput    ? hiddenInput.value    : undefined,
-						_draft_due_date: dueDateInput   ? dueDateInput.value   : undefined,
-						_draft_priority: prioritySelect ? prioritySelect.value : undefined
+						_writing_complete: hiddenInput    ? hiddenInput.value    : undefined,
+						_writing_due_date: dueDateInput   ? dueDateInput.value   : undefined,
+						_writing_priority: prioritySelect ? prioritySelect.value : undefined
 					}
 				});
 			}
@@ -127,7 +127,7 @@
 		fields.forEach(function (field) {
 			field.addEventListener('change', onFieldChange);
 		});
-		var toggleButton = document.getElementById('draft_complete_button');
+		var toggleButton = document.getElementById('writing_complete_button');
 		if (toggleButton) {
 			toggleButton.addEventListener('click', onFieldChange);
 		}

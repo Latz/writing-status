@@ -20,9 +20,9 @@ class AddCompletionColumnTest extends TestCase {
     }
 
     /** @test */
-    public function adds_draft_completion_key_to_columns(): void {
+    public function adds_writing_completion_key_to_columns(): void {
         $result = $this->plugin->addCompletionColumn( [] );
-        $this->assertArrayHasKey( 'draft_completion', $result );
+        $this->assertArrayHasKey( 'writing_completion', $result );
     }
 
     /** @test */
@@ -37,7 +37,7 @@ class AddCompletionColumnTest extends TestCase {
     /** @test */
     public function column_label_is_writing_status(): void {
         $result = $this->plugin->addCompletionColumn( [] );
-        $this->assertSame( 'Writing Status', $result['draft_completion'] );
+        $this->assertSame( 'Writing Status', $result['writing_completion'] );
     }
 
     /** @test */

@@ -28,7 +28,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
 
     public function tearDown(): void {
         WP_Mock::tearDown();
-        unset( $_GET['draft_completion_filter'], $_GET['draft_priority_filter'] );
+        unset( $_GET['writing_completion_filter'], $_GET['writing_priority_filter'] );
         unset( $GLOBALS['_writing_status_is_admin'] );
         global $pagenow;
         $pagenow = '';
@@ -38,7 +38,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
     public function returns_early_when_not_admin(): void {
         global $pagenow;
         $pagenow = 'edit.php';
-        $_GET['draft_completion_filter'] = 'complete';
+        $_GET['writing_completion_filter'] = 'complete';
 
         $query = new MockWPQueryFilter();
         $this->plugin->filterPostsByCompletion( $query );
@@ -48,7 +48,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
 
     /** @test */
     public function apply_completion_filter_complete_sets_meta_query(): void {
-        $_GET['draft_completion_filter'] = 'complete';
+        $_GET['writing_completion_filter'] = 'complete';
 
         $method = new ReflectionMethod( WritingStatus::class, 'applyCompletionFilter' );
         $method->setAccessible( true );
@@ -64,7 +64,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
 
     /** @test */
     public function apply_completion_filter_incomplete_sets_or_meta_query(): void {
-        $_GET['draft_completion_filter'] = 'incomplete';
+        $_GET['writing_completion_filter'] = 'incomplete';
 
         $method = new ReflectionMethod( WritingStatus::class, 'applyCompletionFilter' );
         $method->setAccessible( true );
@@ -80,7 +80,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
 
     /** @test */
     public function apply_completion_filter_unknown_value_does_nothing(): void {
-        $_GET['draft_completion_filter'] = 'unknown';
+        $_GET['writing_completion_filter'] = 'unknown';
 
         $method = new ReflectionMethod( WritingStatus::class, 'applyCompletionFilter' );
         $method->setAccessible( true );
@@ -95,7 +95,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
 
     /** @test */
     public function apply_priority_filter_valid_priority_adds_clause(): void {
-        $_GET['draft_priority_filter'] = 'high';
+        $_GET['writing_priority_filter'] = 'high';
 
         $method = new ReflectionMethod( WritingStatus::class, 'applyPriorityFilter' );
         $method->setAccessible( true );
@@ -112,7 +112,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
 
     /** @test */
     public function apply_priority_filter_invalid_priority_does_nothing(): void {
-        $_GET['draft_priority_filter'] = 'invalid';
+        $_GET['writing_priority_filter'] = 'invalid';
 
         $method = new ReflectionMethod( WritingStatus::class, 'applyPriorityFilter' );
         $method->setAccessible( true );
@@ -128,7 +128,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
 
     /** @test */
     public function apply_priority_filter_with_completion_filter_does_not_set_post_status(): void {
-        $_GET['draft_priority_filter'] = 'high';
+        $_GET['writing_priority_filter'] = 'high';
 
         $method = new ReflectionMethod( WritingStatus::class, 'applyPriorityFilter' );
         $method->setAccessible( true );
@@ -147,7 +147,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;
         $pagenow = 'edit.php';
-        $_GET['draft_completion_filter'] = 'complete';
+        $_GET['writing_completion_filter'] = 'complete';
 
         $query = new MockWPQueryFilter();
         $this->plugin->filterPostsByCompletion( $query );
@@ -172,7 +172,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;
         $pagenow = 'post.php';
-        $_GET['draft_completion_filter'] = 'complete';
+        $_GET['writing_completion_filter'] = 'complete';
 
         $query = new MockWPQueryFilter();
         $this->plugin->filterPostsByCompletion( $query );
@@ -185,7 +185,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;
         $pagenow = 'edit.php';
-        $_GET['draft_priority_filter'] = 'high';
+        $_GET['writing_priority_filter'] = 'high';
 
         $query = new MockWPQueryFilter();
         $this->plugin->filterPostsByCompletion( $query );
@@ -198,8 +198,8 @@ class FilterPostsByCompletionUnitTest extends TestCase {
         $GLOBALS['_writing_status_is_admin'] = true;
         global $pagenow;
         $pagenow = 'edit.php';
-        $_GET['draft_completion_filter'] = 'incomplete';
-        $_GET['draft_priority_filter'] = 'urgent';
+        $_GET['writing_completion_filter'] = 'incomplete';
+        $_GET['writing_priority_filter'] = 'urgent';
 
         $query = new MockWPQueryFilter();
         $this->plugin->filterPostsByCompletion( $query );

@@ -21,16 +21,16 @@ class SaveCompletionStatusTest extends TestCase {
     public function tearDown(): void {
         WP_Mock::tearDown();
         unset(
-            $_POST['draft_completion_nonce_field'],
-            $_POST['draft_complete'],
-            $_POST['draft_due_date'],
-            $_POST['draft_priority']
+            $_POST['writing_completion_nonce_field'],
+            $_POST['writing_complete'],
+            $_POST['writing_due_date'],
+            $_POST['writing_priority']
         );
     }
 
     /** @test */
     public function returns_early_when_nonce_field_is_missing(): void {
-        unset( $_POST['draft_completion_nonce_field'] );
+        unset( $_POST['writing_completion_nonce_field'] );
 
         // update_post_meta must never be called.
         WP_Mock::userFunction( 'update_post_meta' )->never();
@@ -42,7 +42,7 @@ class SaveCompletionStatusTest extends TestCase {
 
     /** @test */
     public function returns_early_when_nonce_verification_fails(): void {
-        $_POST['draft_completion_nonce_field'] = 'bad_nonce';
+        $_POST['writing_completion_nonce_field'] = 'bad_nonce';
 
         WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
@@ -63,7 +63,7 @@ class SaveCompletionStatusTest extends TestCase {
             define( 'DOING_AUTOSAVE', true );
         }
 
-        $_POST['draft_completion_nonce_field'] = 'nonce';
+        $_POST['writing_completion_nonce_field'] = 'nonce';
 
         WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
@@ -81,7 +81,7 @@ class SaveCompletionStatusTest extends TestCase {
             $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, capability check cannot be reached.' );
         }
 
-        $_POST['draft_completion_nonce_field'] = 'nonce';
+        $_POST['writing_completion_nonce_field'] = 'nonce';
 
         WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
@@ -97,14 +97,14 @@ class SaveCompletionStatusTest extends TestCase {
     }
 
     /** @test */
-    public function saves_no_when_draft_complete_not_in_post(): void {
+    public function saves_no_when_writing_complete_not_in_post(): void {
         if ( defined( 'DOING_AUTOSAVE' ) ) {
             $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, else branch cannot be reached.' );
         }
 
-        // Ensure draft_complete is NOT in $_POST.
-        unset( $_POST['draft_complete'] );
-        $_POST['draft_completion_nonce_field'] = 'nonce';
+        // Ensure writing_complete is NOT in $_POST.
+        unset( $_POST['writing_complete'] );
+        $_POST['writing_completion_nonce_field'] = 'nonce';
 
         WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
@@ -115,7 +115,7 @@ class SaveCompletionStatusTest extends TestCase {
 
         // The else branch must call update_post_meta with 'no'.
         WP_Mock::userFunction( 'update_post_meta' )
-            ->with( 42, '_draft_complete', 'no' )
+            ->with( 42, '_writing_complete', 'no' )
             ->once()
             ->andReturn( true );
 
@@ -130,13 +130,13 @@ class SaveCompletionStatusTest extends TestCase {
     }
 
     /** @test */
-    public function saves_yes_when_draft_complete_is_yes_in_post(): void {
+    public function saves_yes_when_writing_complete_is_yes_in_post(): void {
         if ( defined( 'DOING_AUTOSAVE' ) ) {
             $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, save branch cannot be reached.' );
         }
 
-        $_POST['draft_completion_nonce_field'] = 'nonce';
-        $_POST['draft_complete']               = 'yes';
+        $_POST['writing_completion_nonce_field'] = 'nonce';
+        $_POST['writing_complete']               = 'yes';
 
         WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
@@ -147,7 +147,7 @@ class SaveCompletionStatusTest extends TestCase {
 
         // The if branch must call update_post_meta with 'yes'.
         WP_Mock::userFunction( 'update_post_meta' )
-            ->with( 55, '_draft_complete', 'yes' )
+            ->with( 55, '_writing_complete', 'yes' )
             ->once()
             ->andReturn( true );
 
@@ -161,13 +161,13 @@ class SaveCompletionStatusTest extends TestCase {
     }
 
     /** @test */
-    public function saves_no_when_draft_complete_value_is_invalid(): void {
+    public function saves_no_when_writing_complete_value_is_invalid(): void {
         if ( defined( 'DOING_AUTOSAVE' ) ) {
             $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, save branch cannot be reached.' );
         }
 
-        $_POST['draft_completion_nonce_field'] = 'nonce';
-        $_POST['draft_complete']               = 'maybe'; // not 'yes' → whitelist maps to 'no'
+        $_POST['writing_completion_nonce_field'] = 'nonce';
+        $_POST['writing_complete']               = 'maybe'; // not 'yes' → whitelist maps to 'no'
 
         WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
         WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
@@ -178,7 +178,7 @@ class SaveCompletionStatusTest extends TestCase {
 
         // Whitelist validation: 'maybe' is not 'yes', so 'no' should be saved.
         WP_Mock::userFunction( 'update_post_meta' )
-            ->with( 77, '_draft_complete', 'no' )
+            ->with( 77, '_writing_complete', 'no' )
             ->once()
             ->andReturn( true );
 
