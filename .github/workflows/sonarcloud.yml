@@ -42,6 +42,7 @@ jobs:
         with:
           php-version: '8.4'
           extensions: mysqli, mbstring
+          coverage: pcov
 
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --no-interaction
@@ -69,7 +70,13 @@ jobs:
           DB_USER: root
           DB_PASSWORD: ''
           DB_NAME: wordpress_tests
-        run: composer test:integration
+        run: php vendor/bin/phpunit --testsuite integration --bootstrap tests/integration-bootstrap.php --coverage-clover coverage.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
 
   sonarcloud:
     name: SonarQube Cloud Scan
@@ -80,6 +87,11 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
 
       - name: SonarQube Cloud Scan
         uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8
