@@ -49,10 +49,57 @@
 		});
 	}
 
+	/**
+	 * Warn the user before navigating away with unsaved meta box changes.
+	 */
+	function initUnsavedWarning() {
+		var hiddenInput    = document.getElementById('draft_complete_hidden');
+		var dueDateInput   = document.querySelector('input[name="draft_due_date"]');
+		var prioritySelect = document.getElementById('draft_priority');
+
+		if (!hiddenInput && !dueDateInput && !prioritySelect) {
+			return;
+		}
+
+		var initial = {
+			complete: hiddenInput    ? hiddenInput.value    : null,
+			dueDate:  dueDateInput   ? dueDateInput.value   : null,
+			priority: prioritySelect ? prioritySelect.value : null
+		};
+
+		function isDirty() {
+			return (
+				(hiddenInput    && hiddenInput.value    !== initial.complete) ||
+				(dueDateInput   && dueDateInput.value   !== initial.dueDate)  ||
+				(prioritySelect && prioritySelect.value !== initial.priority)
+			);
+		}
+
+		function beforeUnloadHandler(e) {
+			if (isDirty()) {
+				e.preventDefault();
+				e.returnValue = '';
+			}
+		}
+
+		window.addEventListener('beforeunload', beforeUnloadHandler);
+
+		var postForm = document.getElementById('post');
+		if (postForm) {
+			postForm.addEventListener('submit', function () {
+				window.removeEventListener('beforeunload', beforeUnloadHandler);
+			});
+		}
+	}
+
 	// Initialize when DOM is ready
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', initCompletionToggle);
+		document.addEventListener('DOMContentLoaded', function () {
+			initCompletionToggle();
+			initUnsavedWarning();
+		});
 	} else {
 		initCompletionToggle();
+		initUnsavedWarning();
 	}
 })();
