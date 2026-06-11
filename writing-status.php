@@ -144,10 +144,7 @@ class WritingStatus extends WritingStatusRenderer {
         if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_writing_status_bulk_nonce'])), 'writing_status_bulk_edit')) {
             return false;
         }
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return false;
-        }
-        return (bool) current_user_can('edit_post', $post_id);
+        return !(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) && (bool) current_user_can('edit_post', $post_id);
     }
 
     public function saveBulkEdit($post_id) {
