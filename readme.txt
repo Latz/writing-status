@@ -3,7 +3,7 @@ Contributors: yourwordpressusername
 Tags: draft, posts, writing, status, productivity
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -117,6 +117,13 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 
 == Changelog ==
 
+= 1.7.0 =
+* Renamed plugin from "Draft Status" to "Writing Status"
+* Renamed database meta keys: `_draft_complete` → `_writing_complete`, `_draft_due_date` → `_writing_due_date`, `_draft_priority` → `_writing_priority`
+* Migration runs automatically on plugin (re)activation to rename existing post meta rows
+* Added overdue drafts admin notice on Posts list and Dashboard (cached, no performance impact)
+* Fixed unsaved-changes warning persisting after saving in Gutenberg
+
 = 1.6.0 =
 * Added Writing Status fields to the Bulk Edit panel (completion, priority, due date)
 * "— No Change —" sentinel ensures unmodified fields are never overwritten during bulk edits
@@ -147,6 +154,9 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 
 == Upgrade Notice ==
 
+= 1.7.0 =
+Renames the plugin and its database meta keys. After updating, deactivate and reactivate the plugin once so the migration can rename existing post meta rows. No data is lost.
+
 = 1.6.0 =
 Adds Bulk Edit support for Writing Status fields. No database changes required.
 
@@ -173,9 +183,9 @@ We welcome contributions! Visit our GitHub repository to submit issues or pull r
 
 The plugin stores Writing Status data as post meta:
 
-* `_draft_complete` — `yes` or `no`
-* `_draft_priority` — `none`, `low`, `medium`, `high`, or `urgent`
-* `_draft_due_date` — date string in `YYYY-MM-DD` format, or absent if not set
+* `_writing_complete` — `yes` or `no`
+* `_writing_priority` — `none`, `low`, `medium`, `high`, or `urgent`
+* `_writing_due_date` — date string in `YYYY-MM-DD` format, or absent if not set
 
 All keys are prefixed with an underscore so they are hidden from the custom fields UI. All three fields are registered with REST API support.
 
@@ -193,6 +203,7 @@ The plugin uses standard WordPress hooks:
 * `bulk_edit_custom_box` - Renders Writing Status fields in the Bulk Edit panel
 * `wp_dashboard_setup` - Registers the dashboard widget
 * `init` - Registers meta fields for REST API support
+* `register_activation_hook` - Migrates legacy `_draft_*` meta keys to `_writing_*` on activation
 
 = Performance =
 
