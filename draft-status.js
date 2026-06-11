@@ -85,7 +85,9 @@
 		function beforeUnloadHandler(e) {
 			if (isDirty()) {
 				e.preventDefault();
-				e.returnValue = '';
+				// Non-empty string required by some browsers to trigger the dialog.
+				e.returnValue = 'You have unsaved changes.';
+				return e.returnValue;
 			}
 		}
 
