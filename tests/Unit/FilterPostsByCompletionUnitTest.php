@@ -24,7 +24,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
+        $this->plugin = new WritingStatusFilters();
     }
 
     public function tearDown(): void {
@@ -51,7 +51,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
     public function apply_completion_filter_complete_sets_meta_query(): void {
         $_GET['writing_completion_filter'] = 'complete';
 
-        $method = new ReflectionMethod( WritingStatus::class, 'applyCompletionFilter' );
+        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyCompletionFilter' );
         $method->setAccessible( true );
 
         $query = new MockWPQueryFilter();
@@ -67,7 +67,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
     public function apply_completion_filter_incomplete_sets_or_meta_query(): void {
         $_GET['writing_completion_filter'] = 'incomplete';
 
-        $method = new ReflectionMethod( WritingStatus::class, 'applyCompletionFilter' );
+        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyCompletionFilter' );
         $method->setAccessible( true );
 
         $query = new MockWPQueryFilter();
@@ -83,7 +83,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
     public function apply_completion_filter_unknown_value_does_nothing(): void {
         $_GET['writing_completion_filter'] = 'unknown';
 
-        $method = new ReflectionMethod( WritingStatus::class, 'applyCompletionFilter' );
+        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyCompletionFilter' );
         $method->setAccessible( true );
 
         $query = new MockWPQueryFilter();
@@ -98,7 +98,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
     public function apply_priority_filter_valid_priority_adds_clause(): void {
         $_GET['writing_priority_filter'] = 'high';
 
-        $method = new ReflectionMethod( WritingStatus::class, 'applyPriorityFilter' );
+        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyPriorityFilter' );
         $method->setAccessible( true );
 
         $query = new MockWPQueryFilter();
@@ -115,7 +115,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
     public function apply_priority_filter_invalid_priority_does_nothing(): void {
         $_GET['writing_priority_filter'] = 'invalid';
 
-        $method = new ReflectionMethod( WritingStatus::class, 'applyPriorityFilter' );
+        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyPriorityFilter' );
         $method->setAccessible( true );
 
         $query = new MockWPQueryFilter();
@@ -131,7 +131,7 @@ class FilterPostsByCompletionUnitTest extends TestCase {
     public function apply_priority_filter_with_completion_filter_does_not_set_post_status(): void {
         $_GET['writing_priority_filter'] = 'high';
 
-        $method = new ReflectionMethod( WritingStatus::class, 'applyPriorityFilter' );
+        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyPriorityFilter' );
         $method->setAccessible( true );
 
         $query = new MockWPQueryFilter();

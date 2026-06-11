@@ -13,7 +13,7 @@ class AddCompletionFilterDropdownTest extends TestCase {
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
+        $this->plugin = new WritingStatusFilters();
     }
 
     public function tearDown(): void {

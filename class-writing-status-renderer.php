@@ -366,6 +366,26 @@ class WritingStatusRenderer {
      * @since 1.4.0
      * @return array Array of [incomplete_query, complete_query] WP_Query objects.
      */
+    public function dashboardWidgetOrderby($orderby, $query) {
+        global $wpdb;
+
+        if ($query->get('orderby') !== 'priority_then_modified') {
+            return $orderby;
+        }
+
+        return "
+            CASE (SELECT meta_value FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND meta_key = '_writing_priority' LIMIT 1)
+                WHEN 'urgent' THEN 1
+                WHEN 'high' THEN 2
+                WHEN 'medium' THEN 3
+                WHEN 'low' THEN 4
+                WHEN 'none' THEN 5
+                ELSE 6
+            END ASC,
+            {$wpdb->posts}.post_modified DESC
+        ";
+    }
+
     protected function getDashboardQueries() {
         // Add custom orderby filter for dashboard widget
         add_filter('posts_orderby', array($this, 'dashboardWidgetOrderby'), 10, 2);

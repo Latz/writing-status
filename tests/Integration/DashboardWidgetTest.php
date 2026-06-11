@@ -18,7 +18,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $this->plugin = new WritingStatus();
+        $this->plugin = new WritingStatusDashboard();
 
         // incomplete_urgent: draft, _writing_complete=no, _writing_priority=urgent
         $this->post_ids['incomplete_urgent'] = self::factory()->post->create( [
@@ -48,7 +48,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // -----------------------------------------------------------------------
 
     private function callGetDashboardQueries(): array {
-        $method = new ReflectionMethod( WritingStatus::class, 'getDashboardQueries' );
+        $method = new ReflectionMethod( WritingStatusDashboard::class, 'getDashboardQueries' );
         $method->setAccessible( true );
         return $method->invoke( $this->plugin );
     }
@@ -138,7 +138,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
         $result          = $this->callGetDashboardQueries();
         $incomplete_query = $result[0];
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardIncompletePosts' );
+        $method = new ReflectionMethod( WritingStatusDashboard::class, 'renderDashboardIncompletePosts' );
         $method->setAccessible( true );
 
         ob_start();
@@ -158,7 +158,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
         $result         = $this->callGetDashboardQueries();
         $complete_query = $result[1];
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderDashboardCompletePosts' );
+        $method = new ReflectionMethod( WritingStatusDashboard::class, 'renderDashboardCompletePosts' );
         $method->setAccessible( true );
 
         ob_start();

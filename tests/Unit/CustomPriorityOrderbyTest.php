@@ -23,7 +23,7 @@ class CustomPriorityOrderbyTest extends TestCase {
 
     public function setUp(): void {
         WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
+        $this->plugin = new WritingStatusColumn();
     }
 
     public function tearDown(): void {

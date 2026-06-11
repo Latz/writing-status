@@ -17,7 +17,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $this->plugin = new WritingStatus();
+        $this->plugin = new WritingStatusFilters();
 
         // Create three draft posts with different completion/priority combos.
         $this->post_ids['complete_urgent']   = self::factory()->post->create( [ 'post_status' => 'draft' ] );

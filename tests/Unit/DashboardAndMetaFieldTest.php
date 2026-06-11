@@ -18,13 +18,17 @@ class DashboardAndMetaFieldTest extends TestCase {
     /** @var WritingStatus */
     private $plugin;
 
+    /** @var WritingStatusDashboard */
+    private $dashboard;
+
     public function setUp(): void {
         WP_Mock::setUp();
         global $wpdb;
         $wpdb            = new stdClass();
         $wpdb->postmeta  = 'wp_postmeta';
         $wpdb->posts     = 'wp_posts';
-        $this->plugin = new WritingStatus();
+        $this->plugin    = new WritingStatus();
+        $this->dashboard = new WritingStatusDashboard();
     }
 
     public function tearDown(): void {
@@ -38,7 +42,7 @@ class DashboardAndMetaFieldTest extends TestCase {
     #[Test]
     public function add_dashboard_widget_executes_without_error(): void {
         // wp_add_dashboard_widget() is a no-op stub defined in bootstrap.php.
-        $this->plugin->addDashboardWidget();
+        $this->dashboard->addDashboardWidget();
         $this->assertTrue( true );
     }
 
@@ -61,7 +65,7 @@ class DashboardAndMetaFieldTest extends TestCase {
     #[Test]
     public function render_dashboard_widget_outputs_div_wrapper(): void {
         ob_start();
-        $this->plugin->renderDashboardWidget();
+        $this->dashboard->renderDashboardWidget();
         $output = ob_get_clean();
 
         $this->assertStringContainsString( 'writing-status-widget', $output );
@@ -71,7 +75,7 @@ class DashboardAndMetaFieldTest extends TestCase {
     public function render_dashboard_widget_outputs_no_drafts_message_when_empty(): void {
         // Both queries will have no posts (WP_Query stub starts empty).
         ob_start();
-        $this->plugin->renderDashboardWidget();
+        $this->dashboard->renderDashboardWidget();
         $output = ob_get_clean();
 
         // The plugin outputs "No drafts found. Start writing!" when both queries

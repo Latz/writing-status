@@ -20,7 +20,7 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $this->plugin = new WritingStatus();
+        $this->plugin = new WritingStatusColumn();
 
         // Create one draft post for each supported priority level.
         $this->post_ids['low']    = self::factory()->post->create( [ 'post_status' => 'draft' ] );

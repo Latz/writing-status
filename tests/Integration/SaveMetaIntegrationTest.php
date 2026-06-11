@@ -20,7 +20,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
-        $this->plugin    = new WritingStatus();
+        $this->plugin = new WritingStatusMetaBox();
         $this->editor_id = self::factory()->user->create( [ 'role' => 'editor' ] );
     }
 

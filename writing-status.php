@@ -12,88 +12,119 @@
  * Domain Path: /languages
  */
 
-// Prevent direct access to this file for security
 if (!defined('ABSPATH')) {
     exit;
 }
 
+define('WRITING_STATUS_VERSION', '1.9.0');
+
 require_once plugin_dir_path(__FILE__) . 'class-writing-status-renderer.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-writing-status-column.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-writing-status-meta-box.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-writing-status-filters.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-writing-status-dashboard.php';
 
 /**
- * Main Plugin Class
- *
- * Manages draft completion status for WordPress posts.
- * Adds a custom column to the posts list and a meta box to the post editor
- * allowing users to mark drafts as complete or incomplete for better workflow management.
+ * Main plugin class — coordinates sub-classes and owns assets, meta registration,
+ * bulk edit saving, overdue notice, and plugin activation.
  *
  * @since 1.0.0
  */
 class WritingStatus extends WritingStatusRenderer {
 
-    /**
-     * Constructor - Initialize the plugin
-     *
-     * Hooks into WordPress to add columns, meta boxes, and handle data saving.
-     *
-     * @since 1.0.0
-     */
     public function __construct() {
-        // Enqueue admin styles - loads CSS only on relevant admin pages
-        add_action('admin_enqueue_scripts', array($this, 'enqueueAdminStyles'));
+        new WritingStatusColumn();
+        new WritingStatusMetaBox();
+        new WritingStatusFilters();
+        new WritingStatusDashboard();
 
-        // Add custom column to posts list - adds "Writing Status" column header
-        add_filter('manage_posts_columns', array($this, 'addCompletionColumn'));
-
-        // Display column content - shows status indicators in the column
-        add_action('manage_posts_custom_column', array($this, 'displayCompletionColumn'), 10, 2);
-
-        // Make column sortable - allows clicking column header to sort
-        add_filter('manage_edit-post_sortable_columns', array($this, 'makeCompletionSortable'));
-
-        // Handle sorting logic - processes the sort request
-        add_action('pre_get_posts', array($this, 'sortByCompletion'));
-
-        // Add meta box to edit screen - adds completion checkbox to post editor
-        add_action('add_meta_boxes', array($this, 'addCompletionMetaBox'));
-
-        // Save completion status - saves checkbox value when post is saved
-        add_action('save_post', array($this, 'saveCompletionStatus'));
-
-        // Add filter dropdown to posts list
-        add_action('restrict_manage_posts', array($this, 'addCompletionFilterDropdown'));
-
-        // Handle filter query
-        add_filter('parse_query', array($this, 'filterPostsByCompletion'));
-
-        // Add dashboard widget
-        add_action('wp_dashboard_setup', array($this, 'addDashboardWidget'));
-
-        // Register meta field for REST API support
-        add_action('init', array($this, 'registerMetaField'));
-
-        // Bulk Edit panel fields
-        add_action('bulk_edit_custom_box', array($this, 'renderBulkEditBox'), 10, 2);
-        add_action('save_post', array($this, 'saveBulkEdit'), 20, 1);
-
-        // Quick Edit panel fields
-        add_action('quick_edit_custom_box', array($this, 'renderQuickEditBox'), 10, 2);
-
-        // Gutenberg block editor panel (fired only when block editor is active)
+        add_action('admin_enqueue_scripts',       array($this, 'enqueueAdminStyles'));
         add_action('enqueue_block_editor_assets', array($this, 'enqueueBlockEditorAssets'));
-
-        // Overdue drafts notice on Posts list and Dashboard
-        add_action('admin_notices', array($this, 'showOverdueNotice'));
+        add_action('init',                        array($this, 'registerMetaField'));
+        add_action('bulk_edit_custom_box',        array($this, 'renderBulkEditBox'), 10, 2);
+        add_action('quick_edit_custom_box',       array($this, 'renderQuickEditBox'), 10, 2);
+        add_action('save_post',                   array($this, 'saveBulkEdit'), 20);
+        add_action('admin_notices',               array($this, 'showOverdueNotice'));
     }
 
-    /**
-     * Sanitize priority value
-     *
-     * Validates and sanitizes priority value for REST API.
-     *
-     * @since 1.4.0
-     * @param string $value The priority value to sanitize.
-     * @return string Sanitized priority value.
-     */
+    public function enqueueAdminStyles($hook) {
+        if ($hook !== 'edit.php' && $hook !== 'post.php' && $hook !== 'post-new.php' && $hook !== 'index.php') {
+            return;
+        }
+
+        wp_enqueue_style(
+            'writing-status',
+            plugin_dir_url(__FILE__) . 'writing-status.css',
+            array(),
+            WRITING_STATUS_VERSION
+        );
+
+        if ($hook === 'edit.php') {
+            wp_enqueue_script(
+                'writing-status',
+                plugin_dir_url(__FILE__) . 'writing-status.js',
+                array('inline-edit-post'),
+                WRITING_STATUS_VERSION,
+                true
+            );
+        }
+    }
+
+    public function enqueueBlockEditorAssets() {
+        wp_enqueue_script(
+            'writing-status-gutenberg',
+            plugin_dir_url(__FILE__) . 'writing-status.js',
+            array('wp-plugins', 'wp-edit-post', 'wp-element', 'wp-data', 'wp-components', 'wp-i18n'),
+            WRITING_STATUS_VERSION,
+            true
+        );
+    }
+
+    public function registerMetaField() {
+        register_post_meta('post', '_writing_complete', array(
+            'type'              => 'string',
+            'description'       => __('Draft completion status', 'writing-status'),
+            'single'            => true,
+            'show_in_rest'      => true,
+            'default'           => 'no',
+            'sanitize_callback' => function($value) {
+                return ($value === 'yes') ? 'yes' : 'no';
+            },
+            'auth_callback'     => function() {
+                return current_user_can('edit_posts');
+            },
+        ));
+
+        register_post_meta('post', '_writing_due_date', array(
+            'type'              => 'string',
+            'description'       => __('Draft due date', 'writing-status'),
+            'single'            => true,
+            'show_in_rest'      => true,
+            'default'           => '',
+            'sanitize_callback' => function($value) {
+                if (empty($value) || preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+                    return $value;
+                }
+                return '';
+            },
+            'auth_callback'     => function() {
+                return current_user_can('edit_posts');
+            },
+        ));
+
+        register_post_meta('post', '_writing_priority', array(
+            'type'              => 'string',
+            'description'       => __('Draft priority level', 'writing-status'),
+            'single'            => true,
+            'show_in_rest'      => true,
+            'default'           => 'none',
+            'sanitize_callback' => array($this, 'sanitizePriorityValue'),
+            'auth_callback'     => function() {
+                return current_user_can('edit_posts');
+            },
+        ));
+    }
+
     public function sanitizePriorityValue($value) {
         if (in_array($value, $this->getValidPriorities(), true)) {
             return $value;
@@ -101,432 +132,6 @@ class WritingStatus extends WritingStatusRenderer {
         return 'none';
     }
 
-    /**
-     * Enqueue admin stylesheets and scripts
-     *
-     * Loads the plugin's CSS and JS files only on relevant admin pages to improve performance.
-     * The assets are loaded on posts list, post editor, and dashboard pages.
-     *
-     * @since 1.0.0
-     * @param string $hook The current admin page hook.
-     */
-    public function enqueueAdminStyles($hook) {
-        // Only load on relevant pages: edit.php (posts list), post.php (edit post),
-        // post-new.php (new post), and index.php (dashboard)
-        if ($hook !== 'edit.php' && $hook !== 'post.php' && $hook !== 'post-new.php' && $hook !== 'index.php') {
-            return;
-        }
-
-        // Enqueue the plugin stylesheet with versioning for cache busting
-        wp_enqueue_style(
-            'writing-status',                      // Handle
-            plugin_dir_url(__FILE__) . 'writing-status.css', // Source
-            array(),                                      // Dependencies
-            '1.9.0'                                      // Version
-        );
-
-        // Enqueue Quick Edit JavaScript only on the posts list page
-        if ($hook === 'edit.php') {
-            wp_enqueue_script(
-                'writing-status',                      // Handle
-                plugin_dir_url(__FILE__) . 'writing-status.js', // Source
-                array('inline-edit-post'),                    // Dependencies
-                '1.9.0',                                     // Version
-                true                                          // Load in footer
-            );
-        }
-    }
-
-    /**
-     * Add custom column to posts list
-     *
-     * Adds a "Writing Status" column to the posts list table in the admin area.
-     *
-     * @since 1.0.0
-     * @param array $columns Existing columns in the posts list table.
-     * @return array Modified columns array with the new column added.
-     */
-    public function addCompletionColumn($columns) {
-        // Add the "Writing Status" column to the posts list
-        $columns['writing_completion'] = __('Writing Status', 'writing-status');
-        return $columns;
-    }
-
-    /**
-     * Display column content
-     *
-     * Outputs the status indicator (Complete/Incomplete) for draft posts with due date.
-     * Complete drafts show green, incomplete show red. Published posts show blue.
-     *
-     * @since 1.0.0
-     * @param string $column The column identifier.
-     * @param int    $post_id The post ID for the current row.
-     */
-    public function displayCompletionColumn($column, $post_id) {
-        // Only process our custom column
-        if ($column !== 'writing_completion') {
-            return;
-        }
-
-        // Check if post is published
-        if (get_post_status($post_id) === 'publish') {
-            printf(
-                '<span class="writing-status-indicator writing-status-published" aria-label="%s">● %s</span>',
-                esc_attr__('Post status: Published', 'writing-status'),
-                esc_html__('Published', 'writing-status')
-            );
-        } else {
-            // Get post meta data
-            $is_complete = get_post_meta($post_id, '_writing_complete', true);
-            $due_date = get_post_meta($post_id, '_writing_due_date', true);
-            $priority = get_post_meta($post_id, '_writing_priority', true);
-
-            // Render completion status
-            $this->renderCompletionStatus($is_complete);
-
-            // Render due date
-            $this->renderDueDate($due_date);
-
-            // Render priority badge
-            $this->renderPriorityBadge($priority);
-        }
-
-        // Hidden data span for Quick Edit JS pre-population
-        printf(
-            '<span class="hidden writing-status-qe-data" id="writing-status-data-%1$d"'
-            . ' data-complete="%2$s" data-due-date="%3$s" data-priority="%4$s"></span>',
-            $post_id,
-            esc_attr(get_post_meta($post_id, '_writing_complete', true) ?: 'no'),
-            esc_attr(get_post_meta($post_id, '_writing_due_date', true) ?: ''),
-            esc_attr(get_post_meta($post_id, '_writing_priority', true) ?: 'none')
-        );
-    }
-
-    /**
-     * Make column sortable
-     *
-     * Registers the "Writing Status" column as sortable so users can click
-     * the column header to sort posts by their completion status.
-     *
-     * @since 1.0.0
-     * @param array $columns Existing sortable columns.
-     * @return array Modified sortable columns array.
-     */
-    public function makeCompletionSortable($columns) {
-        // Register the writing_completion column as sortable
-        $columns['writing_completion'] = 'writing_completion';
-        return $columns;
-    }
-
-    /**
-     * Handle sorting logic
-     *
-     * Modifies the main query to sort by priority and completion status
-     * when the user clicks the "Writing Status" column header.
-     * Priority order: urgent > high > medium > low
-     *
-     * @since 1.0.0
-     * @param WP_Query $query The WordPress query object.
-     */
-    public function sortByCompletion($query) {
-        // Only modify admin queries on the main query
-        if (!is_admin() || !$query->is_main_query()) {
-            return;
-        }
-
-        // If sorting by writing_completion, sort by priority then completion status
-        if ($query->get('orderby') === 'writing_completion') {
-            // Get existing meta query to avoid overwriting other filters
-            $meta_query = $query->get('meta_query');
-            if (empty($meta_query) || !is_array($meta_query)) {
-                $meta_query = array();
-            }
-
-            // Add our clauses for sorting. These are needed for WP_Query to join the tables.
-            $meta_query['priority_clause'] = array(
-                'key' => '_writing_priority',
-                'compare' => 'EXISTS' // We only need to ensure the key exists for sorting
-            );
-            $meta_query['completion_clause'] = array(
-                'key' => '_writing_complete',
-                'compare' => 'EXISTS'
-            );
-
-            $query->set('meta_query', $meta_query);
-
-            // Custom ordering: priority first (urgent, high, medium, low), then completion
-            $order = $query->get('order', 'ASC');
-            $query->set('orderby', array(
-                'priority_clause' => $order,
-                'completion_clause' => $order
-            ));
-
-            // Use filter to modify the orderby clause for proper priority ordering
-            add_filter('posts_orderby', array($this, 'customPriorityOrderby'), 10, 2);
-        }
-    }
-
-    /**
-     * Custom orderby clause for priority sorting
-     *
-     * Implements proper priority ordering using CASE statement.
-     *
-     * @since 1.3.0
-     * @param string $orderby The ORDER BY clause.
-     * @param WP_Query $query The WordPress query object.
-     * @return string Modified ORDER BY clause.
-     */
-    public function customPriorityOrderby($orderby, $query) {
-        global $wpdb;
-
-        // This filter is added dynamically only for the specific query we want to modify,
-        // so we only need to check that it's the main query in the admin context.
-        // The original check for `orderby` was buggy as the value is changed to an array.
-        if (!is_admin() || !$query->is_main_query()) {
-            return $orderby;
-        }
-
-        $order = $query->get('order', 'ASC');
-        $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
-
-        // Create custom ORDER BY with CASE for priority values
-        // Priority order: urgent > high > medium > low > none (or empty)
-        $orderby = "
-            CASE (SELECT meta_value FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND meta_key = '_writing_priority' LIMIT 1)
-                WHEN 'urgent' THEN 1
-                WHEN 'high' THEN 2
-                WHEN 'medium' THEN 3
-                WHEN 'low' THEN 4
-                WHEN 'none' THEN 5
-                ELSE 6
-            END {$order},
-            (SELECT meta_value FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND meta_key = '_writing_complete' LIMIT 1) {$order}
-        ";
-
-        // Remove this filter to prevent it from affecting other queries
-        remove_filter('posts_orderby', array($this, 'customPriorityOrderby'), 10);
-
-        return $orderby;
-    }
-
-    /**
-     * Custom orderby clause for dashboard widget
-     *
-     * Sorts dashboard widget drafts by priority first, then by modified date.
-     *
-     * @since 1.4.0
-     * @param string $orderby The ORDER BY clause.
-     * @param WP_Query $query The WordPress query object.
-     * @return string Modified ORDER BY clause.
-     */
-    public function dashboardWidgetOrderby($orderby, $query) {
-        global $wpdb;
-
-        // Only apply to our dashboard widget queries
-        if ($query->get('orderby') !== 'priority_then_modified') {
-            return $orderby;
-        }
-
-        // Sort by priority (urgent first), then by modified date (newest first)
-        return "
-            CASE (SELECT meta_value FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND meta_key = '_writing_priority' LIMIT 1)
-                WHEN 'urgent' THEN 1
-                WHEN 'high' THEN 2
-                WHEN 'medium' THEN 3
-                WHEN 'low' THEN 4
-                WHEN 'none' THEN 5
-                ELSE 6
-            END ASC,
-            {$wpdb->posts}.post_modified DESC
-        ";
-    }
-
-    /**
-     * Add meta box to post editor
-     *
-     * Registers a meta box in the post editor sidebar where users can mark
-     * drafts as complete or view the published status.
-     *
-     * @since 1.0.0
-     */
-    public function addCompletionMetaBox() {
-        add_meta_box(
-            'writing_completion_box',                          // Meta box ID
-            __('Completion Status', 'writing-status'), // Title
-            array($this, 'renderCompletionMetaBox'),      // Callback function
-            'post',                                           // Post type
-            'side',                                           // Context (sidebar)
-            'default',                                        // Priority
-            array('__back_compat_meta_box' => true)           // Hide in block editor
-        );
-    }
-
-    /**
-     * Enqueue scripts for the block editor (Gutenberg)
-     *
-     * Fires only when the block editor is active. Loads the plugin JS with
-     * block editor package dependencies so it can register a PluginDocumentSettingPanel.
-     *
-     * @since 1.9.0
-     */
-    public function enqueueBlockEditorAssets() {
-        wp_enqueue_script(
-            'writing-status-gutenberg',
-            plugin_dir_url(__FILE__) . 'writing-status.js',
-            array('wp-plugins', 'wp-edit-post', 'wp-element', 'wp-data', 'wp-components', 'wp-i18n'),
-            '1.9.0',
-            true
-        );
-    }
-
-    /**
-     * Render meta box content
-     *
-     * Displays the meta box content in the post editor.
-     * For drafts: Shows a checkbox to mark the draft as complete and a due date field.
-     * For published posts: Shows nothing (meta box is hidden for published posts).
-     *
-     * @since 1.0.0
-     * @param WP_Post $post The current post object.
-     */
-    public function renderCompletionMetaBox($post) {
-        // Get the current post status
-        $post_status = get_post_status($post->ID);
-
-        // Show published status for published posts
-        if ($post_status === 'publish') {
-            ?>
-            <p class="writing-status-metabox-published">
-                <span class="writing-status-indicator writing-status-published">● <?php esc_html_e('Published', 'writing-status'); ?></span>
-            </p>
-            <p class="description">
-                <?php esc_html_e('This post has been published.', 'writing-status'); ?>
-            </p>
-            <?php
-            return;
-        }
-
-        // Add nonce field for security verification
-        wp_nonce_field('writing_completion_nonce', 'writing_completion_nonce_field');
-
-        // Draft posts - show completion button
-        $is_complete = get_post_meta($post->ID, '_writing_complete', true);
-        $due_date = get_post_meta($post->ID, '_writing_due_date', true);
-        ?>
-        <input type="hidden" id="writing_complete_hidden" name="writing_complete" value="<?php echo esc_attr($is_complete === 'yes' ? 'yes' : 'no'); ?>">
-        <p>
-            <button type="button" id="writing_complete_button" class="button button-large draft-complete-toggle <?php echo esc_attr($is_complete === 'yes' ? 'is-complete' : 'is-incomplete'); ?>" aria-describedby="writing_complete_description" aria-pressed="<?php echo esc_attr($is_complete === 'yes' ? 'true' : 'false'); ?>" data-complete-text="<?php echo esc_attr__('Complete', 'writing-status'); ?>" data-incomplete-text="<?php echo esc_attr__('Incomplete', 'writing-status'); ?>">
-                <span class="writing-status-icon"><?php echo $is_complete === 'yes' ? '✓' : '✗'; ?></span>
-                <span class="writing-status-text"><?php echo $is_complete === 'yes' ? esc_html__('Complete', 'writing-status') : esc_html__('Incomplete', 'writing-status'); ?></span>
-            </button>
-        </p>
-        <p class="description" id="writing_complete_description">
-            <?php esc_html_e('Click to toggle the completion status of this draft. This helps you sort and track your writing progress.', 'writing-status'); ?>
-        </p>
-
-        <hr style="margin: 15px 0;">
-
-        <p>
-            <label for="writing_due_date">
-                <strong><?php esc_html_e('Due Date', 'writing-status'); ?></strong>
-            </label>
-        </p>
-        <p>
-            <input type="date"
-                   id="writing_due_date"
-                   name="writing_due_date"
-                   value="<?php echo esc_attr($due_date); ?>"
-                   style="width: 100%;">
-        </p>
-        <p class="description">
-            <?php esc_html_e('Set a target completion date for this draft.', 'writing-status'); ?>
-        </p>
-
-        <hr style="margin: 15px 0;">
-
-        <p>
-            <label for="writing_priority">
-                <strong><?php esc_html_e('Priority', 'writing-status'); ?></strong>
-            </label>
-        </p>
-        <p>
-            <?php
-            $priority = get_post_meta($post->ID, '_writing_priority', true);
-            if (empty($priority)) {
-                $priority = 'none'; // Default priority
-            }
-            ?>
-            <select id="writing_priority" name="writing_priority" style="width: 100%;">
-                <option value="none" <?php selected($priority, 'none'); ?>><?php esc_html_e('None', 'writing-status'); ?></option>
-                <option value="low" <?php selected($priority, 'low'); ?>><?php esc_html_e('Low', 'writing-status'); ?></option>
-                <option value="medium" <?php selected($priority, 'medium'); ?>><?php esc_html_e('Medium', 'writing-status'); ?></option>
-                <option value="high" <?php selected($priority, 'high'); ?>><?php esc_html_e('High', 'writing-status'); ?></option>
-                <option value="urgent" <?php selected($priority, 'urgent'); ?>><?php esc_html_e('Urgent', 'writing-status'); ?></option>
-            </select>
-        </p>
-        <p class="description">
-            <?php esc_html_e('Set the priority level for this draft.', 'writing-status'); ?>
-        </p>
-        <?php
-    }
-
-    /**
-     * Save completion status, due date, and priority
-     *
-     * Saves the draft completion status, due date, and priority when a post is saved.
-     * Includes security checks (nonce, capabilities, autosave) and input sanitization.
-     *
-     * Data is stored in post meta with keys '_writing_complete', '_writing_due_date', and '_writing_priority'.
-     *
-     * @since 1.0.0
-     * @param int $post_id The post ID being saved.
-     */
-    public function saveCompletionStatus($post_id) {
-        // Security check: Verify nonce to prevent CSRF attacks
-        if (!isset($_POST['writing_completion_nonce_field']) ||
-            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['writing_completion_nonce_field'])), 'writing_completion_nonce')) {
-            return;
-        }
-
-        // Don't save during autosave to avoid unnecessary database writes
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
-
-        // Permission check: Ensure user can edit this post
-        if (!current_user_can('edit_post', $post_id)) {
-            return;
-        }
-
-        // Sanitize and save completion status
-        if (isset($_POST['writing_complete'])) {
-            // Sanitize input using WordPress functions
-            $writing_complete = sanitize_text_field(wp_unslash($_POST['writing_complete']));
-
-            // Whitelist validation: Only accept 'yes' as valid value, everything else is 'no'
-            $value = ($writing_complete === 'yes') ? 'yes' : 'no';
-
-            // Save to post meta with underscore prefix (hidden from custom fields UI)
-            update_post_meta($post_id, '_writing_complete', $value);
-        } else {
-            // Checkbox not checked - save as 'no'
-            update_post_meta($post_id, '_writing_complete', 'no');
-        }
-
-        $this->saveDraftDueDate($post_id);
-        $this->saveDraftPriority($post_id);
-        delete_transient('writing_status_overdue_count');
-    }
-
-    /**
-     * Save bulk edit fields
-     *
-     * Handles saving of Writing Status fields submitted via the Bulk Edit panel.
-     * Only processes requests that include the bulk edit nonce; skips all others.
-     *
-     * @since 1.6.0
-     * @param int $post_id The post ID being saved.
-     */
     public function saveBulkEdit($post_id) {
         if (!isset($_REQUEST['_writing_status_bulk_nonce'])) {
             return;
@@ -544,13 +149,11 @@ class WritingStatus extends WritingStatusRenderer {
             return;
         }
 
-        // Completion status — empty string means "no change"
         if (isset($_REQUEST['writing_complete_bulk']) && $_REQUEST['writing_complete_bulk'] !== '') {
             $value = sanitize_text_field(wp_unslash($_REQUEST['writing_complete_bulk']));
             update_post_meta($post_id, '_writing_complete', $value === 'yes' ? 'yes' : 'no');
         }
 
-        // Priority — empty string means "no change"
         if (isset($_REQUEST['writing_priority_bulk']) && $_REQUEST['writing_priority_bulk'] !== '') {
             $priority = sanitize_text_field(wp_unslash($_REQUEST['writing_priority_bulk']));
             if (in_array($priority, $this->getValidPriorities(), true)) {
@@ -558,7 +161,6 @@ class WritingStatus extends WritingStatusRenderer {
             }
         }
 
-        // Due date — empty means "no change"; valid YYYY-MM-DD sets the date
         if (!empty($_REQUEST['writing_due_date_bulk'])) {
             $due_date = sanitize_text_field(wp_unslash($_REQUEST['writing_due_date_bulk']));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $due_date)) {
@@ -569,15 +171,6 @@ class WritingStatus extends WritingStatusRenderer {
         delete_transient('writing_status_overdue_count');
     }
 
-    /**
-     * Show overdue drafts notice
-     *
-     * Displays a warning banner on the Posts list and Dashboard when there
-     * are incomplete drafts whose due date has passed. The count is cached
-     * in a transient for one hour and flushed immediately on any post save.
-     *
-     * @since 1.6.0
-     */
     public function showOverdueNotice() {
         $screen = get_current_screen();
         if (!$screen || !in_array($screen->id, array('edit-post', 'dashboard'), true)) {
@@ -599,7 +192,6 @@ class WritingStatus extends WritingStatusRenderer {
             '<div class="notice notice-warning"><p>%s</p></div>',
             wp_kses(
                 sprintf(
-                    /* translators: %1$d: number of overdue drafts, %2$s: URL to drafts list */
                     _n(
                         'Writing Status: <strong>%1$d incomplete draft is overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
                         'Writing Status: <strong>%1$d incomplete drafts are overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
@@ -617,266 +209,6 @@ class WritingStatus extends WritingStatusRenderer {
         );
     }
 
-    /**
-     * Add filter dropdown to posts list
-     *
-     * Adds a dropdown filter above the posts list to filter by completion status.
-     * Shows options: All, Complete, and Incomplete.
-     *
-     * @since 1.0.0
-     * @param string $post_type The current post type.
-     */
-    public function addCompletionFilterDropdown($post_type) {
-        // Only show on the posts list page
-        if ($post_type !== 'post') {
-            return;
-        }
-
-        // Get current filter value from URL
-        $selected = isset($_GET['writing_completion_filter']) ? sanitize_text_field(wp_unslash($_GET['writing_completion_filter'])) : '';
-
-        ?>
-        <select name="writing_completion_filter" id="writing_completion_filter" aria-label="<?php esc_attr_e('Filter posts by completion status', 'writing-status'); ?>">
-            <option value=""><?php esc_html_e('All Completion Status', 'writing-status'); ?></option>
-            <option value="complete" <?php selected($selected, 'complete'); ?>><?php esc_html_e('Complete', 'writing-status'); ?></option>
-            <option value="incomplete" <?php selected($selected, 'incomplete'); ?>><?php esc_html_e('Incomplete', 'writing-status'); ?></option>
-        </select>
-
-        <?php
-        // Priority filter dropdown
-        $priority_selected = isset($_GET['writing_priority_filter']) ? sanitize_text_field(wp_unslash($_GET['writing_priority_filter'])) : '';
-        ?>
-        <select name="writing_priority_filter">
-            <option value=""><?php esc_html_e('All Priorities', 'writing-status'); ?></option>
-            <option value="urgent" <?php selected($priority_selected, 'urgent'); ?>><?php esc_html_e('Urgent', 'writing-status'); ?></option>
-            <option value="high" <?php selected($priority_selected, 'high'); ?>><?php esc_html_e('High', 'writing-status'); ?></option>
-            <option value="medium" <?php selected($priority_selected, 'medium'); ?>><?php esc_html_e('Medium', 'writing-status'); ?></option>
-            <option value="low" <?php selected($priority_selected, 'low'); ?>><?php esc_html_e('Low', 'writing-status'); ?></option>
-            <option value="none" <?php selected($priority_selected, 'none'); ?>><?php esc_html_e('None', 'writing-status'); ?></option>
-        </select>
-        <?php
-    }
-
-    /**
-     * Filter posts by completion status and priority
-     *
-     * Modifies the query to filter posts based on the selected completion status
-     * and/or priority from the dropdown filters. Only shows draft posts when filtering.
-     *
-     * @since 1.0.0
-     * @param WP_Query $query The WordPress query object.
-     */
-    public function filterPostsByCompletion($query) {
-        global $pagenow;
-
-        // Only modify admin queries on the posts list page
-        if (!is_admin() || $pagenow !== 'edit.php') {
-            return;
-        }
-
-        $has_completion_filter = isset($_GET['writing_completion_filter']);
-        $has_priority_filter = isset($_GET['writing_priority_filter']);
-
-        // If no filters are set, return
-        if (!$has_completion_filter && !$has_priority_filter) {
-            return;
-        }
-
-        $meta_query = $query->get('meta_query');
-        if (empty($meta_query) || !is_array($meta_query)) {
-            $meta_query = array();
-        }
-
-        $filter_meta_query = array('relation' => 'AND');
-
-        if ($has_completion_filter) {
-            $this->applyCompletionFilter($query, $filter_meta_query);
-        }
-
-        if ($has_priority_filter) {
-            $this->applyPriorityFilter($query, $filter_meta_query, $has_completion_filter);
-        }
-
-        // Apply meta query if we have filters
-        if (count($filter_meta_query) > 1) {
-            $meta_query[] = $filter_meta_query;
-            $query->set('meta_query', $meta_query);
-        }
-    }
-
-    /**
-     * Apply completion status filter clause to the query.
-     *
-     * @param WP_Query $query             The query object.
-     * @param array    &$filter_meta_query The meta_query array to append to.
-     */
-    private function applyCompletionFilter($query, &$filter_meta_query) {
-        $filter = sanitize_text_field(wp_unslash($_GET['writing_completion_filter']));
-
-        if ($filter === 'complete') {
-            $filter_meta_query[] = array(
-                'key' => '_writing_complete',
-                'value' => 'yes',
-                'compare' => '='
-            );
-            $query->set('post_status', 'draft');
-        } elseif ($filter === 'incomplete') {
-            $filter_meta_query[] = array(
-                'relation' => 'OR',
-                array(
-                    'key' => '_writing_complete',
-                    'value' => 'no',
-                    'compare' => '='
-                ),
-                array(
-                    'key' => '_writing_complete',
-                    'compare' => 'NOT EXISTS'
-                )
-            );
-            $query->set('post_status', 'draft');
-        }
-    }
-
-    /**
-     * Apply priority filter clause to the query.
-     *
-     * @param WP_Query $query              The query object.
-     * @param array    &$filter_meta_query  The meta_query array to append to.
-     * @param bool     $has_completion_filter Whether a completion filter is also active.
-     */
-    private function applyPriorityFilter($query, &$filter_meta_query, $has_completion_filter) {
-        $priority_filter = sanitize_text_field(wp_unslash($_GET['writing_priority_filter']));
-
-        if (in_array($priority_filter, $this->getValidPriorities(), true)) {
-            $filter_meta_query[] = array(
-                'key' => '_writing_priority',
-                'value' => $priority_filter,
-                'compare' => '='
-            );
-            if (!$has_completion_filter) {
-                $query->set('post_status', 'draft');
-            }
-        }
-    }
-
-    /**
-     * Add dashboard widget
-     *
-     * Registers a dashboard widget that shows draft statistics.
-     *
-     * @since 1.0.0
-     */
-    public function addDashboardWidget() {
-        wp_add_dashboard_widget(
-            'writing_status_widget',                           // Widget ID
-            __('Draft Writing Status', 'writing-status'), // Widget title
-            array($this, 'renderDashboardWidget')          // Callback function
-        );
-    }
-
-    /**
-     * Render dashboard widget content
-     *
-     * Displays statistics about draft completion status on the dashboard.
-     * Shows lists of incomplete and complete drafts with their titles.
-     *
-     * @since 1.0.0
-     */
-    public function renderDashboardWidget() {
-        // Get the queries
-        list($incomplete_query, $complete_query) = $this->getDashboardQueries();
-
-        ?>
-        <div class="writing-status-widget">
-            <?php $this->renderDashboardIncompletePosts($incomplete_query); ?>
-            <?php $this->renderDashboardCompletePosts($complete_query); ?>
-
-            <?php if (!$incomplete_query->have_posts() && !$complete_query->have_posts()): ?>
-                <output><?php esc_html_e('No drafts found. Start writing!', 'writing-status'); ?></output>
-            <?php endif; ?>
-
-            <p class="writing-status-link">
-                <a href="<?php echo esc_url(admin_url('edit.php?post_status=draft&post_type=post')); ?>" aria-label="<?php esc_attr_e('View all draft posts in the posts list', 'writing-status'); ?>">
-                    <?php esc_html_e('View All Drafts →', 'writing-status'); ?>
-                </a>
-            </p>
-        </div>
-        <?php
-
-        // Reset post data
-        wp_reset_postdata();
-    }
-
-    /**
-     * Register meta fields for REST API
-     *
-     * Registers the _writing_complete, _writing_due_date, and _writing_priority meta fields
-     * with REST API support for Gutenberg block editor and headless WordPress usage.
-     *
-     * @since 1.2.0
-     */
-    public function registerMetaField() {
-        // Register completion status field
-        register_post_meta('post', '_writing_complete', array(
-            'type' => 'string',
-            'description' => __('Draft completion status', 'writing-status'),
-            'single' => true,
-            'show_in_rest' => true,
-            'default' => 'no',
-            'sanitize_callback' => function($value) {
-                // Only allow 'yes' or 'no' values
-                return ($value === 'yes') ? 'yes' : 'no';
-            },
-            'auth_callback' => function() {
-                // Only allow users who can edit posts
-                return current_user_can('edit_posts');
-            }
-        ));
-
-        // Register due date field
-        register_post_meta('post', '_writing_due_date', array(
-            'type' => 'string',
-            'description' => __('Draft due date', 'writing-status'),
-            'single' => true,
-            'show_in_rest' => true,
-            'default' => '',
-            'sanitize_callback' => function($value) {
-                // Validate date format (YYYY-MM-DD) or empty string
-                if (empty($value) || preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
-                    return $value;
-                }
-                return '';
-            },
-            'auth_callback' => function() {
-                // Only allow users who can edit posts
-                return current_user_can('edit_posts');
-            }
-        ));
-
-        // Register priority field
-        register_post_meta('post', '_writing_priority', array(
-            'type' => 'string',
-            'description' => __('Draft priority level', 'writing-status'),
-            'single' => true,
-            'show_in_rest' => true,
-            'default' => 'none',
-            'sanitize_callback' => array($this, 'sanitizePriorityValue'),
-            'auth_callback' => function() {
-                // Only allow users who can edit posts
-                return current_user_can('edit_posts');
-            }
-        ));
-    }
-
-    /**
-     * Migrate legacy meta keys on plugin activation
-     *
-     * Renames _draft_complete, _draft_due_date, and _draft_priority rows in
-     * wp_postmeta to the new _writing_* key names. Safe to run more than once
-     * (UPDATE on a non-existent key is a no-op).
-     *
-     * @since 1.7.0
-     */
     public static function migrateMetaKeys() {
         global $wpdb;
 
@@ -896,17 +228,8 @@ class WritingStatus extends WritingStatusRenderer {
             );
         }
     }
-
 }
 
 register_activation_hook(__FILE__, array('WritingStatus', 'migrateMetaKeys'));
 
-/**
- * Initialize the plugin
- *
- * Creates a new instance of the WritingStatus class.
- * This is executed immediately when the plugin file is loaded.
- *
- * @since 1.0.0
- */
 $writing_status = new WritingStatus();
