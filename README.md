@@ -35,11 +35,13 @@ Writing Status helps content creators and site administrators manage their writi
 ### How It Works
 
 **For Published Posts:**
+
 * Posts with "Published" status automatically display "● Published" in blue
 * This appears in both the posts list column and the post editor sidebar
 * No manual marking required
 
 **For Draft Posts:**
+
 * A toggle button appears in the post editor meta box: mark the draft complete or incomplete
 * Optionally set a priority (Low / Medium / High / Urgent) and a due date
 * Complete drafts show "✓ Complete" in green; incomplete drafts show "✗ Incomplete" in red
@@ -119,15 +121,18 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 ## Changelog
 
 ### 1.9.0
+
 * Added native Gutenberg panel in the Document tab sidebar (completion toggle, priority, due date)
 * Panel integrates with Gutenberg's save system — fields save automatically with the post via REST API
 * Legacy PHP meta box now hidden in the block editor; Classic Editor users retain it unchanged
 
 ### 1.8.0
+
 * Added Writing Status fields (completion, priority, due date) to the Quick Edit panel
 * Quick Edit pre-populates current values so only the fields you want to change need updating
 
 ### 1.7.0
+
 * Renamed plugin from "Draft Status" to "Writing Status"
 * Renamed database meta keys: `_draft_complete` → `_writing_complete`, `_draft_due_date` → `_writing_due_date`, `_draft_priority` → `_writing_priority`
 * Migration runs automatically on plugin (re)activation to rename existing post meta rows
@@ -135,15 +140,18 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 * Fixed unsaved-changes warning persisting after saving in Gutenberg
 
 ### 1.6.0
+
 * Added Writing Status fields to the Bulk Edit panel (completion, priority, due date)
 * "— No Change —" sentinel ensures unmodified fields are never overwritten during bulk edits
 
 ### 1.5.0
+
 * Unsaved changes warning: editor prompts before navigation if meta box changes are pending
 * Warning integrates with Gutenberg's built-in "unsaved changes" system via wp.data
 * Refactored rendering logic into a separate WritingStatusRenderer class
 
 ### 1.4.0
+
 * Added priority levels: Low, Medium, High, Urgent
 * Added per-post due dates with automatic overdue / soon-due highlighting
 * Added filter dropdowns to the posts list for completion and priority
@@ -151,9 +159,11 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 * Sort order now considers priority alongside completion status
 
 ### 1.2.0
+
 * Registered meta fields with REST API support for Gutenberg and headless usage
 
 ### 1.0.0
+
 * Initial release
 * Added Writing Status column to posts list
 * Added Completion Status meta box to post editor
@@ -165,18 +175,23 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 ## Upgrade Notice
 
 ### 1.9.0
+
 Adds a native Gutenberg sidebar panel. No database changes required.
 
 ### 1.8.0
+
 Adds Quick Edit support. No database changes required.
 
 ### 1.7.0
+
 Renames the plugin and its database meta keys. After updating, deactivate and reactivate the plugin once so the migration can rename existing post meta rows. No data is lost.
 
 ### 1.6.0
+
 Adds Bulk Edit support for Writing Status fields. No database changes required.
 
 ### 1.0.0
+
 Initial release of Writing Status.
 
 ## Additional Information
