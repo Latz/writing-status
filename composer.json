@@ -15,7 +15,7 @@
 	"scripts": {
 		"test": "phpunit --testsuite unit",
 		"test:unit": "phpunit --testsuite unit",
-		"test:integration": "phpunit --testsuite integration --bootstrap tests/integration-bootstrap.php",
+		"test:integration": "WP_TESTS_DIR=/tmp/wordpress-tests-lib php vendor/bin/phpunit --testsuite integration --bootstrap tests/integration-bootstrap.php",
 		"install-wp-tests": "bash bin/install-wp-tests.sh"
 	}
 }

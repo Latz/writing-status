@@ -1,13 +1,13 @@
 <?php
 /**
- * WordPress test configuration for Draft Status integration tests.
+ * WordPress test configuration for Writing Status integration tests.
  *
  * This file is used by the WordPress test library to set up the test
  * database. Credentials match the Docker environment.
  */
 
 /* Path to the WordPress codebase you'd like to test. Add a trailing slash. */
-define( 'ABSPATH', '/var/www/html/' );
+define( 'ABSPATH', '/home/latz/www/wp/' );
 
 /* Path to the theme directory */
 define( 'WP_DEFAULT_THEME', 'default' );
@@ -19,7 +19,7 @@ define( 'WP_DEFAULT_THEME', 'default' );
 // define( 'WP_TESTS_FORCE_KNOWN_BUGS', true );
 
 /* The hostname of the database server */
-define( 'DB_HOST', 'db' );
+define( 'DB_HOST', '127.0.0.1' );
 
 /* The name of the database */
 define( 'DB_NAME', 'wordpress_tests' );
