@@ -19,10 +19,10 @@ _box_col() {  # _box_col "Label" "Val1" "Val2" "Val3"
 }
 # ────────────────────────────────────────────────────────────────────────────
 
-# -y / --yes : alle Pausen überspringen
-NON_INTERACTIVE=false
+# Non-interactive by default; -i / --interactive restores the pauses.
+NON_INTERACTIVE=true
 for ARG in "$@"; do
-  [[ "$ARG" == "-y" || "$ARG" == "--yes" ]] && NON_INTERACTIVE=true
+  [[ "$ARG" == "-i" || "$ARG" == "--interactive" ]] && NON_INTERACTIVE=false
 done
 
 weiter_oder_beenden() {
