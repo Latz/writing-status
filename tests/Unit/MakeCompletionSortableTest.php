@@ -1,43 +1,36 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Unit tests for WritingStatus::makeCompletionSortable().
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatusColumn();
+});
 
-class MakeCompletionSortableTest extends TestCase {
+describe('WritingStatusColumn::makeCompletionSortable()', function (): void {
 
-    /** @var WritingStatus */
-    private $plugin;
+    it('adds writing_completion to sortable columns', function (): void {
+        $result = $this->plugin->makeCompletionSortable([]);
+        expect($result)->toHaveKey('writing_completion');
+    });
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatusColumn();
-    }
+    it('sortable key maps to writing_completion orderby', function (): void {
+        $result = $this->plugin->makeCompletionSortable([]);
+        expect($result['writing_completion'])->toBe('writing_completion');
+    });
 
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
+    it('preserves existing sortable columns', function (): void {
+        $existing = ['title' => 'title', 'date' => 'date'];
+        $result   = $this->plugin->makeCompletionSortable($existing);
 
-    #[Test]
-    public function adds_writing_completion_to_sortable_columns(): void {
-        $result = $this->plugin->makeCompletionSortable( [] );
-        $this->assertArrayHasKey( 'writing_completion', $result );
-    }
-
-    #[Test]
-    public function sortable_key_maps_to_writing_completion_orderby(): void {
-        $result = $this->plugin->makeCompletionSortable( [] );
-        $this->assertSame( 'writing_completion', $result['writing_completion'] );
-    }
-
-    #[Test]
-    public function preserves_existing_sortable_columns(): void {
-        $existing = [ 'title' => 'title', 'date' => 'date' ];
-        $result   = $this->plugin->makeCompletionSortable( $existing );
-
-        $this->assertArrayHasKey( 'title', $result );
-        $this->assertArrayHasKey( 'date', $result );
-    }
-}
+        expect($result)->toHaveKey('title');
+        expect($result)->toHaveKey('date');
+    });
+});

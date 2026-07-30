@@ -1,62 +1,47 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Unit tests for WritingStatus::enqueueAdminStyles() — hook guard conditions.
  *
  * wp_enqueue_style and wp_enqueue_script are pre-stubbed as no-ops in
- * bootstrap.php, so WP_Mock cannot intercept them. Tests verify that the
- * method completes without error for each accepted hook value and that it
- * returns early (without error) for an irrelevant hook.
+ * tests/stubs/wp-stubs.php. Tests verify that the method completes without
+ * error for each accepted hook value and returns early for an irrelevant hook.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatus();
+});
 
-class EnqueueAdminStylesTest extends TestCase {
+describe('WritingStatus::enqueueAdminStyles()', function (): void {
 
-    /** @var WritingStatus */
-    private $plugin;
+    it('irrelevant hook returns early without error', function (): void {
+        $this->plugin->enqueueAdminStyles('dashboard');
+        expect(true)->toBeTrue();
+    });
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
-    }
+    it('edit.php hook executes without error', function (): void {
+        $this->plugin->enqueueAdminStyles('edit.php');
+        expect(true)->toBeTrue();
+    });
 
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
+    it('post.php hook executes without error', function (): void {
+        $this->plugin->enqueueAdminStyles('post.php');
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function irrelevant_hook_returns_early_without_error(): void {
-        $this->plugin->enqueueAdminStyles( 'dashboard' );
+    it('post-new.php hook executes without error', function (): void {
+        $this->plugin->enqueueAdminStyles('post-new.php');
+        expect(true)->toBeTrue();
+    });
 
-        $this->assertTrue( true );
-    }
-
-    #[Test]
-    public function edit_php_hook_executes_without_error(): void {
-        $this->plugin->enqueueAdminStyles( 'edit.php' );
-
-        $this->assertTrue( true );
-    }
-
-    #[Test]
-    public function post_php_hook_executes_without_error(): void {
-        $this->plugin->enqueueAdminStyles( 'post.php' );
-
-        $this->assertTrue( true );
-    }
-
-    #[Test]
-    public function post_new_php_hook_executes_without_error(): void {
-        $this->plugin->enqueueAdminStyles( 'post-new.php' );
-
-        $this->assertTrue( true );
-    }
-
-    #[Test]
-    public function index_php_hook_executes_without_error(): void {
-        $this->plugin->enqueueAdminStyles( 'index.php' );
-
-        $this->assertTrue( true );
-    }
-}
+    it('index.php hook executes without error', function (): void {
+        $this->plugin->enqueueAdminStyles('index.php');
+        expect(true)->toBeTrue();
+    });
+});

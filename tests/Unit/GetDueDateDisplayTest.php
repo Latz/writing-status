@@ -1,119 +1,94 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
- * Unit tests for WritingStatus::getDueDateDisplay() via renderDueDate() output.
- *
- * getDueDateDisplay() is private, so we test it through renderDueDate() by
- * capturing output. The four states under test:
- *   - overdue  (date in the past)
- *   - due today
- *   - due soon (within 3 days)
- *   - due later (more than 3 days away)
+ * Unit tests for WritingStatus::getDueDateDisplay() (private, called via
+ * reflection). Covers overdue, due-today, due-soon, and due-later states.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatus();
 
-class GetDueDateDisplayTest extends TestCase {
+    $ref          = new ReflectionClass(WritingStatus::class);
+    $method       = $ref->getMethod('getDueDateDisplay');
+    $method->setAccessible(true);
 
-    /** @var WritingStatus */
-    private $plugin;
+    $this->call = fn (string $date): array => $method->invoke($this->plugin, $date);
+});
 
-    /** @var ReflectionMethod */
-    private $method;
+describe('WritingStatus::getDueDateDisplay()', function (): void {
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
+    it('overdue date returns overdue css class', function (): void {
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $result    = ($this->call)($yesterday);
 
-        // Access getDueDateDisplay() directly via reflection since it is private.
-        $ref          = new ReflectionClass( WritingStatus::class );
-        $this->method = $ref->getMethod( 'getDueDateDisplay' );
-        $this->method->setAccessible( true );
-    }
+        expect($result['class'])->toContain('draft-due-overdue');
+    });
 
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
+    it('overdue date label contains overdue text', function (): void {
+        $yesterday = date('Y-m-d', strtotime('-7 days'));
+        $result    = ($this->call)($yesterday);
 
-    private function call( string $date ): array {
-        return $this->method->invoke( $this->plugin, $date );
-    }
+        expect($result['label'])->toContain('Overdue');
+    });
 
-    #[Test]
-    public function overdue_date_returns_overdue_css_class(): void {
-        $yesterday = date( 'Y-m-d', strtotime( '-1 day' ) );
-        $result    = $this->call( $yesterday );
+    it('today returns due today css class', function (): void {
+        $today  = date('Y-m-d');
+        $result = ($this->call)($today);
 
-        $this->assertStringContainsString( 'draft-due-overdue', $result['class'] );
-    }
+        expect($result['class'])->toContain('draft-due-today');
+    });
 
-    #[Test]
-    public function overdue_date_label_contains_overdue_text(): void {
-        $yesterday = date( 'Y-m-d', strtotime( '-7 days' ) );
-        $result    = $this->call( $yesterday );
+    it('today label says due today', function (): void {
+        $today  = date('Y-m-d');
+        $result = ($this->call)($today);
 
-        $this->assertStringContainsString( 'Overdue', $result['label'] );
-    }
+        expect($result['label'])->toBe('Due today');
+    });
 
-    #[Test]
-    public function today_returns_due_today_css_class(): void {
-        $today  = date( 'Y-m-d' );
-        $result = $this->call( $today );
+    it('three days away returns due soon css class', function (): void {
+        $soon   = date('Y-m-d', strtotime('+3 days'));
+        $result = ($this->call)($soon);
 
-        $this->assertStringContainsString( 'draft-due-today', $result['class'] );
-    }
+        expect($result['class'])->toContain('draft-due-soon');
+    });
 
-    #[Test]
-    public function today_label_says_due_today(): void {
-        $today  = date( 'Y-m-d' );
-        $result = $this->call( $today );
+    it('one day away returns due soon css class', function (): void {
+        $tomorrow = date('Y-m-d', strtotime('+1 day'));
+        $result   = ($this->call)($tomorrow);
 
-        $this->assertSame( 'Due today', $result['label'] );
-    }
+        expect($result['class'])->toContain('draft-due-soon');
+    });
 
-    #[Test]
-    public function three_days_away_returns_due_soon_css_class(): void {
-        $soon   = date( 'Y-m-d', strtotime( '+3 days' ) );
-        $result = $this->call( $soon );
+    it('four days away returns base class only', function (): void {
+        $later  = date('Y-m-d', strtotime('+4 days'));
+        $result = ($this->call)($later);
 
-        $this->assertStringContainsString( 'draft-due-soon', $result['class'] );
-    }
+        expect($result['class'])->not->toContain('draft-due-overdue');
+        expect($result['class'])->not->toContain('draft-due-today');
+        expect($result['class'])->not->toContain('draft-due-soon');
+        expect($result['class'])->toContain('draft-due-date');
+    });
 
-    #[Test]
-    public function one_day_away_returns_due_soon_css_class(): void {
-        $tomorrow = date( 'Y-m-d', strtotime( '+1 day' ) );
-        $result   = $this->call( $tomorrow );
+    it('four days away label contains due prefix', function (): void {
+        $later  = date('Y-m-d', strtotime('+4 days'));
+        $result = ($this->call)($later);
 
-        $this->assertStringContainsString( 'draft-due-soon', $result['class'] );
-    }
+        expect($result['label'])->toContain('Due:');
+    });
 
-    #[Test]
-    public function four_days_away_returns_base_class_only(): void {
-        $later  = date( 'Y-m-d', strtotime( '+4 days' ) );
-        $result = $this->call( $later );
+    it('result always contains class and label keys', function (): void {
+        foreach (['-5 days', 'today', '+2 days', '+10 days'] as $offset) {
+            $date   = date('Y-m-d', strtotime($offset));
+            $result = ($this->call)($date);
 
-        $this->assertStringNotContainsString( 'draft-due-overdue', $result['class'] );
-        $this->assertStringNotContainsString( 'draft-due-today', $result['class'] );
-        $this->assertStringNotContainsString( 'draft-due-soon', $result['class'] );
-        $this->assertStringContainsString( 'draft-due-date', $result['class'] );
-    }
-
-    #[Test]
-    public function four_days_away_label_contains_due_prefix(): void {
-        $later  = date( 'Y-m-d', strtotime( '+4 days' ) );
-        $result = $this->call( $later );
-
-        $this->assertStringContainsString( 'Due:', $result['label'] );
-    }
-
-    #[Test]
-    public function result_always_contains_class_and_label_keys(): void {
-        foreach ( [ '-5 days', 'today', '+2 days', '+10 days' ] as $offset ) {
-            $date   = date( 'Y-m-d', strtotime( $offset ) );
-            $result = $this->call( $date );
-
-            $this->assertArrayHasKey( 'class', $result, "Missing 'class' for offset: $offset" );
-            $this->assertArrayHasKey( 'label', $result, "Missing 'label' for offset: $offset" );
+            expect($result)->toHaveKey('class');
+            expect($result)->toHaveKey('label');
         }
-    }
-}
+    });
+});

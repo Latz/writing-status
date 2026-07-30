@@ -1,100 +1,74 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatusRenderer::renderCompletionStatus() — output verification.
- *
- * Tests that the method outputs the correct HTML span for both complete
- * and incomplete states, including CSS classes and Unicode symbols.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatus();
 
-class RenderCompletionStatusTest extends TestCase {
+    $method = new ReflectionMethod(WritingStatus::class, 'renderCompletionStatus');
+    $method->setAccessible(true);
 
-    /** @var WritingStatus */
-    private $plugin;
-
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
-    }
-
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
-
-    #[Test]
-    public function complete_status_outputs_complete_span(): void {
-        WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
-
-        $method = new ReflectionMethod( WritingStatus::class, 'renderCompletionStatus' );
-        $method->setAccessible( true );
-
+    $this->call = function (string $status) use ($method): string {
         ob_start();
-        $method->invoke( $this->plugin, 'yes' );
-        $output = ob_get_clean();
+        $method->invoke($this->plugin, $status);
+        return ob_get_clean();
+    };
+});
 
-        $this->assertStringContainsString( 'writing-status-complete', $output );
-    }
+describe('WritingStatusRenderer::renderCompletionStatus()', function (): void {
 
-    #[Test]
-    public function complete_status_outputs_checkmark(): void {
-        WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
+    it('complete status outputs complete span', function (): void {
+        Functions\when('esc_attr__')->returnArg();
+        Functions\when('esc_html__')->returnArg();
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderCompletionStatus' );
-        $method->setAccessible( true );
+        $output = ($this->call)('yes');
 
-        ob_start();
-        $method->invoke( $this->plugin, 'yes' );
-        $output = ob_get_clean();
+        expect($output)->toContain('writing-status-complete');
+    });
 
-        $this->assertStringContainsString( '✓', $output );
-    }
+    it('complete status outputs checkmark', function (): void {
+        Functions\when('esc_attr__')->returnArg();
+        Functions\when('esc_html__')->returnArg();
 
-    #[Test]
-    public function incomplete_status_outputs_incomplete_span(): void {
-        WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
+        $output = ($this->call)('yes');
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderCompletionStatus' );
-        $method->setAccessible( true );
+        expect($output)->toContain('✓');
+    });
 
-        ob_start();
-        $method->invoke( $this->plugin, 'no' );
-        $output = ob_get_clean();
+    it('incomplete status outputs incomplete span', function (): void {
+        Functions\when('esc_attr__')->returnArg();
+        Functions\when('esc_html__')->returnArg();
 
-        $this->assertStringContainsString( 'writing-status-incomplete', $output );
-    }
+        $output = ($this->call)('no');
 
-    #[Test]
-    public function incomplete_status_outputs_x_symbol(): void {
-        WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
+        expect($output)->toContain('writing-status-incomplete');
+    });
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderCompletionStatus' );
-        $method->setAccessible( true );
+    it('incomplete status outputs x symbol', function (): void {
+        Functions\when('esc_attr__')->returnArg();
+        Functions\when('esc_html__')->returnArg();
 
-        ob_start();
-        $method->invoke( $this->plugin, 'no' );
-        $output = ob_get_clean();
+        $output = ($this->call)('no');
 
-        $this->assertStringContainsString( '✗', $output );
-    }
+        expect($output)->toContain('✗');
+    });
 
-    #[Test]
-    public function empty_string_status_outputs_incomplete_span(): void {
-        WP_Mock::userFunction( 'esc_attr__' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
+    it('empty string status outputs incomplete span', function (): void {
+        Functions\when('esc_attr__')->returnArg();
+        Functions\when('esc_html__')->returnArg();
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderCompletionStatus' );
-        $method->setAccessible( true );
+        $output = ($this->call)('');
 
-        ob_start();
-        $method->invoke( $this->plugin, '' );
-        $output = ob_get_clean();
-
-        $this->assertStringContainsString( 'writing-status-incomplete', $output );
-    }
-}
+        expect($output)->toContain('writing-status-incomplete');
+    });
+});

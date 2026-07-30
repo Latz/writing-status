@@ -1,122 +1,97 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Unit tests for WritingStatus::saveDraftDueDate() and WritingStatus::saveDraftPriority().
  *
  * Both methods are protected. They are exercised via ReflectionMethod.
- *
  * update_post_meta, delete_post_meta, sanitize_text_field, and wp_unslash are
- * defined as real no-op stubs in bootstrap.php. WP_Mock cannot override them,
- * so these tests assert that each code path executes without error rather than
- * verifying call arguments.
+ * defined as real no-op stubs in tests/stubs/wp-stubs.php, so these tests
+ * assert that each code path executes without error rather than verifying
+ * call arguments.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatus();
 
-class SaveDraftMetaTest extends TestCase {
+    $this->saveDraftDueDate = new ReflectionMethod(WritingStatus::class, 'saveDraftDueDate');
+    $this->saveDraftDueDate->setAccessible(true);
 
-    /** @var WritingStatus */
-    private $plugin;
+    $this->saveDraftPriority = new ReflectionMethod(WritingStatus::class, 'saveDraftPriority');
+    $this->saveDraftPriority->setAccessible(true);
+});
 
-    /** @var \ReflectionMethod */
-    private $saveDraftDueDate;
+afterEach(function (): void {
+    unset($_POST['writing_due_date'], $_POST['writing_priority']);
+});
 
-    /** @var \ReflectionMethod */
-    private $saveDraftPriority;
+describe('WritingStatus::saveDraftDueDate()', function (): void {
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
-
-        $this->saveDraftDueDate = new \ReflectionMethod( WritingStatus::class, 'saveDraftDueDate' );
-        $this->saveDraftDueDate->setAccessible( true );
-
-        $this->saveDraftPriority = new \ReflectionMethod( WritingStatus::class, 'saveDraftPriority' );
-        $this->saveDraftPriority->setAccessible( true );
-    }
-
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-        unset( $_POST['writing_due_date'], $_POST['writing_priority'] );
-    }
-
-    // -------------------------------------------------------------------------
-    // saveDraftDueDate
-    // -------------------------------------------------------------------------
-
-    #[Test]
-    public function save_due_date_with_valid_date_executes_without_error(): void {
+    it('valid date executes without error', function (): void {
         $_POST['writing_due_date'] = '2026-12-31';
 
-        $this->saveDraftDueDate->invoke( $this->plugin, 1 );
+        $this->saveDraftDueDate->invoke($this->plugin, 1);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function save_due_date_with_empty_string_executes_without_error(): void {
+    it('empty string executes without error', function (): void {
         $_POST['writing_due_date'] = '';
 
-        $this->saveDraftDueDate->invoke( $this->plugin, 1 );
+        $this->saveDraftDueDate->invoke($this->plugin, 1);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function save_due_date_with_invalid_format_executes_without_error(): void {
+    it('invalid format executes without error', function (): void {
         $_POST['writing_due_date'] = 'not-a-date';
 
-        $this->saveDraftDueDate->invoke( $this->plugin, 1 );
+        $this->saveDraftDueDate->invoke($this->plugin, 1);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function save_due_date_without_post_key_executes_without_error(): void {
-        // $_POST['writing_due_date'] is intentionally not set.
+    it('without post key executes without error', function (): void {
+        $this->saveDraftDueDate->invoke($this->plugin, 1);
 
-        $this->saveDraftDueDate->invoke( $this->plugin, 1 );
+        expect(true)->toBeTrue();
+    });
+});
 
-        $this->assertTrue( true );
-    }
+describe('WritingStatus::saveDraftPriority()', function (): void {
 
-    // -------------------------------------------------------------------------
-    // saveDraftPriority
-    // -------------------------------------------------------------------------
-
-    #[Test]
-    public function save_priority_with_valid_priority_executes_without_error(): void {
+    it('valid priority executes without error', function (): void {
         $_POST['writing_priority'] = 'high';
 
-        $this->saveDraftPriority->invoke( $this->plugin, 1 );
+        $this->saveDraftPriority->invoke($this->plugin, 1);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function save_priority_with_invalid_priority_executes_without_error(): void {
+    it('invalid priority executes without error', function (): void {
         $_POST['writing_priority'] = 'invalid';
 
-        $this->saveDraftPriority->invoke( $this->plugin, 1 );
+        $this->saveDraftPriority->invoke($this->plugin, 1);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function save_priority_with_none_executes_without_error(): void {
+    it('none executes without error', function (): void {
         $_POST['writing_priority'] = 'none';
 
-        $this->saveDraftPriority->invoke( $this->plugin, 1 );
+        $this->saveDraftPriority->invoke($this->plugin, 1);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function save_priority_without_post_key_executes_without_error(): void {
-        // $_POST['writing_priority'] is intentionally not set.
+    it('without post key executes without error', function (): void {
+        $this->saveDraftPriority->invoke($this->plugin, 1);
 
-        $this->saveDraftPriority->invoke( $this->plugin, 1 );
-
-        $this->assertTrue( true );
-    }
-}
+        expect(true)->toBeTrue();
+    });
+});

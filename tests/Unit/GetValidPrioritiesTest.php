@@ -1,106 +1,86 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Unit tests for WritingStatus::getValidPriorities(), getPriorityLabels(),
  * and registerMetaField().
- *
- * These tests run entirely with WP_Mock — no database required.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatus();
+});
 
-class GetValidPrioritiesTest extends TestCase {
+describe('WritingStatus::getValidPriorities()', function (): void {
 
-    /** @var WritingStatus */
-    private $plugin;
+    it('returns array with five priorities', function (): void {
+        $method = new ReflectionMethod(WritingStatus::class, 'getValidPriorities');
+        $method->setAccessible(true);
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
-    }
+        $result = $method->invoke($this->plugin);
 
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
+        expect($result)->toHaveCount(5);
+    });
 
-    // -------------------------------------------------------------------------
-    // getValidPriorities
-    // -------------------------------------------------------------------------
+    it('contains all expected priorities', function (): void {
+        $method = new ReflectionMethod(WritingStatus::class, 'getValidPriorities');
+        $method->setAccessible(true);
 
-    #[Test]
-    public function returns_array_with_five_priorities(): void {
-        $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
-        $method->setAccessible( true );
+        $result = $method->invoke($this->plugin);
 
-        $result = $method->invoke( $this->plugin );
-
-        $this->assertCount( 5, $result );
-    }
-
-    #[Test]
-    public function contains_all_expected_priorities(): void {
-        $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
-        $method->setAccessible( true );
-
-        $result = $method->invoke( $this->plugin );
-
-        foreach ( [ 'none', 'low', 'medium', 'high', 'urgent' ] as $priority ) {
-            $this->assertContains( $priority, $result );
+        foreach (['none', 'low', 'medium', 'high', 'urgent'] as $priority) {
+            expect($result)->toContain($priority);
         }
-    }
+    });
 
-    #[Test]
-    public function urgent_is_in_valid_priorities(): void {
-        $method = new ReflectionMethod( WritingStatus::class, 'getValidPriorities' );
-        $method->setAccessible( true );
+    it('urgent is in valid priorities', function (): void {
+        $method = new ReflectionMethod(WritingStatus::class, 'getValidPriorities');
+        $method->setAccessible(true);
 
-        $result = $method->invoke( $this->plugin );
+        $result = $method->invoke($this->plugin);
 
-        $this->assertTrue( in_array( 'urgent', $result, true ) );
-    }
+        expect(in_array('urgent', $result, true))->toBeTrue();
+    });
+});
 
-    // -------------------------------------------------------------------------
-    // getPriorityLabels
-    // -------------------------------------------------------------------------
+describe('WritingStatus::getPriorityLabels()', function (): void {
 
-    #[Test]
-    public function returns_four_labels(): void {
-        $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
-        $method->setAccessible( true );
+    it('returns four labels', function (): void {
+        $method = new ReflectionMethod(WritingStatus::class, 'getPriorityLabels');
+        $method->setAccessible(true);
 
-        $result = $method->invoke( $this->plugin );
+        $result = $method->invoke($this->plugin);
 
-        $this->assertCount( 4, $result );
-    }
+        expect($result)->toHaveCount(4);
+    });
 
-    #[Test]
-    public function does_not_contain_none_key(): void {
-        $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
-        $method->setAccessible( true );
+    it('does not contain none key', function (): void {
+        $method = new ReflectionMethod(WritingStatus::class, 'getPriorityLabels');
+        $method->setAccessible(true);
 
-        $result = $method->invoke( $this->plugin );
+        $result = $method->invoke($this->plugin);
 
-        $this->assertFalse( array_key_exists( 'none', $result ) );
-    }
+        expect(array_key_exists('none', $result))->toBeFalse();
+    });
 
-    #[Test]
-    public function contains_high_key(): void {
-        $method = new ReflectionMethod( WritingStatus::class, 'getPriorityLabels' );
-        $method->setAccessible( true );
+    it('contains high key', function (): void {
+        $method = new ReflectionMethod(WritingStatus::class, 'getPriorityLabels');
+        $method->setAccessible(true);
 
-        $result = $method->invoke( $this->plugin );
+        $result = $method->invoke($this->plugin);
 
-        $this->assertTrue( array_key_exists( 'high', $result ) );
-    }
+        expect(array_key_exists('high', $result))->toBeTrue();
+    });
+});
 
-    // -------------------------------------------------------------------------
-    // registerMetaField
-    // -------------------------------------------------------------------------
+describe('WritingStatus::registerMetaField()', function (): void {
 
-    #[Test]
-    public function register_meta_field_executes_without_error(): void {
+    it('executes without error', function (): void {
         $this->plugin->registerMetaField();
-
-        $this->assertTrue( true );
-    }
-}
+        expect(true)->toBeTrue();
+    });
+});

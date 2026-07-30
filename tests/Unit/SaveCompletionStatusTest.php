@@ -1,4 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatus::saveCompletionStatus() — security guards.
  *
@@ -6,189 +15,162 @@
  * three security conditions: missing nonce, autosave, insufficient capability.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatusMetaBox();
+});
 
-class SaveCompletionStatusTest extends TestCase {
+afterEach(function (): void {
+    unset(
+        $_POST['writing_completion_nonce_field'],
+        $_POST['writing_complete'],
+        $_POST['writing_due_date'],
+        $_POST['writing_priority']
+    );
+});
 
-    /** @var WritingStatus */
-    private $plugin;
+describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatusMetaBox();
-    }
+    it('returns early when nonce field is missing', function (): void {
+        unset($_POST['writing_completion_nonce_field']);
 
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-        unset(
-            $_POST['writing_completion_nonce_field'],
-            $_POST['writing_complete'],
-            $_POST['writing_due_date'],
-            $_POST['writing_priority']
-        );
-    }
+        Functions\expect('update_post_meta')->never();
 
-    #[Test]
-    public function returns_early_when_nonce_field_is_missing(): void {
-        unset( $_POST['writing_completion_nonce_field'] );
+        $this->plugin->saveCompletionStatus(42);
 
-        // update_post_meta must never be called.
-        WP_Mock::userFunction( 'update_post_meta' )->never();
+        expect(true)->toBeTrue();
+    });
 
-        $this->plugin->saveCompletionStatus( 42 );
-
-        $this->assertTrue( true );
-    }
-
-    #[Test]
-    public function returns_early_when_nonce_verification_fails(): void {
+    it('returns early when nonce verification fails', function (): void {
         $_POST['writing_completion_nonce_field'] = 'bad_nonce';
 
-        WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_verify_nonce' )->andReturn( false );
-        WP_Mock::userFunction( 'update_post_meta' )->never();
+        Functions\when('sanitize_text_field')->returnArg();
+        Functions\when('wp_unslash')->returnArg();
+        Functions\when('wp_verify_nonce')->justReturn(false);
+        Functions\expect('update_post_meta')->never();
 
-        $this->plugin->saveCompletionStatus( 42 );
+        $this->plugin->saveCompletionStatus(42);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function returns_early_during_autosave_even_with_valid_nonce(): void {
-        if ( defined( 'DOING_AUTOSAVE' ) ) {
-            // Constant already set by a previous test run in the same process.
-            // The autosave guard will fire — this test is still valid.
-        } else {
-            define( 'DOING_AUTOSAVE', true );
+    it('returns early during autosave even with valid nonce', function (): void {
+        if (!defined('DOING_AUTOSAVE')) {
+            define('DOING_AUTOSAVE', true);
         }
 
         $_POST['writing_completion_nonce_field'] = 'nonce';
 
-        WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_verify_nonce' )->andReturn( 1 );
-        WP_Mock::userFunction( 'update_post_meta' )->never();
+        Functions\when('sanitize_text_field')->returnArg();
+        Functions\when('wp_unslash')->returnArg();
+        Functions\when('wp_verify_nonce')->justReturn(1);
+        Functions\expect('update_post_meta')->never();
 
-        $this->plugin->saveCompletionStatus( 42 );
+        $this->plugin->saveCompletionStatus(42);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function returns_early_when_user_lacks_edit_capability(): void {
-        if ( defined( 'DOING_AUTOSAVE' ) ) {
-            $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, capability check cannot be reached.' );
+    it('returns early when user lacks edit capability', function (): void {
+        if (defined('DOING_AUTOSAVE')) {
+            $this->markTestSkipped('DOING_AUTOSAVE defined — autosave guard fires first, capability check cannot be reached.');
         }
 
         $_POST['writing_completion_nonce_field'] = 'nonce';
 
-        WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_verify_nonce' )->andReturn( 1 );
-        WP_Mock::userFunction( 'current_user_can' )
-            ->with( 'edit_post', 99 )
-            ->andReturn( false );
-        WP_Mock::userFunction( 'update_post_meta' )->never();
+        Functions\when('sanitize_text_field')->returnArg();
+        Functions\when('wp_unslash')->returnArg();
+        Functions\when('wp_verify_nonce')->justReturn(1);
+        Functions\expect('current_user_can')
+            ->with('edit_post', 99)
+            ->andReturn(false);
+        Functions\expect('update_post_meta')->never();
 
-        $this->plugin->saveCompletionStatus( 99 );
+        $this->plugin->saveCompletionStatus(99);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function saves_no_when_writing_complete_not_in_post(): void {
-        if ( defined( 'DOING_AUTOSAVE' ) ) {
-            $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, else branch cannot be reached.' );
+    it('saves no when writing_complete not in post', function (): void {
+        if (defined('DOING_AUTOSAVE')) {
+            $this->markTestSkipped('DOING_AUTOSAVE defined — autosave guard fires first, else branch cannot be reached.');
         }
 
-        // Ensure writing_complete is NOT in $_POST.
-        unset( $_POST['writing_complete'] );
+        unset($_POST['writing_complete']);
         $_POST['writing_completion_nonce_field'] = 'nonce';
 
-        WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_verify_nonce' )->andReturn( 1 );
-        WP_Mock::userFunction( 'current_user_can' )
-            ->with( 'edit_post', 42 )
-            ->andReturn( true );
+        Functions\when('sanitize_text_field')->returnArg();
+        Functions\when('wp_unslash')->returnArg();
+        Functions\when('wp_verify_nonce')->justReturn(1);
+        Functions\expect('current_user_can')
+            ->with('edit_post', 42)
+            ->andReturn(true);
 
-        // The else branch must call update_post_meta with 'no'.
-        WP_Mock::userFunction( 'update_post_meta' )
-            ->with( 42, '_writing_complete', 'no' )
+        Functions\expect('update_post_meta')
+            ->with(42, '_writing_complete', 'no')
             ->once()
-            ->andReturn( true );
+            ->andReturn(true);
 
-        // saveDraftDueDate and saveDraftPriority also call update_post_meta / delete_post_meta.
-        // Allow any additional calls so they don't cause assertion failures.
-        WP_Mock::userFunction( 'update_post_meta' )->andReturn( true );
-        WP_Mock::userFunction( 'delete_post_meta' )->andReturn( true );
+        Functions\when('update_post_meta')->justReturn(true);
+        Functions\when('delete_post_meta')->justReturn(true);
 
-        $this->plugin->saveCompletionStatus( 42 );
+        $this->plugin->saveCompletionStatus(42);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function saves_yes_when_writing_complete_is_yes_in_post(): void {
-        if ( defined( 'DOING_AUTOSAVE' ) ) {
-            $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, save branch cannot be reached.' );
+    it('saves yes when writing_complete is yes in post', function (): void {
+        if (defined('DOING_AUTOSAVE')) {
+            $this->markTestSkipped('DOING_AUTOSAVE defined — autosave guard fires first, save branch cannot be reached.');
         }
 
         $_POST['writing_completion_nonce_field'] = 'nonce';
         $_POST['writing_complete']               = 'yes';
 
-        WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_verify_nonce' )->andReturn( 1 );
-        WP_Mock::userFunction( 'current_user_can' )
-            ->with( 'edit_post', 55 )
-            ->andReturn( true );
+        Functions\when('sanitize_text_field')->returnArg();
+        Functions\when('wp_unslash')->returnArg();
+        Functions\when('wp_verify_nonce')->justReturn(1);
+        Functions\expect('current_user_can')
+            ->with('edit_post', 55)
+            ->andReturn(true);
 
-        // The if branch must call update_post_meta with 'yes'.
-        WP_Mock::userFunction( 'update_post_meta' )
-            ->with( 55, '_writing_complete', 'yes' )
+        Functions\expect('update_post_meta')
+            ->with(55, '_writing_complete', 'yes')
             ->once()
-            ->andReturn( true );
+            ->andReturn(true);
 
-        // Allow additional calls from saveDraftDueDate / saveDraftPriority.
-        WP_Mock::userFunction( 'update_post_meta' )->andReturn( true );
-        WP_Mock::userFunction( 'delete_post_meta' )->andReturn( true );
+        Functions\when('update_post_meta')->justReturn(true);
+        Functions\when('delete_post_meta')->justReturn(true);
 
-        $this->plugin->saveCompletionStatus( 55 );
+        $this->plugin->saveCompletionStatus(55);
 
-        $this->assertTrue( true );
-    }
+        expect(true)->toBeTrue();
+    });
 
-    #[Test]
-    public function saves_no_when_writing_complete_value_is_invalid(): void {
-        if ( defined( 'DOING_AUTOSAVE' ) ) {
-            $this->markTestSkipped( 'DOING_AUTOSAVE defined — autosave guard fires first, save branch cannot be reached.' );
+    it('saves no when writing_complete value is invalid', function (): void {
+        if (defined('DOING_AUTOSAVE')) {
+            $this->markTestSkipped('DOING_AUTOSAVE defined — autosave guard fires first, save branch cannot be reached.');
         }
 
         $_POST['writing_completion_nonce_field'] = 'nonce';
-        $_POST['writing_complete']               = 'maybe'; // not 'yes' → whitelist maps to 'no'
+        $_POST['writing_complete']               = 'maybe';
 
-        WP_Mock::userFunction( 'sanitize_text_field' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_unslash' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'wp_verify_nonce' )->andReturn( 1 );
-        WP_Mock::userFunction( 'current_user_can' )
-            ->with( 'edit_post', 77 )
-            ->andReturn( true );
+        Functions\when('sanitize_text_field')->returnArg();
+        Functions\when('wp_unslash')->returnArg();
+        Functions\when('wp_verify_nonce')->justReturn(1);
+        Functions\expect('current_user_can')
+            ->with('edit_post', 77)
+            ->andReturn(true);
 
-        // Whitelist validation: 'maybe' is not 'yes', so 'no' should be saved.
-        WP_Mock::userFunction( 'update_post_meta' )
-            ->with( 77, '_writing_complete', 'no' )
+        Functions\expect('update_post_meta')
+            ->with(77, '_writing_complete', 'no')
             ->once()
-            ->andReturn( true );
+            ->andReturn(true);
 
-        // Allow additional calls from saveDraftDueDate / saveDraftPriority.
-        WP_Mock::userFunction( 'update_post_meta' )->andReturn( true );
-        WP_Mock::userFunction( 'delete_post_meta' )->andReturn( true );
+        Functions\when('update_post_meta')->justReturn(true);
+        Functions\when('delete_post_meta')->justReturn(true);
 
-        $this->plugin->saveCompletionStatus( 77 );
+        $this->plugin->saveCompletionStatus(77);
 
-        $this->assertTrue( true );
-    }
-}
+        expect(true)->toBeTrue();
+    });
+});

@@ -1,14 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatus::customPriorityOrderby().
- *
- * These tests run entirely with WP_Mock — no database required.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
-
-class MockWPQuery2 {
+class MockWPQuery2
+{
     public array $data = [];
     public bool $_is_main = true;
     public function is_main_query(): bool { return $this->_is_main; }
@@ -16,26 +21,14 @@ class MockWPQuery2 {
     public function set(string $key, $value): void { $this->data[$key] = $value; }
 }
 
-class CustomPriorityOrderbyTest extends TestCase {
+beforeEach(function (): void {
+    $this->plugin = new WritingStatusColumn();
+});
 
-    /** @var WritingStatus */
-    private $plugin;
+describe('WritingStatusColumn::customPriorityOrderby()', function (): void {
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatusColumn();
-    }
-
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-        unset( $GLOBALS['_writing_status_is_admin'] );
-    }
-
-    #[Test]
-    public function returns_original_orderby_when_not_admin(): void {
-        WP_Mock::userFunction('is_admin', [
-            'return' => false,
-        ]);
+    it('returns original orderby when not admin', function (): void {
+        Functions\when('is_admin')->justReturn(false);
 
         $query = new MockWPQuery2();
         $query->_is_main = true;
@@ -43,101 +36,96 @@ class CustomPriorityOrderbyTest extends TestCase {
 
         $result = $this->plugin->customPriorityOrderby('original', $query);
 
-        $this->assertSame('original', $result);
-    }
+        expect($result)->toBe('original');
+    });
 
-    #[Test]
-    public function returns_original_orderby_when_not_main_query(): void {
-        // is_admin() is bootstrapped as false; WP_Mock cannot override pre-defined functions.
-        // The first condition (!is_admin()) is always true in the unit test environment,
-        // so the method always returns $orderby unchanged. Verify not-main-query path too.
+    it('returns original orderby when not main query', function (): void {
+        Functions\when('is_admin')->justReturn(true);
+
         $query = new MockWPQuery2();
         $query->_is_main = false;
         $query->set('orderby', 'writing_completion');
 
         $result = $this->plugin->customPriorityOrderby('original_2', $query);
 
-        $this->assertSame('original_2', $result);
-    }
+        expect($result)->toBe('original_2');
+    });
 
-    #[Test]
-    public function returns_sql_orderby_when_admin_and_main_query(): void {
+    it('returns sql orderby when admin and main query', function (): void {
         global $wpdb;
         $wpdb           = new stdClass();
         $wpdb->postmeta = 'wp_postmeta';
         $wpdb->posts    = 'wp_posts';
 
-        $GLOBALS['_writing_status_is_admin'] = true;
+        Functions\when('is_admin')->justReturn(true);
 
         $query           = new MockWPQuery2();
         $query->_is_main = true;
 
-        $result = $this->plugin->customPriorityOrderby( 'original', $query );
+        $result = $this->plugin->customPriorityOrderby('original', $query);
 
-        $this->assertStringContainsString( 'CASE', $result );
-        $this->assertNotSame( 'original', $result );
-    }
+        expect($result)->toContain('CASE');
+        expect($result)->not->toBe('original');
+    });
 
-    #[Test]
-    public function sql_contains_urgent_priority_ordering(): void {
+    it('sql contains urgent priority ordering', function (): void {
         global $wpdb;
         $wpdb           = new stdClass();
         $wpdb->postmeta = 'wp_postmeta';
         $wpdb->posts    = 'wp_posts';
 
-        $GLOBALS['_writing_status_is_admin'] = true;
+        Functions\when('is_admin')->justReturn(true);
 
         $query           = new MockWPQuery2();
         $query->_is_main = true;
 
-        $result = $this->plugin->customPriorityOrderby( 'original', $query );
+        $result = $this->plugin->customPriorityOrderby('original', $query);
 
-        $this->assertStringContainsString( 'urgent', $result );
-    }
+        expect($result)->toContain('urgent');
+    });
 
-    #[Test]
-    public function sql_contains_asc_order_by_default(): void {
+    it('sql contains asc order by default', function (): void {
         global $wpdb;
         $wpdb           = new stdClass();
         $wpdb->postmeta = 'wp_postmeta';
         $wpdb->posts    = 'wp_posts';
 
-        $GLOBALS['_writing_status_is_admin'] = true;
+        Functions\when('is_admin')->justReturn(true);
 
         $query           = new MockWPQuery2();
         $query->_is_main = true;
 
-        $result = $this->plugin->customPriorityOrderby( 'original', $query );
+        $result = $this->plugin->customPriorityOrderby('original', $query);
 
-        $this->assertStringContainsString( 'ASC', $result );
-    }
+        expect($result)->toContain('ASC');
+    });
 
-    #[Test]
-    public function sql_contains_desc_order_when_query_order_is_desc(): void {
+    it('sql contains desc order when query order is desc', function (): void {
         global $wpdb;
         $wpdb           = new stdClass();
         $wpdb->postmeta = 'wp_postmeta';
         $wpdb->posts    = 'wp_posts';
 
-        $GLOBALS['_writing_status_is_admin'] = true;
+        Functions\when('is_admin')->justReturn(true);
 
-        $query                   = new MockWPQuery2();
-        $query->_is_main         = true;
-        $query->data['order']    = 'DESC';
+        $query                = new MockWPQuery2();
+        $query->_is_main      = true;
+        $query->data['order'] = 'DESC';
 
-        $result = $this->plugin->customPriorityOrderby( 'original', $query );
+        $result = $this->plugin->customPriorityOrderby('original', $query);
 
-        $this->assertStringContainsString( 'DESC', $result );
-    }
+        expect($result)->toContain('DESC');
+    });
 
-    #[Test]
-    public function returns_original_orderby_when_orderby_is_not_writing_completion(): void {
+    it('returns original orderby when orderby is not writing_completion', function (): void {
+        Functions\when('is_admin')->justReturn(false);
+
         $query = new MockWPQuery2();
         $query->_is_main = true;
         $query->set('orderby', 'date');
 
         $result = $this->plugin->customPriorityOrderby('original_3', $query);
 
-        $this->assertSame('original_3', $result);
-    }
-}
+        expect($result)->toBe('original_3');
+    });
+});

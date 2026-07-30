@@ -1,70 +1,64 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Unit tests for WritingStatus::addCompletionFilterDropdown().
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatusFilters();
+});
 
-class AddCompletionFilterDropdownTest extends TestCase {
+afterEach(function (): void {
+    unset($_GET['writing_completion_filter'], $_GET['writing_priority_filter']);
+});
 
-    /** @var WritingStatus */
-    private $plugin;
+describe('WritingStatusFilters::addCompletionFilterDropdown()', function (): void {
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatusFilters();
-    }
-
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-        unset( $_GET['writing_completion_filter'], $_GET['writing_priority_filter'] );
-    }
-
-    #[Test]
-    public function wrong_post_type_produces_no_output(): void {
+    it('wrong post type produces no output', function (): void {
         ob_start();
-        $this->plugin->addCompletionFilterDropdown( 'page' );
+        $this->plugin->addCompletionFilterDropdown('page');
         $output = ob_get_clean();
 
-        $this->assertSame( '', $output );
-    }
+        expect($output)->toBe('');
+    });
 
-    #[Test]
-    public function post_type_outputs_completion_select(): void {
+    it('post type outputs completion select', function (): void {
         ob_start();
-        $this->plugin->addCompletionFilterDropdown( 'post' );
+        $this->plugin->addCompletionFilterDropdown('post');
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'writing_completion_filter', $output );
-    }
+        expect($output)->toContain('writing_completion_filter');
+    });
 
-    #[Test]
-    public function post_type_outputs_priority_select(): void {
+    it('post type outputs priority select', function (): void {
         ob_start();
-        $this->plugin->addCompletionFilterDropdown( 'post' );
+        $this->plugin->addCompletionFilterDropdown('post');
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'writing_priority_filter', $output );
-    }
+        expect($output)->toContain('writing_priority_filter');
+    });
 
-    #[Test]
-    public function outputs_complete_and_incomplete_options(): void {
+    it('outputs complete and incomplete options', function (): void {
         ob_start();
-        $this->plugin->addCompletionFilterDropdown( 'post' );
+        $this->plugin->addCompletionFilterDropdown('post');
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'complete', $output );
-        $this->assertStringContainsString( 'incomplete', $output );
-    }
+        expect($output)->toContain('complete');
+        expect($output)->toContain('incomplete');
+    });
 
-    #[Test]
-    public function outputs_priority_options(): void {
+    it('outputs priority options', function (): void {
         ob_start();
-        $this->plugin->addCompletionFilterDropdown( 'post' );
+        $this->plugin->addCompletionFilterDropdown('post');
         $output = ob_get_clean();
 
-        $this->assertStringContainsString( 'urgent', $output );
-        $this->assertStringContainsString( 'high', $output );
-    }
-}
+        expect($output)->toContain('urgent');
+        expect($output)->toContain('high');
+    });
+});

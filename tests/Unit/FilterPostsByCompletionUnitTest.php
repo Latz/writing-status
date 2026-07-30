@@ -1,15 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatus::filterPostsByCompletion() and its private helpers.
- *
- * The public method is tested via the is_admin() guard (returns false in
- * bootstrap). Private helpers are exercised directly via ReflectionMethod.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
-
-class MockWPQueryFilter {
+class MockWPQueryFilter
+{
     public array $data = [];
     public bool $_is_main = true;
     public function is_main_query(): bool { return $this->_is_main; }
@@ -17,194 +21,178 @@ class MockWPQueryFilter {
     public function set(string $key, $value): void { $this->data[$key] = $value; }
 }
 
-class FilterPostsByCompletionUnitTest extends TestCase {
+beforeEach(function (): void {
+    $this->plugin = new WritingStatusFilters();
+});
 
-    /** @var WritingStatus */
-    private $plugin;
+afterEach(function (): void {
+    unset($_GET['writing_completion_filter'], $_GET['writing_priority_filter']);
+    global $pagenow;
+    $pagenow = '';
+});
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatusFilters();
-    }
+describe('WritingStatusFilters::filterPostsByCompletion()', function (): void {
 
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-        unset( $_GET['writing_completion_filter'], $_GET['writing_priority_filter'] );
-        unset( $GLOBALS['_writing_status_is_admin'] );
-        global $pagenow;
-        $pagenow = '';
-    }
+    it('returns early when not admin', function (): void {
+        Functions\when('is_admin')->justReturn(false);
 
-    #[Test]
-    public function returns_early_when_not_admin(): void {
         global $pagenow;
         $pagenow = 'edit.php';
         $_GET['writing_completion_filter'] = 'complete';
 
         $query = new MockWPQueryFilter();
-        $this->plugin->filterPostsByCompletion( $query );
+        $this->plugin->filterPostsByCompletion($query);
 
-        $this->assertArrayNotHasKey( 'meta_query', $query->data );
-    }
+        expect($query->data)->not->toHaveKey('meta_query');
+    });
 
-    #[Test]
-    public function apply_completion_filter_complete_sets_meta_query(): void {
+    it('apply completion filter complete sets meta_query', function (): void {
         $_GET['writing_completion_filter'] = 'complete';
 
-        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyCompletionFilter' );
-        $method->setAccessible( true );
+        $method = new ReflectionMethod(WritingStatusFilters::class, 'applyCompletionFilter');
+        $method->setAccessible(true);
 
-        $query = new MockWPQueryFilter();
-        $filter_meta_query = [ 'relation' => 'AND' ];
+        $query              = new MockWPQueryFilter();
+        $filter_meta_query  = ['relation' => 'AND'];
 
-        $method->invokeArgs( $this->plugin, [ $query, &$filter_meta_query ] );
+        $method->invokeArgs($this->plugin, [$query, &$filter_meta_query]);
 
-        $this->assertCount( 2, $filter_meta_query );
-        $this->assertSame( 'draft', $query->get( 'post_status' ) );
-    }
+        expect($filter_meta_query)->toHaveCount(2);
+        expect($query->get('post_status'))->toBe('draft');
+    });
 
-    #[Test]
-    public function apply_completion_filter_incomplete_sets_or_meta_query(): void {
+    it('apply completion filter incomplete sets or meta_query', function (): void {
         $_GET['writing_completion_filter'] = 'incomplete';
 
-        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyCompletionFilter' );
-        $method->setAccessible( true );
+        $method = new ReflectionMethod(WritingStatusFilters::class, 'applyCompletionFilter');
+        $method->setAccessible(true);
 
-        $query = new MockWPQueryFilter();
-        $filter_meta_query = [ 'relation' => 'AND' ];
+        $query              = new MockWPQueryFilter();
+        $filter_meta_query  = ['relation' => 'AND'];
 
-        $method->invokeArgs( $this->plugin, [ $query, &$filter_meta_query ] );
+        $method->invokeArgs($this->plugin, [$query, &$filter_meta_query]);
 
-        $this->assertCount( 2, $filter_meta_query );
-        $this->assertSame( 'draft', $query->get( 'post_status' ) );
-    }
+        expect($filter_meta_query)->toHaveCount(2);
+        expect($query->get('post_status'))->toBe('draft');
+    });
 
-    #[Test]
-    public function apply_completion_filter_unknown_value_does_nothing(): void {
+    it('apply completion filter unknown value does nothing', function (): void {
         $_GET['writing_completion_filter'] = 'unknown';
 
-        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyCompletionFilter' );
-        $method->setAccessible( true );
+        $method = new ReflectionMethod(WritingStatusFilters::class, 'applyCompletionFilter');
+        $method->setAccessible(true);
 
-        $query = new MockWPQueryFilter();
-        $filter_meta_query = [ 'relation' => 'AND' ];
+        $query              = new MockWPQueryFilter();
+        $filter_meta_query  = ['relation' => 'AND'];
 
-        $method->invokeArgs( $this->plugin, [ $query, &$filter_meta_query ] );
+        $method->invokeArgs($this->plugin, [$query, &$filter_meta_query]);
 
-        $this->assertCount( 1, $filter_meta_query );
-    }
+        expect($filter_meta_query)->toHaveCount(1);
+    });
 
-    #[Test]
-    public function apply_priority_filter_valid_priority_adds_clause(): void {
+    it('apply priority filter valid priority adds clause', function (): void {
         $_GET['writing_priority_filter'] = 'high';
 
-        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyPriorityFilter' );
-        $method->setAccessible( true );
+        $method = new ReflectionMethod(WritingStatusFilters::class, 'applyPriorityFilter');
+        $method->setAccessible(true);
 
-        $query = new MockWPQueryFilter();
-        $filter_meta_query = [ 'relation' => 'AND' ];
-        $has_completion_filter = false;
+        $query                  = new MockWPQueryFilter();
+        $filter_meta_query      = ['relation' => 'AND'];
+        $has_completion_filter  = false;
 
-        $method->invokeArgs( $this->plugin, [ $query, &$filter_meta_query, $has_completion_filter ] );
+        $method->invokeArgs($this->plugin, [$query, &$filter_meta_query, $has_completion_filter]);
 
-        $this->assertCount( 2, $filter_meta_query );
-        $this->assertSame( 'draft', $query->get( 'post_status' ) );
-    }
+        expect($filter_meta_query)->toHaveCount(2);
+        expect($query->get('post_status'))->toBe('draft');
+    });
 
-    #[Test]
-    public function apply_priority_filter_invalid_priority_does_nothing(): void {
+    it('apply priority filter invalid priority does nothing', function (): void {
         $_GET['writing_priority_filter'] = 'invalid';
 
-        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyPriorityFilter' );
-        $method->setAccessible( true );
+        $method = new ReflectionMethod(WritingStatusFilters::class, 'applyPriorityFilter');
+        $method->setAccessible(true);
 
-        $query = new MockWPQueryFilter();
-        $filter_meta_query = [ 'relation' => 'AND' ];
-        $has_completion_filter = false;
+        $query                  = new MockWPQueryFilter();
+        $filter_meta_query      = ['relation' => 'AND'];
+        $has_completion_filter  = false;
 
-        $method->invokeArgs( $this->plugin, [ $query, &$filter_meta_query, $has_completion_filter ] );
+        $method->invokeArgs($this->plugin, [$query, &$filter_meta_query, $has_completion_filter]);
 
-        $this->assertCount( 1, $filter_meta_query );
-    }
+        expect($filter_meta_query)->toHaveCount(1);
+    });
 
-    #[Test]
-    public function apply_priority_filter_with_completion_filter_does_not_set_post_status(): void {
+    it('apply priority filter with completion filter does not set post_status', function (): void {
         $_GET['writing_priority_filter'] = 'high';
 
-        $method = new ReflectionMethod( WritingStatusFilters::class, 'applyPriorityFilter' );
-        $method->setAccessible( true );
+        $method = new ReflectionMethod(WritingStatusFilters::class, 'applyPriorityFilter');
+        $method->setAccessible(true);
 
-        $query = new MockWPQueryFilter();
-        $filter_meta_query = [ 'relation' => 'AND' ];
-        $has_completion_filter = true;
+        $query                  = new MockWPQueryFilter();
+        $filter_meta_query      = ['relation' => 'AND'];
+        $has_completion_filter  = true;
 
-        $method->invokeArgs( $this->plugin, [ $query, &$filter_meta_query, $has_completion_filter ] );
+        $method->invokeArgs($this->plugin, [$query, &$filter_meta_query, $has_completion_filter]);
 
-        $this->assertArrayNotHasKey( 'post_status', $query->data );
-    }
+        expect($query->data)->not->toHaveKey('post_status');
+    });
 
-    #[Test]
-    public function sets_meta_query_when_admin_with_completion_filter(): void {
-        $GLOBALS['_writing_status_is_admin'] = true;
+    it('sets meta_query when admin with completion filter', function (): void {
+        Functions\when('is_admin')->justReturn(true);
         global $pagenow;
         $pagenow = 'edit.php';
         $_GET['writing_completion_filter'] = 'complete';
 
         $query = new MockWPQueryFilter();
-        $this->plugin->filterPostsByCompletion( $query );
+        $this->plugin->filterPostsByCompletion($query);
 
-        $this->assertArrayHasKey( 'meta_query', $query->data );
-    }
+        expect($query->data)->toHaveKey('meta_query');
+    });
 
-    #[Test]
-    public function returns_early_when_no_filters_set(): void {
-        $GLOBALS['_writing_status_is_admin'] = true;
+    it('returns early when no filters set', function (): void {
+        Functions\when('is_admin')->justReturn(true);
         global $pagenow;
         $pagenow = 'edit.php';
 
         $query = new MockWPQueryFilter();
-        $this->plugin->filterPostsByCompletion( $query );
+        $this->plugin->filterPostsByCompletion($query);
 
-        $this->assertArrayNotHasKey( 'meta_query', $query->data );
-    }
+        expect($query->data)->not->toHaveKey('meta_query');
+    });
 
-    #[Test]
-    public function returns_early_when_pagenow_is_not_edit_php(): void {
-        $GLOBALS['_writing_status_is_admin'] = true;
+    it('returns early when pagenow is not edit.php', function (): void {
+        Functions\when('is_admin')->justReturn(true);
         global $pagenow;
         $pagenow = 'post.php';
         $_GET['writing_completion_filter'] = 'complete';
 
         $query = new MockWPQueryFilter();
-        $this->plugin->filterPostsByCompletion( $query );
+        $this->plugin->filterPostsByCompletion($query);
 
-        $this->assertArrayNotHasKey( 'meta_query', $query->data );
-    }
+        expect($query->data)->not->toHaveKey('meta_query');
+    });
 
-    #[Test]
-    public function sets_meta_query_when_admin_with_priority_filter(): void {
-        $GLOBALS['_writing_status_is_admin'] = true;
+    it('sets meta_query when admin with priority filter', function (): void {
+        Functions\when('is_admin')->justReturn(true);
         global $pagenow;
         $pagenow = 'edit.php';
         $_GET['writing_priority_filter'] = 'high';
 
         $query = new MockWPQueryFilter();
-        $this->plugin->filterPostsByCompletion( $query );
+        $this->plugin->filterPostsByCompletion($query);
 
-        $this->assertArrayHasKey( 'meta_query', $query->data );
-    }
+        expect($query->data)->toHaveKey('meta_query');
+    });
 
-    #[Test]
-    public function sets_meta_query_when_both_filters_set(): void {
-        $GLOBALS['_writing_status_is_admin'] = true;
+    it('sets meta_query when both filters set', function (): void {
+        Functions\when('is_admin')->justReturn(true);
         global $pagenow;
         $pagenow = 'edit.php';
         $_GET['writing_completion_filter'] = 'incomplete';
-        $_GET['writing_priority_filter'] = 'urgent';
+        $_GET['writing_priority_filter']   = 'urgent';
 
         $query = new MockWPQueryFilter();
-        $this->plugin->filterPostsByCompletion( $query );
+        $this->plugin->filterPostsByCompletion($query);
 
-        $this->assertArrayHasKey( 'meta_query', $query->data );
-    }
-}
+        expect($query->data)->toHaveKey('meta_query');
+    });
+});

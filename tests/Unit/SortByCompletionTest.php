@@ -1,146 +1,133 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatus::sortByCompletion() — query modification guards.
- *
- * Tests that the method only modifies WP_Query when in the admin context,
- * processing the main query, with an orderby of 'writing_completion'.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
-
-/**
- * Minimal WP_Query stub for use in sortByCompletion tests.
- */
-class MockWPQuery {
+class MockWPQuery
+{
     public array $data = [];
     public bool $_is_main = true;
 
-    public function is_main_query(): bool {
+    public function is_main_query(): bool
+    {
         return $this->_is_main;
     }
 
-    public function get( string $key, $default = '' ) {
-        return $this->data[ $key ] ?? $default;
+    public function get(string $key, $default = '')
+    {
+        return $this->data[$key] ?? $default;
     }
 
-    public function set( string $key, $value ): void {
-        $this->data[ $key ] = $value;
+    public function set(string $key, $value): void
+    {
+        $this->data[$key] = $value;
     }
 }
 
-class SortByCompletionTest extends TestCase {
+beforeEach(function (): void {
+    $this->plugin = new WritingStatusColumn();
+});
 
-    /** @var WritingStatus */
-    private $plugin;
+describe('WritingStatusColumn::sortByCompletion()', function (): void {
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatusColumn();
-    }
+    it('does nothing when not admin', function (): void {
+        Functions\when('is_admin')->justReturn(false);
 
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-        unset( $GLOBALS['_writing_status_is_admin'] );
-    }
-
-    #[Test]
-    public function does_nothing_when_not_admin(): void {
-        WP_Mock::userFunction( 'is_admin' )->andReturn( false );
-
-        $query             = new MockWPQuery();
-        $query->_is_main   = true;
+        $query                  = new MockWPQuery();
+        $query->_is_main        = true;
         $query->data['orderby'] = 'writing_completion';
 
-        $this->plugin->sortByCompletion( $query );
+        $this->plugin->sortByCompletion($query);
 
-        $this->assertArrayNotHasKey( 'meta_query', $query->data );
-    }
+        expect($query->data)->not->toHaveKey('meta_query');
+    });
 
-    #[Test]
-    public function does_nothing_when_not_main_query(): void {
-        WP_Mock::userFunction( 'is_admin' )->andReturn( true );
+    it('does nothing when not main query', function (): void {
+        Functions\when('is_admin')->justReturn(true);
 
-        $query             = new MockWPQuery();
-        $query->_is_main   = false;
+        $query                  = new MockWPQuery();
+        $query->_is_main        = false;
         $query->data['orderby'] = 'writing_completion';
 
-        $this->plugin->sortByCompletion( $query );
+        $this->plugin->sortByCompletion($query);
 
-        $this->assertArrayNotHasKey( 'meta_query', $query->data );
-    }
+        expect($query->data)->not->toHaveKey('meta_query');
+    });
 
-    #[Test]
-    public function does_nothing_when_orderby_is_not_writing_completion(): void {
-        WP_Mock::userFunction( 'is_admin' )->andReturn( true );
+    it('does nothing when orderby is not writing_completion', function (): void {
+        Functions\when('is_admin')->justReturn(true);
 
-        $query             = new MockWPQuery();
-        $query->_is_main   = true;
+        $query                  = new MockWPQuery();
+        $query->_is_main        = true;
         $query->data['orderby'] = 'date';
 
-        $this->plugin->sortByCompletion( $query );
+        $this->plugin->sortByCompletion($query);
 
-        $this->assertArrayNotHasKey( 'meta_query', $query->data );
-    }
+        expect($query->data)->not->toHaveKey('meta_query');
+    });
 
-    #[Test]
-    public function sets_meta_query_clauses_when_admin_main_query_with_writing_completion_orderby(): void {
-        $GLOBALS['_writing_status_is_admin'] = true;
+    it('sets meta_query clauses when admin main query with writing_completion orderby', function (): void {
+        Functions\when('is_admin')->justReturn(true);
 
-        $query             = new MockWPQuery();
-        $query->_is_main   = true;
+        $query                  = new MockWPQuery();
+        $query->_is_main        = true;
         $query->data['orderby'] = 'writing_completion';
 
-        $this->plugin->sortByCompletion( $query );
+        $this->plugin->sortByCompletion($query);
 
-        $this->assertArrayHasKey( 'meta_query', $query->data );
-        $this->assertArrayHasKey( 'priority_clause', $query->data['meta_query'] );
-    }
+        expect($query->data)->toHaveKey('meta_query');
+        expect($query->data['meta_query'])->toHaveKey('priority_clause');
+    });
 
-    #[Test]
-    public function sets_orderby_array_when_admin_main_query_with_writing_completion_orderby(): void {
-        $GLOBALS['_writing_status_is_admin'] = true;
+    it('sets orderby array when admin main query with writing_completion orderby', function (): void {
+        Functions\when('is_admin')->justReturn(true);
 
-        $query             = new MockWPQuery();
-        $query->_is_main   = true;
+        $query                  = new MockWPQuery();
+        $query->_is_main        = true;
         $query->data['orderby'] = 'writing_completion';
 
-        $this->plugin->sortByCompletion( $query );
+        $this->plugin->sortByCompletion($query);
 
-        $this->assertIsArray( $query->data['orderby'] );
-    }
+        expect($query->data['orderby'])->toBeArray();
+    });
 
-    #[Test]
-    public function preserves_existing_meta_query_when_sorting(): void {
-        $GLOBALS['_writing_status_is_admin'] = true;
+    it('preserves existing meta_query when sorting', function (): void {
+        Functions\when('is_admin')->justReturn(true);
 
-        $query             = new MockWPQuery();
-        $query->_is_main   = true;
+        $query                     = new MockWPQuery();
+        $query->_is_main           = true;
         $query->data['orderby']    = 'writing_completion';
-        $query->data['meta_query'] = array(
-            'existing_clause' => array(
+        $query->data['meta_query'] = [
+            'existing_clause' => [
                 'key'     => '_some_meta_key',
                 'compare' => 'EXISTS',
-            ),
-        );
+            ],
+        ];
 
-        $this->plugin->sortByCompletion( $query );
+        $this->plugin->sortByCompletion($query);
 
-        $this->assertArrayHasKey( 'priority_clause', $query->data['meta_query'] );
-        $this->assertArrayHasKey( 'existing_clause', $query->data['meta_query'] );
-    }
+        expect($query->data['meta_query'])->toHaveKey('priority_clause');
+        expect($query->data['meta_query'])->toHaveKey('existing_clause');
+    });
 
-    #[Test]
-    public function does_nothing_when_all_three_guards_fail(): void {
-        // is_admin() is bootstrapped as false; WP_Mock cannot override pre-defined functions.
-        // Verify: even with orderby=writing_completion on main query, is_admin=false prevents changes.
-        $query             = new MockWPQuery();
-        $query->_is_main   = true;
+    it('does nothing when all three guards fail', function (): void {
+        Functions\when('is_admin')->justReturn(false);
+
+        $query                  = new MockWPQuery();
+        $query->_is_main        = true;
         $query->data['orderby'] = 'writing_completion';
 
-        $this->plugin->sortByCompletion( $query );
+        $this->plugin->sortByCompletion($query);
 
-        // meta_query must NOT be set when is_admin() returns false (bootstrap default).
-        $this->assertArrayNotHasKey( 'meta_query', $query->data );
-    }
-}
+        expect($query->data)->not->toHaveKey('meta_query');
+    });
+});

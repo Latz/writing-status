@@ -1,114 +1,92 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatusRenderer::renderPriorityBadge() and
  * WritingStatusRenderer::renderPriorityBadgeForDashboard().
- *
- * Both methods are non-public, so they are accessed via ReflectionMethod.
- * Output is captured with ob_start() / ob_get_clean().
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatus();
 
-class RenderPriorityBadgeTest extends TestCase {
+    $ref              = new ReflectionClass(WritingStatus::class);
+    $badgeMethod      = $ref->getMethod('renderPriorityBadge');
+    $badgeMethod->setAccessible(true);
+    $dashboardMethod  = $ref->getMethod('renderPriorityBadgeForDashboard');
+    $dashboardMethod->setAccessible(true);
 
-    /** @var WritingStatus */
-    private $plugin;
-
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
-    }
-
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
-
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
-
-    private function callRenderPriorityBadge( string $priority ): string {
-        $ref    = new ReflectionClass( WritingStatus::class );
-        $method = $ref->getMethod( 'renderPriorityBadge' );
-        $method->setAccessible( true );
-
+    $this->callBadge = function (string $priority) use ($badgeMethod): string {
         ob_start();
-        $method->invoke( $this->plugin, $priority );
+        $badgeMethod->invoke($this->plugin, $priority);
         return ob_get_clean();
-    }
+    };
 
-    private function callRenderPriorityBadgeForDashboard( string $priority ): string {
-        $ref    = new ReflectionClass( WritingStatus::class );
-        $method = $ref->getMethod( 'renderPriorityBadgeForDashboard' );
-        $method->setAccessible( true );
-
+    $this->callDashboardBadge = function (string $priority) use ($dashboardMethod): string {
         ob_start();
-        $method->invoke( $this->plugin, $priority );
+        $dashboardMethod->invoke($this->plugin, $priority);
         return ob_get_clean();
-    }
+    };
+});
 
-    // -----------------------------------------------------------------------
-    // renderPriorityBadge tests
-    // -----------------------------------------------------------------------
+describe('WritingStatusRenderer::renderPriorityBadge()', function (): void {
 
-    #[Test]
-    public function empty_priority_produces_no_output(): void {
-        $output = $this->callRenderPriorityBadge( '' );
+    it('empty priority produces no output', function (): void {
+        $output = ($this->callBadge)('');
 
-        $this->assertSame( '', $output );
-    }
+        expect($output)->toBe('');
+    });
 
-    #[Test]
-    public function none_priority_produces_no_output(): void {
-        $output = $this->callRenderPriorityBadge( 'none' );
+    it('none priority produces no output', function (): void {
+        $output = ($this->callBadge)('none');
 
-        $this->assertSame( '', $output );
-    }
+        expect($output)->toBe('');
+    });
 
-    #[Test]
-    public function valid_priority_outputs_badge_span(): void {
-        WP_Mock::userFunction( '__' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_attr' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
+    it('valid priority outputs badge span', function (): void {
+        Functions\when('__')->returnArg();
+        Functions\when('esc_attr')->returnArg();
+        Functions\when('esc_html')->returnArg();
 
-        $output = $this->callRenderPriorityBadge( 'high' );
+        $output = ($this->callBadge)('high');
 
-        $this->assertStringContainsString( 'draft-priority-high', $output );
-    }
+        expect($output)->toContain('draft-priority-high');
+    });
 
-    #[Test]
-    public function unknown_priority_produces_no_output(): void {
-        WP_Mock::userFunction( '__' )->andReturnArg( 0 );
+    it('unknown priority produces no output', function (): void {
+        Functions\when('__')->returnArg();
 
-        $output = $this->callRenderPriorityBadge( 'invalid' );
+        $output = ($this->callBadge)('invalid');
 
-        $this->assertSame( '', $output );
-    }
+        expect($output)->toBe('');
+    });
+});
 
-    // -----------------------------------------------------------------------
-    // renderPriorityBadgeForDashboard tests
-    // -----------------------------------------------------------------------
+describe('WritingStatusRenderer::renderPriorityBadgeForDashboard()', function (): void {
 
-    #[Test]
-    public function dashboard_badge_has_no_br_tag(): void {
-        WP_Mock::userFunction( '__' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_attr' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
+    it('dashboard badge has no br tag', function (): void {
+        Functions\when('__')->returnArg();
+        Functions\when('esc_attr')->returnArg();
+        Functions\when('esc_html')->returnArg();
 
-        $output = $this->callRenderPriorityBadgeForDashboard( 'urgent' );
+        $output = ($this->callDashboardBadge)('urgent');
 
-        $this->assertStringNotContainsString( '<br>', $output );
-    }
+        expect($output)->not->toContain('<br>');
+    });
 
-    #[Test]
-    public function dashboard_badge_outputs_span(): void {
-        WP_Mock::userFunction( '__' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_attr' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
+    it('dashboard badge outputs span', function (): void {
+        Functions\when('__')->returnArg();
+        Functions\when('esc_attr')->returnArg();
+        Functions\when('esc_html')->returnArg();
 
-        $output = $this->callRenderPriorityBadgeForDashboard( 'low' );
+        $output = ($this->callDashboardBadge)('low');
 
-        $this->assertStringContainsString( 'draft-priority-low', $output );
-    }
-}
+        expect($output)->toContain('draft-priority-low');
+    });
+});

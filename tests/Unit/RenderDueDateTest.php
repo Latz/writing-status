@@ -1,98 +1,78 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatusRenderer::renderDueDate() — output guard and span rendering.
- *
- * Tests that the method produces no output for empty input and emits a correctly
- * classed <span> for future and overdue dates.
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatus();
 
-class RenderDueDateTest extends TestCase {
+    $method = new ReflectionMethod(WritingStatus::class, 'renderDueDate');
+    $method->setAccessible(true);
 
-    /** @var WritingStatus */
-    private $plugin;
-
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatus();
-    }
-
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
-
-    #[Test]
-    public function empty_due_date_produces_no_output(): void {
-        $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
-        $method->setAccessible( true );
-
+    $this->call = function (string $date) use ($method): string {
         ob_start();
-        $method->invoke( $this->plugin, '' );
-        $output = ob_get_clean();
+        $method->invoke($this->plugin, $date);
+        return ob_get_clean();
+    };
+});
 
-        $this->assertSame( '', $output );
-    }
+describe('WritingStatusRenderer::renderDueDate()', function (): void {
 
-    #[Test]
-    public function non_empty_due_date_outputs_span(): void {
-        $future_date = date( 'Y-m-d', strtotime( '+10 days' ) );
+    it('empty due date produces no output', function (): void {
+        $output = ($this->call)('');
 
-        WP_Mock::userFunction( 'current_time' )->andReturn( time() );
-        WP_Mock::userFunction( 'get_option' )->andReturn( 'Y-m-d' );
-        WP_Mock::userFunction( 'date_i18n' )->andReturn( '2099-01-01' );
-        WP_Mock::userFunction( 'esc_attr' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
+        expect($output)->toBe('');
+    });
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
-        $method->setAccessible( true );
+    it('non empty due date outputs span', function (): void {
+        $future_date = date('Y-m-d', strtotime('+10 days'));
 
-        ob_start();
-        $method->invoke( $this->plugin, $future_date );
-        $output = ob_get_clean();
+        Functions\when('current_time')->justReturn(time());
+        Functions\when('get_option')->justReturn('Y-m-d');
+        Functions\when('date_i18n')->justReturn('2099-01-01');
+        Functions\when('esc_attr')->returnArg();
+        Functions\when('esc_html')->returnArg();
+        Functions\when('esc_html__')->returnArg();
 
-        $this->assertStringContainsString( '<span', $output );
-    }
+        $output = ($this->call)($future_date);
 
-    #[Test]
-    public function future_date_span_has_due_date_class(): void {
-        $future_date = date( 'Y-m-d', strtotime( '+10 days' ) );
+        expect($output)->toContain('<span');
+    });
 
-        WP_Mock::userFunction( 'current_time' )->andReturn( time() );
-        WP_Mock::userFunction( 'get_option' )->andReturn( 'Y-m-d' );
-        WP_Mock::userFunction( 'date_i18n' )->andReturn( '2099-01-01' );
-        WP_Mock::userFunction( 'esc_attr' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
+    it('future date span has due date class', function (): void {
+        $future_date = date('Y-m-d', strtotime('+10 days'));
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
-        $method->setAccessible( true );
+        Functions\when('current_time')->justReturn(time());
+        Functions\when('get_option')->justReturn('Y-m-d');
+        Functions\when('date_i18n')->justReturn('2099-01-01');
+        Functions\when('esc_attr')->returnArg();
+        Functions\when('esc_html')->returnArg();
+        Functions\when('esc_html__')->returnArg();
 
-        ob_start();
-        $method->invoke( $this->plugin, $future_date );
-        $output = ob_get_clean();
+        $output = ($this->call)($future_date);
 
-        $this->assertStringContainsString( 'draft-due-date', $output );
-    }
+        expect($output)->toContain('draft-due-date');
+    });
 
-    #[Test]
-    public function overdue_date_span_has_overdue_class(): void {
-        WP_Mock::userFunction( 'current_time' )->andReturn( time() );
-        WP_Mock::userFunction( 'get_option' )->andReturn( 'Y-m-d' );
-        WP_Mock::userFunction( 'date_i18n' )->andReturn( '2000-01-01' );
-        WP_Mock::userFunction( 'esc_attr' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html' )->andReturnArg( 0 );
-        WP_Mock::userFunction( 'esc_html__' )->andReturnArg( 0 );
+    it('overdue date span has overdue class', function (): void {
+        Functions\when('current_time')->justReturn(time());
+        Functions\when('get_option')->justReturn('Y-m-d');
+        Functions\when('date_i18n')->justReturn('2000-01-01');
+        Functions\when('esc_attr')->returnArg();
+        Functions\when('esc_html')->returnArg();
+        Functions\when('esc_html__')->returnArg();
 
-        $method = new ReflectionMethod( WritingStatus::class, 'renderDueDate' );
-        $method->setAccessible( true );
+        $output = ($this->call)('2000-01-01');
 
-        ob_start();
-        $method->invoke( $this->plugin, '2000-01-01' );
-        $output = ob_get_clean();
-
-        $this->assertStringContainsString( 'draft-due-overdue', $output );
-    }
-}
+        expect($output)->toContain('draft-due-overdue');
+    });
+});

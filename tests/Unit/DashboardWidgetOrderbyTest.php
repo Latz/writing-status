@@ -1,80 +1,77 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Unit tests for WritingStatus::dashboardWidgetOrderby().
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
-
-class MockWPQuery3 {
+class MockWPQuery3
+{
     public array $data = [];
     public function get(string $key, $default = '') { return $this->data[$key] ?? $default; }
     public function set(string $key, $value): void { $this->data[$key] = $value; }
     public function is_main_query(): bool { return true; }
 }
 
-class DashboardWidgetOrderbyTest extends TestCase {
+beforeEach(function (): void {
+    $this->plugin = new WritingStatusDashboard();
+});
 
-    /** @var WritingStatus */
-    private $plugin;
+describe('WritingStatusDashboard::dashboardWidgetOrderby()', function (): void {
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatusDashboard();
-    }
-
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
-
-    public function test_returns_original_orderby_when_not_priority_then_modified(): void {
+    it('returns original orderby when not priority_then_modified', function (): void {
         $query = new MockWPQuery3();
         $query->set('orderby', 'date');
 
         $result = $this->plugin->dashboardWidgetOrderby('original', $query);
 
-        $this->assertSame('original', $result);
-    }
+        expect($result)->toBe('original');
+    });
 
-    public function test_returns_sql_when_orderby_is_priority_then_modified(): void {
+    it('returns sql when orderby is priority_then_modified', function (): void {
         global $wpdb;
-        $wpdb = new stdClass();
+        $wpdb           = new stdClass();
         $wpdb->postmeta = 'wp_postmeta';
-        $wpdb->posts = 'wp_posts';
+        $wpdb->posts    = 'wp_posts';
 
         $query = new MockWPQuery3();
         $query->set('orderby', 'priority_then_modified');
 
         $result = $this->plugin->dashboardWidgetOrderby('original', $query);
 
-        $this->assertStringContainsString('CASE', $result);
-    }
+        expect($result)->toContain('CASE');
+    });
 
-    public function test_sql_orders_urgent_first(): void {
+    it('sql orders urgent first', function (): void {
         global $wpdb;
-        $wpdb = new stdClass();
+        $wpdb           = new stdClass();
         $wpdb->postmeta = 'wp_postmeta';
-        $wpdb->posts = 'wp_posts';
+        $wpdb->posts    = 'wp_posts';
 
         $query = new MockWPQuery3();
         $query->set('orderby', 'priority_then_modified');
 
         $result = $this->plugin->dashboardWidgetOrderby('original', $query);
 
-        $this->assertStringContainsString("WHEN 'urgent' THEN 1", $result);
-    }
+        expect($result)->toContain("WHEN 'urgent' THEN 1");
+    });
 
-    public function test_sql_orders_by_modified_date_desc(): void {
+    it('sql orders by modified date desc', function (): void {
         global $wpdb;
-        $wpdb = new stdClass();
+        $wpdb           = new stdClass();
         $wpdb->postmeta = 'wp_postmeta';
-        $wpdb->posts = 'wp_posts';
+        $wpdb->posts    = 'wp_posts';
 
         $query = new MockWPQuery3();
         $query->set('orderby', 'priority_then_modified');
 
         $result = $this->plugin->dashboardWidgetOrderby('original', $query);
 
-        $this->assertStringContainsString('post_modified DESC', $result);
-    }
-}
+        expect($result)->toContain('post_modified DESC');
+    });
+});

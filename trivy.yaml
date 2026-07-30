@@ -1,0 +1,25 @@
+# Vulnerability scanning includes dev/test dependencies (composer.json
+# require-dev: Pest, Brain Monkey, PHPStan, PHPCS). None of this ships in
+# the distributed plugin, but it's still real supply-chain exposure for
+# anyone running the dev toolchain, so it's in scope here.
+# Run manually via bin/trivy-check.sh. Not wired into the pre-commit gate
+# or GitHub Actions — with dev deps in scope, findings in tooling that
+# never ships would otherwise block every commit/push on issues that
+# aren't fixable without breaking the dev toolchain.
+pkg:
+  include-dev-deps: true
+
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+  skip-dirs:
+    - vendor
+    - node_modules
+
+severity:
+  - HIGH
+  - CRITICAL
+
+exit-code: 1

@@ -1,49 +1,41 @@
 <?php
+
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Unit tests for WritingStatus::addCompletionColumn().
  */
 
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+beforeEach(function (): void {
+    $this->plugin = new WritingStatusColumn();
+});
 
-class AddCompletionColumnTest extends TestCase {
+describe('WritingStatusColumn::addCompletionColumn()', function (): void {
 
-    /** @var WritingStatus */
-    private $plugin;
+    it('adds writing_completion key to columns', function (): void {
+        $result = $this->plugin->addCompletionColumn([]);
+        expect($result)->toHaveKey('writing_completion');
+    });
 
-    public function setUp(): void {
-        WP_Mock::setUp();
-        $this->plugin = new WritingStatusColumn();
-    }
+    it('preserves existing columns', function (): void {
+        $existing = ['title' => 'Title', 'date' => 'Date'];
+        $result   = $this->plugin->addCompletionColumn($existing);
 
-    public function tearDown(): void {
-        WP_Mock::tearDown();
-    }
+        expect($result)->toHaveKey('title');
+        expect($result)->toHaveKey('date');
+    });
 
-    #[Test]
-    public function adds_writing_completion_key_to_columns(): void {
-        $result = $this->plugin->addCompletionColumn( [] );
-        $this->assertArrayHasKey( 'writing_completion', $result );
-    }
+    it('column label is writing status', function (): void {
+        $result = $this->plugin->addCompletionColumn([]);
+        expect($result['writing_completion'])->toBe('Writing Status');
+    });
 
-    #[Test]
-    public function preserves_existing_columns(): void {
-        $existing = [ 'title' => 'Title', 'date' => 'Date' ];
-        $result   = $this->plugin->addCompletionColumn( $existing );
-
-        $this->assertArrayHasKey( 'title', $result );
-        $this->assertArrayHasKey( 'date', $result );
-    }
-
-    #[Test]
-    public function column_label_is_writing_status(): void {
-        $result = $this->plugin->addCompletionColumn( [] );
-        $this->assertSame( 'Writing Status', $result['writing_completion'] );
-    }
-
-    #[Test]
-    public function works_with_empty_columns_array(): void {
-        $result = $this->plugin->addCompletionColumn( [] );
-        $this->assertCount( 1, $result );
-    }
-}
+    it('works with empty columns array', function (): void {
+        $result = $this->plugin->addCompletionColumn([]);
+        expect($result)->toHaveCount(1);
+    });
+});
