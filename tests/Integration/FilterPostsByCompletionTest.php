@@ -6,6 +6,8 @@
  * constrain WP_Query results.
  */
 
+use PHPUnit\Framework\Attributes\Test;
+
 class FilterPostsByCompletionTest extends WP_UnitTestCase {
 
     /** @var WritingStatus */
@@ -40,7 +42,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
     // Completion filter
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function complete_filter_includes_only_complete_posts(): void {
         $_GET['writing_completion_filter'] = 'complete';
 
@@ -56,7 +58,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
         $this->assertNotContains( $this->post_ids['incomplete_high'], $ids );
     }
 
-    /** @test */
+    #[Test]
     public function incomplete_filter_excludes_complete_posts(): void {
         $_GET['writing_completion_filter'] = 'incomplete';
 
@@ -80,7 +82,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
     // Priority filter
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function priority_filter_returns_only_matching_priority(): void {
         $query = new WP_Query( [
             'post_type'  => 'post',
@@ -95,7 +97,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
         $this->assertNotContains( $this->post_ids['incomplete_no_pri'], $ids );
     }
 
-    /** @test */
+    #[Test]
     public function no_filter_does_not_modify_query(): void {
         unset( $_GET['writing_completion_filter'], $_GET['writing_priority_filter'] );
 

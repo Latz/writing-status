@@ -92,7 +92,7 @@ echo ""
 echo "[4/7] Statische Analyse (PHPStan)..."
 echo "      Level  : max"
 echo "      Ausgabe: reports/phpstan-report.json"
-~/.config/composer/vendor/bin/phpstan analyse --error-format=json \
+./vendor/bin/phpstan analyse --error-format=json \
   > reports/phpstan-report.json || true
 PHPSTAN_COUNT=$(jq '.totals.file_errors + .totals.errors' reports/phpstan-report.json 2>/dev/null || echo "?")
 PHPSTAN_GLOBAL=$(jq '.totals.errors' reports/phpstan-report.json 2>/dev/null || echo "?")

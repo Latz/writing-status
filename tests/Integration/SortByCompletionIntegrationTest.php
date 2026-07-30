@@ -9,6 +9,8 @@
  * queryable, and that individual priority values can be retrieved correctly.
  */
 
+use PHPUnit\Framework\Attributes\Test;
+
 class SortByCompletionIntegrationTest extends WP_UnitTestCase {
 
     /** @var WritingStatus */
@@ -49,9 +51,8 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
     /**
      * In the integration test environment is_admin() returns false, so
      * sortByCompletion() must return early without modifying the query.
-     *
-     * @test
      */
+    #[Test]
     public function sort_by_completion_sets_meta_query_on_main_query(): void {
         $query = new WP_Query( [
             'post_type'   => 'post',
@@ -82,9 +83,8 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
     /**
      * Verifies that the test fixture posts were created correctly and that a
      * meta query for _writing_priority=urgent returns exactly the urgent post.
-     *
-     * @test
      */
+    #[Test]
     public function urgent_draft_posts_exist(): void {
         $query = new WP_Query( [
             'post_type'   => 'post',
@@ -116,9 +116,8 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
     /**
      * Creates a complete draft alongside the incomplete fixtures and confirms
      * that a meta query for _writing_complete=yes returns only the complete post.
-     *
-     * @test
      */
+    #[Test]
     public function complete_draft_ordered_before_incomplete_when_filtered(): void {
         $complete_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
         update_post_meta( $complete_id, '_writing_complete', 'yes' );
@@ -162,9 +161,8 @@ class SortByCompletionIntegrationTest extends WP_UnitTestCase {
     /**
      * Runs a separate meta query for each priority level and asserts that
      * exactly one post is returned – the one created in setUp().
-     *
-     * @test
      */
+    #[Test]
     public function all_priorities_can_be_queried_individually(): void {
         $priorities = [ 'urgent', 'high', 'medium', 'low' ];
 

@@ -7,6 +7,8 @@
  * against a real WordPress test database.
  */
 
+use PHPUnit\Framework\Attributes\Test;
+
 class DashboardWidgetTest extends WP_UnitTestCase {
 
     /** @var WritingStatus */
@@ -57,7 +59,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // 1. getDashboardQueries returns two WP_Query objects
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function get_dashboard_queries_returns_two_queries(): void {
         $result = $this->callGetDashboardQueries();
 
@@ -71,7 +73,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // 2. Incomplete query finds incomplete posts (and excludes complete ones)
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function incomplete_query_finds_incomplete_posts(): void {
         $result     = $this->callGetDashboardQueries();
         $incomplete = $result[0];
@@ -89,7 +91,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // 3. Complete query finds complete posts (and excludes incomplete ones)
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function complete_query_finds_complete_posts(): void {
         $result   = $this->callGetDashboardQueries();
         $complete = $result[1];
@@ -107,7 +109,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // 4. renderDashboardWidget outputs wrapper div
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function render_dashboard_widget_outputs_wrapper_div(): void {
         ob_start();
         $this->plugin->renderDashboardWidget();
@@ -120,7 +122,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // 5. renderDashboardWidget outputs "View All Drafts" link
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function render_dashboard_widget_outputs_view_all_link(): void {
         ob_start();
         $this->plugin->renderDashboardWidget();
@@ -133,7 +135,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // 6. renderDashboardIncompletePosts outputs ✗ symbol and section class
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function render_incomplete_posts_outputs_x_symbol(): void {
         $result          = $this->callGetDashboardQueries();
         $incomplete_query = $result[0];
@@ -153,7 +155,7 @@ class DashboardWidgetTest extends WP_UnitTestCase {
     // 7. renderDashboardCompletePosts outputs ✓ symbol and section class
     // -----------------------------------------------------------------------
 
-    /** @test */
+    #[Test]
     public function render_complete_posts_outputs_checkmark(): void {
         $result         = $this->callGetDashboardQueries();
         $complete_query = $result[1];
