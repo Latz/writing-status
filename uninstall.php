@@ -14,7 +14,10 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
-// Delete all post meta for draft completion status
-delete_post_meta_by_key('_draft_complete');
-delete_post_meta_by_key('_draft_priority');
-delete_post_meta_by_key('_draft_due_date');
+// Delete all post meta created by this plugin
+delete_post_meta_by_key('_writing_complete');
+delete_post_meta_by_key('_writing_due_date');
+delete_post_meta_by_key('_writing_priority');
+
+// Delete cached overdue-drafts count
+delete_transient('writing_status_overdue_count');

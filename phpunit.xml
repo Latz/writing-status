@@ -15,6 +15,7 @@
         <include>
             <file>writing-status.php</file>
             <file>class-writing-status-renderer.php</file>
+            <file>uninstall.php</file>
             <directory>includes</directory>
         </include>
     </source>

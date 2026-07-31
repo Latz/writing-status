@@ -6,4 +6,5 @@ parameters:
     paths:
         - writing-status.php
         - class-writing-status-renderer.php
+        - uninstall.php
         - includes/
