@@ -11,4 +11,11 @@
             <directory>../Integration</directory>
         </testsuite>
     </testsuites>
+    <coverage>
+        <include>
+            <file>../../writing-status.php</file>
+            <file>../../class-writing-status-renderer.php</file>
+            <directory>../../includes</directory>
+        </include>
+    </coverage>
 </phpunit>
