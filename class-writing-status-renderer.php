@@ -112,15 +112,13 @@ class WritingStatusRenderer {
     protected function renderCompletionStatus( $is_complete ) {
         if ( $is_complete === 'yes' ) {
             printf(
-                '<span class="writing-status-indicator writing-status-complete" aria-label="%s">✓ %s</span>',
-                esc_attr__( 'Draft completion status: Complete', 'writing-status' ),
-                esc_html__( 'Complete', 'writing-status' )
+                '<span class="writing-status-indicator writing-status-complete" aria-label="%s">✓</span>',
+                esc_attr__( 'Draft completion status: Complete', 'writing-status' )
             );
         } else {
             printf(
-                '<span class="writing-status-indicator writing-status-incomplete" aria-label="%s">✗ %s</span>',
-                esc_attr__( 'Draft completion status: Incomplete', 'writing-status' ),
-                esc_html__( 'Incomplete', 'writing-status' )
+                '<span class="writing-status-indicator writing-status-incomplete" aria-label="%s">✗</span>',
+                esc_attr__( 'Draft completion status: Incomplete', 'writing-status' )
             );
         }
     }
