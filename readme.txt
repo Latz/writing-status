@@ -1,5 +1,5 @@
 === Writing Status ===
-Contributors: yourwordpressusername
+Contributors: latz
 Tags: draft, posts, writing, status, productivity
 Requires at least: 5.0
 Tested up to: 7.0
