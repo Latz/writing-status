@@ -48,20 +48,16 @@ mkdir -p reports
 echo "      OK"
 echo ""
 
-# 2. Quelldateien in Temp-Verzeichnis kopieren, PHPCBF darauf anwenden
-echo "[2/7] Auto-Fix mit PHPCBF (Temp-Kopie, Quelldateien bleiben unberührt)..."
-SCAN_TMP=$(mktemp -d /tmp/wpcs-scan-XXXXXX)
-cp -r writing-status.php class-writing-status-renderer.php includes/ "$SCAN_TMP/"
-echo "      Temp-Verzeichnis : $SCAN_TMP"
-./vendor/bin/phpcbf --standard=WordPress "$SCAN_TMP/" || true
+# 2. PHPCBF auf den Quelldateien ausführen (Auto-Fix, schreibt direkt)
+echo "[2/7] Auto-Fix mit PHPCBF (Quelldateien werden direkt korrigiert)..."
+./vendor/bin/phpcbf --standard=WordPress writing-status.php class-writing-status-renderer.php includes/ || true
 echo "      OK"
 echo ""
 
-# 3. WordPress PHP_CodeSniffer auf die gefixte Kopie ausführen
+# 3. WordPress PHP_CodeSniffer auf den (gefixten) Quelldateien ausführen
 echo "[3/7] WordPress-Code-Analyse (PHPCS)..."
-./vendor/bin/phpcs --standard=WordPress "$SCAN_TMP/" \
+./vendor/bin/phpcs --standard=WordPress writing-status.php class-writing-status-renderer.php includes/ \
   --report=json --report-file=reports/wpcs-report.json || true
-rm -rf "$SCAN_TMP"
 
 ISSUE_COUNT=$(jq '.totals.errors + .totals.warnings' reports/wpcs-report.json 2>/dev/null || echo "?")
 ERRORS=$(jq '.totals.errors' reports/wpcs-report.json 2>/dev/null || echo "?")

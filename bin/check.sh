@@ -20,11 +20,6 @@ for ARG in "$@"; do
     [[ "$ARG" == "-y" || "$ARG" == "--yes" ]] && NON_INTERACTIVE=true
 done
 
-# ── Temp-Verzeichnis mit automatischem Cleanup ────────────────────────────────
-SCAN_TMP=""
-cleanup() { [[ -n "$SCAN_TMP" ]] && rm -rf "$SCAN_TMP"; }
-trap cleanup EXIT
-
 # ── Hilfsfunktionen ───────────────────────────────────────────────────────────
 BW=62
 SUMMARY_ROW_FMT="  %-20s  %7s  %10s  %8s"
@@ -63,16 +58,15 @@ step 1 "Vorbereitung"
 mkdir -p reports
 echo "  reports/ bereit"
 
-# ── 2. PHPCBF (Temp-Kopie, Quelldateien bleiben unberührt) ───────────────────
-step 2 "PHPCBF – Auto-Fix auf Temp-Kopie"
-SCAN_TMP=$(mktemp -d /tmp/wpcs-scan-XXXXXX)
+# ── 2. PHPCBF (schreibt Fixes direkt in die Quelldateien) ────────────────────
+step 2 "PHPCBF – Auto-Fix"
 # shellcheck disable=SC2086
-cp -r $PHP_SOURCES "$SCAN_TMP/"
-./vendor/bin/phpcbf --standard=WordPress "$SCAN_TMP/" || true
+./vendor/bin/phpcbf --standard=WordPress $PHP_SOURCES || true
 
 # ── 3. PHPCS ──────────────────────────────────────────────────────────────────
 step 3 "PHPCS – WordPress Coding Standards"
-./vendor/bin/phpcs --standard=WordPress "$SCAN_TMP/" \
+# shellcheck disable=SC2086
+./vendor/bin/phpcs --standard=WordPress $PHP_SOURCES \
     --report=json --report-file=reports/wpcs-report.json || true
 
 PHPCS_ERRORS=$(jq '.totals.errors'                      reports/wpcs-report.json 2>/dev/null || echo "?")
