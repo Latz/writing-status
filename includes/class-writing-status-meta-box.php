@@ -17,6 +17,43 @@ class WritingStatusMetaBox extends WritingStatusRenderer {
     public function __construct() {
         add_action( 'add_meta_boxes', array( $this, 'addCompletionMetaBox' ) );
         add_action( 'save_post', array( $this, 'saveCompletionStatus' ) );
+        add_action( 'post_submitbox_misc_actions', array( $this, 'renderDraftStatusRow' ) );
+    }
+
+    public function renderDraftStatusRow() {
+        global $post;
+
+        if ( ! $post || $post->post_type !== 'post' ) {
+            return;
+        }
+
+        if ( get_post_status( $post->ID ) === 'publish' ) {
+            return;
+        }
+
+        $is_complete = get_post_meta( $post->ID, '_writing_complete', true );
+        $is_complete = $is_complete === 'yes' ? 'yes' : 'no';
+        $complete_label   = esc_html__( 'Draft status: Complete', 'writing-status' );
+        $incomplete_label = esc_html__( 'Draft status: Incomplete', 'writing-status' );
+        ?>
+        <div class="misc-pub-section misc-pub-draft-status">
+            <input type="hidden" id="writing_complete_hidden" name="writing_complete" value="<?php echo esc_attr( $is_complete ); ?>">
+            <a href="#" id="writing-draft-status-toggle-link" class="writing-draft-status-link" aria-expanded="false" aria-controls="writing-draft-status-box" data-complete-label="<?php echo esc_attr( $complete_label ); ?>" data-incomplete-label="<?php echo esc_attr( $incomplete_label ); ?>">
+                <span class="writing-draft-status-link-icon"><?php echo $is_complete === 'yes' ? '✓' : '✗'; ?></span>
+                <span class="writing-draft-status-link-text"><?php echo $is_complete === 'yes' ? $complete_label : $incomplete_label; ?></span>
+            </a>
+            <div id="writing-draft-status-box" class="writing-draft-status-box">
+                <button type="button" id="writing_complete_button" class="button draft-complete-toggle is-complete-btn <?php echo esc_attr( $is_complete === 'yes' ? 'is-active' : '' ); ?>" aria-pressed="<?php echo esc_attr( $is_complete === 'yes' ? 'true' : 'false' ); ?>">
+                    <span class="writing-status-icon">✓</span>
+                    <span class="writing-status-text"><?php esc_html_e( 'Complete', 'writing-status' ); ?></span>
+                </button>
+                <button type="button" id="writing_incomplete_button" class="button draft-complete-toggle is-incomplete-btn <?php echo esc_attr( $is_complete === 'yes' ? '' : 'is-active' ); ?>" aria-pressed="<?php echo esc_attr( $is_complete === 'yes' ? 'false' : 'true' ); ?>">
+                    <span class="writing-status-icon">✗</span>
+                    <span class="writing-status-text"><?php esc_html_e( 'Incomplete', 'writing-status' ); ?></span>
+                </button>
+            </div>
+        </div>
+        <?php
     }
 
     public function addCompletionMetaBox() {
@@ -49,22 +86,8 @@ class WritingStatusMetaBox extends WritingStatusRenderer {
 
         wp_nonce_field( 'writing_completion_nonce', 'writing_completion_nonce_field' );
 
-        $is_complete = get_post_meta( $post->ID, '_writing_complete', true );
-        $due_date    = get_post_meta( $post->ID, '_writing_due_date', true );
+        $due_date = get_post_meta( $post->ID, '_writing_due_date', true );
         ?>
-        <input type="hidden" id="writing_complete_hidden" name="writing_complete" value="<?php echo esc_attr( $is_complete === 'yes' ? 'yes' : 'no' ); ?>">
-        <p>
-            <button type="button" id="writing_complete_button" class="button button-large draft-complete-toggle <?php echo esc_attr( $is_complete === 'yes' ? 'is-complete' : 'is-incomplete' ); ?>" aria-describedby="writing_complete_description" aria-pressed="<?php echo esc_attr( $is_complete === 'yes' ? 'true' : 'false' ); ?>" data-complete-text="<?php echo esc_attr__( 'Complete', 'writing-status' ); ?>" data-incomplete-text="<?php echo esc_attr__( 'Incomplete', 'writing-status' ); ?>">
-                <span class="writing-status-icon"><?php echo $is_complete === 'yes' ? '✓' : '✗'; ?></span>
-                <span class="writing-status-text"><?php echo $is_complete === 'yes' ? esc_html__( 'Complete', 'writing-status' ) : esc_html__( 'Incomplete', 'writing-status' ); ?></span>
-            </button>
-        </p>
-        <p class="description" id="writing_complete_description">
-            <?php esc_html_e( 'Click to toggle the completion status of this draft. This helps you sort and track your writing progress.', 'writing-status' ); ?>
-        </p>
-
-        <hr style="margin: 15px 0;">
-
         <p>
             <label for="writing_due_date">
                 <strong><?php esc_html_e( 'Due Date', 'writing-status' ); ?></strong>

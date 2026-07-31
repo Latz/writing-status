@@ -370,16 +370,15 @@
  * Applied to the completion status toggle button.
  */
 .draft-complete-toggle {
-	width: 100%;
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
-	font-size: 14px;
+	gap: 6px;
+	font-size: 12px;
 	font-weight: 600;
 	transition: all 0.2s ease;
 	border-width: 2px;
-	padding: 8px 12px;
+	padding: 4px 10px;
 }
 
 .draft-complete-toggle:hover {
@@ -403,45 +402,63 @@
 }
 
 /*
- * Incomplete State
- * ================
- * Red styling for incomplete drafts.
+ * Incomplete Button
+ * =================
+ * Always red-themed; filled (is-active) when it's the current selection.
  */
-.draft-complete-toggle.is-incomplete {
+.draft-complete-toggle.is-incomplete-btn {
 	background: #fff;
 	border-color: #d63638;
 	color: #d63638;
 }
 
-.draft-complete-toggle.is-incomplete:hover {
+.draft-complete-toggle.is-incomplete-btn:hover {
 	background: #fff0f0;
 	border-color: #b32d2f;
 }
 
-.draft-complete-toggle.is-incomplete:focus {
+.draft-complete-toggle.is-incomplete-btn:focus {
 	border-color: #d63638;
 	box-shadow: 0 0 0 1px #d63638;
 }
 
+.draft-complete-toggle.is-incomplete-btn.is-active {
+	background: #d63638;
+	color: #fff;
+}
+
+.draft-complete-toggle.is-incomplete-btn.is-active:hover {
+	background: #b32d2f;
+}
+
 /*
- * Complete State
- * ==============
- * Green styling for complete drafts.
+ * Complete Button
+ * ===============
+ * Always green-themed; filled (is-active) when it's the current selection.
  */
-.draft-complete-toggle.is-complete {
+.draft-complete-toggle.is-complete-btn {
 	background: #fff;
 	border-color: #00a32a;
 	color: #00a32a;
 }
 
-.draft-complete-toggle.is-complete:hover {
+.draft-complete-toggle.is-complete-btn:hover {
 	background: #f0faf0;
 	border-color: #008a20;
 }
 
-.draft-complete-toggle.is-complete:focus {
+.draft-complete-toggle.is-complete-btn:focus {
 	border-color: #00a32a;
 	box-shadow: 0 0 0 1px #00a32a;
+}
+
+.draft-complete-toggle.is-complete-btn.is-active {
+	background: #00a32a;
+	color: #fff;
+}
+
+.draft-complete-toggle.is-complete-btn.is-active:hover {
+	background: #008a20;
 }
 
 /*
@@ -527,12 +544,100 @@
 	background-color: #fff;
 }
 
-.ws-panel-btn {
-	width: 100%;
-	box-sizing: border-box;
-	justify-content: center;
-	background: transparent !important;
-	box-shadow: none !important;
+/*
+ * "Draft status" row — classic editor Publish box
+ * =================================================
+ * Link + floating popup injected directly below core's own Status row via
+ * post_submitbox_misc_actions. position:relative on the section anchors the
+ * popup (position:absolute) so it overlays the rows below instead of
+ * pushing them down — matching core's own popover-style value fields.
+ */
+.misc-pub-draft-status {
+	position: relative;
+}
+
+.writing-draft-status-link {
+	font-size: 13px;
+	line-height: 1.4;
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.writing-draft-status-link:hover,
+.writing-draft-status-link:focus {
+	text-decoration: underline;
+	color: #135e96;
+}
+
+.writing-draft-status-link-icon {
+	margin-right: 4px;
+}
+
+.writing-draft-status-box {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 100;
+	gap: 6px;
+	margin-top: 4px;
+	padding: 12px;
+	min-width: 160px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.writing-draft-status-box.is-open {
+	display: flex;
+}
+
+/*
+ * Gutenberg "Status & visibility" panel — Draft status row.
+ * PluginPostStatusInfo always wraps its content in a core PanelRow
+ * (.components-panel__row); neutralize its own flex/spacing so our inner
+ * HStack.editor-post-panel__row (styled to match core's own Status/Publish/
+ * Slug rows) is the only thing controlling layout. The value itself is now
+ * a real Dropdown+Button (same components core uses), so no manual
+ * padding-matching CSS is needed for it — only the popover body needs
+ * a little breathing room.
+ */
+.ws-post-status-info.components-panel__row {
+	display: block;
+	margin-top: 0;
+	min-height: auto;
+}
+
+.ws-status-info-popover-content {
+	display: flex;
+	gap: 6px;
+	padding: 12px;
+}
+
+.ws-status-info-btn .dashicon,
+.ws-status-info-dropdown button .dashicon {
+	margin-right: 4px;
+}
+
+.ws-status-info-btn.is-complete-btn {
+	color: #00a32a !important;
+	border-color: #00a32a !important;
+}
+
+.ws-status-info-btn.is-complete-btn.is-pressed {
+	background: #00a32a !important;
+	color: #fff !important;
+}
+
+.ws-status-info-btn.is-incomplete-btn {
+	color: #d63638 !important;
+	border-color: #d63638 !important;
+}
+
+.ws-status-info-btn.is-incomplete-btn.is-pressed {
+	background: #d63638 !important;
+	color: #fff !important;
 }
 
 .writing-status-bulk-edit .description {

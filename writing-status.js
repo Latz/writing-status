@@ -12,41 +12,139 @@
 	'use strict';
 
 	/**
-	 * Initialize the completion status toggle button
+	 * Initialize the Complete/Incomplete buttons — two explicit choices
+	 * rather than a single toggle, each click sets that specific value.
 	 */
 	function initCompletionToggle() {
-		var button = document.getElementById('writing_complete_button');
+		var completeBtn = document.getElementById('writing_complete_button');
+		var incompleteBtn = document.getElementById('writing_incomplete_button');
 		var hiddenInput = document.getElementById('writing_complete_hidden');
 
-		if (!button || !hiddenInput) {
+		if (!completeBtn || !incompleteBtn || !hiddenInput) {
 			return;
 		}
 
-		var iconSpan = button.querySelector('.writing-status-icon');
-		var textSpan = button.querySelector('.writing-status-text');
+		var link = document.getElementById('writing-draft-status-toggle-link');
+		var linkTextSpan = link ? link.querySelector('.writing-draft-status-link-text') : null;
+		var linkIconSpan = link ? link.querySelector('.writing-draft-status-link-icon') : null;
 
-		button.addEventListener('click', function () {
-			var isComplete = hiddenInput.value === 'yes';
-			var newValue = isComplete ? 'no' : 'yes';
-
-			// Update hidden input
+		function setValue(newValue) {
 			hiddenInput.value = newValue;
 
-			// Update button state
-			if (newValue === 'yes') {
-				button.classList.remove('is-incomplete');
-				button.classList.add('is-complete');
-				button.setAttribute('aria-pressed', 'true');
-				iconSpan.textContent = '✓';
-				textSpan.textContent = button.getAttribute('data-complete-text') || 'Complete';
+			completeBtn.classList.toggle('is-active', newValue === 'yes');
+			completeBtn.setAttribute('aria-pressed', newValue === 'yes' ? 'true' : 'false');
+			incompleteBtn.classList.toggle('is-active', newValue === 'no');
+			incompleteBtn.setAttribute('aria-pressed', newValue === 'no' ? 'true' : 'false');
+
+			if (link && linkTextSpan) {
+				linkTextSpan.textContent = newValue === 'yes'
+					? (link.getAttribute('data-complete-label') || 'Draft status: Complete')
+					: (link.getAttribute('data-incomplete-label') || 'Draft status: Incomplete');
+			}
+			if (linkIconSpan) {
+				linkIconSpan.textContent = newValue === 'yes' ? '✓' : '✗';
+			}
+		}
+
+		completeBtn.addEventListener('click', function () { setValue('yes'); });
+		incompleteBtn.addEventListener('click', function () { setValue('no'); });
+	}
+
+	/**
+	 * Open/close the floating popup containing the completion toggle button,
+	 * triggered by clicking the "Draft status: ..." link in the Publish box.
+	 * Closes on outside click or Escape, matching standard popup UX.
+	 */
+	function initDraftStatusExpand() {
+		var link = document.getElementById('writing-draft-status-toggle-link');
+		var box = document.getElementById('writing-draft-status-box');
+
+		if (!link || !box) {
+			return;
+		}
+
+		function closeBox() {
+			box.classList.remove('is-open');
+			link.setAttribute('aria-expanded', 'false');
+		}
+
+		function openBox() {
+			box.classList.add('is-open');
+			link.setAttribute('aria-expanded', 'true');
+		}
+
+		link.addEventListener('click', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (box.classList.contains('is-open')) {
+				closeBox();
 			} else {
-				button.classList.remove('is-complete');
-				button.classList.add('is-incomplete');
-				button.setAttribute('aria-pressed', 'false');
-				iconSpan.textContent = '✗';
-				textSpan.textContent = button.getAttribute('data-incomplete-text') || 'Incomplete';
+				openBox();
 			}
 		});
+
+		document.addEventListener('click', function (e) {
+			if (box.classList.contains('is-open') && !box.contains(e.target) && e.target !== link) {
+				closeBox();
+			}
+		});
+
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape' && box.classList.contains('is-open')) {
+				closeBox();
+				link.focus();
+			}
+		});
+
+		// The post content editor (TinyMCE) runs in its own iframe/document,
+		// invisible to the top-level document click listener above — without
+		// this, clicking into the content area wouldn't close the popup. TinyMCE
+		// creates the iframe asynchronously, often after this init runs, so poll
+		// briefly rather than looking it up just once.
+		function bindContentIframeClose() {
+			var iframe = document.getElementById('content_ifr');
+			if (!iframe) {
+				return false;
+			}
+			try {
+				iframe.contentWindow.document.addEventListener('click', function () {
+					if (box.classList.contains('is-open')) {
+						closeBox();
+					}
+				});
+				return true;
+			} catch (e) {
+				// Cross-origin or not yet accessible; ignore.
+				return false;
+			}
+		}
+
+		if (!bindContentIframeClose()) {
+			var iframeAttempts = 0;
+			var iframePollId = setInterval(function () {
+				iframeAttempts++;
+				if (bindContentIframeClose() || iframeAttempts > 20) {
+					clearInterval(iframePollId);
+				}
+			}, 250);
+		}
+	}
+
+	/**
+	 * Move the "Draft status" row to sit directly below core's own "Status"
+	 * row in the Publish box. post_submitbox_misc_actions (which renders our
+	 * row) fires after core's Status/Visibility/Publish-date rows, so this
+	 * repositions it via DOM move rather than fighting the hook order.
+	 */
+	function repositionClassicDraftStatus() {
+		var statusRow = document.querySelector('.misc-pub-post-status');
+		var draftRow = document.querySelector('.misc-pub-draft-status');
+
+		if (!statusRow || !draftRow || statusRow.nextSibling === draftRow) {
+			return;
+		}
+
+		statusRow.parentNode.insertBefore(draftRow, statusRow.nextSibling);
 	}
 
 	/**
@@ -127,10 +225,10 @@
 		fields.forEach(function (field) {
 			field.addEventListener('change', onFieldChange);
 		});
-		var toggleButton = document.getElementById('writing_complete_button');
-		if (toggleButton) {
-			toggleButton.addEventListener('click', onFieldChange);
-		}
+		var toggleButtons = document.querySelectorAll('.draft-complete-toggle');
+		toggleButtons.forEach(function (btn) {
+			btn.addEventListener('click', onFieldChange);
+		});
 
 		// Gutenberg: reset dirty after an explicit (non-autosave) save succeeds.
 		// wp.data.subscribe fires on every state change; we track the saving
@@ -227,10 +325,71 @@
 		}
 
 		var el          = wp.element.createElement;
+		var Fragment    = wp.element.Fragment;
 		var __          = wp.i18n.__;
 		var useSelect   = wp.data.useSelect;
 		var useDispatch = wp.data.useDispatch;
 		var Button      = wp.components.Button;
+		var Dropdown    = wp.components.Dropdown;
+		var HStack      = wp.components.__experimentalHStack;
+		var Icon        = wp.components.Icon;
+
+		/**
+		 * "Draft status" row, styled to match core's own Status/Publish/Slug
+		 * rows (label left, value right) via the same editor-post-panel__row
+		 * classes and HStack component core uses for those rows. The value is
+		 * a Dropdown, the same component core uses for Status/Publish/Slug, so
+		 * clicking it opens a floating popover rather than pushing content down.
+		 */
+		function DraftStatusInfo() {
+			var meta = useSelect(function (select) {
+				return select('core/editor').getEditedPostAttribute('meta') || {};
+			});
+			var editPost = useDispatch('core/editor').editPost;
+			var isComplete = meta._writing_complete === 'yes';
+
+			function setValue(value) {
+				editPost({ meta: { _writing_complete: value } });
+			}
+
+			return el(HStack, { className: 'editor-post-panel__row ws-status-info' },
+				el('div', { className: 'editor-post-panel__row-label' }, __('Draft status', 'writing-status')),
+				el('div', { className: 'editor-post-panel__row-control' },
+					el(Dropdown, {
+						className: 'ws-status-info-dropdown',
+						contentClassName: 'ws-status-info-popover',
+						popoverProps: { placement: 'left-start', offset: 8, shift: true },
+						renderToggle: function (props) {
+							return el(Button, {
+								variant: 'tertiary',
+								className: 'is-compact',
+								'aria-expanded': props.isOpen,
+								onClick: props.onToggle
+							},
+								el(Icon, { icon: isComplete ? 'yes-alt' : 'dismiss' }),
+								isComplete ? __('Complete', 'writing-status') : __('Incomplete', 'writing-status')
+							);
+						},
+						renderContent: function () {
+							return el('div', { className: 'ws-status-info-popover-content' },
+								el(Button, {
+									variant:   'secondary',
+									isPressed: isComplete,
+									className: 'ws-status-info-btn is-complete-btn',
+									onClick:   function () { setValue('yes'); }
+								}, el(Icon, { icon: 'yes-alt' }), __('Complete', 'writing-status')),
+								el(Button, {
+									variant:   'secondary',
+									isPressed: !isComplete,
+									className: 'ws-status-info-btn is-incomplete-btn',
+									onClick:   function () { setValue('no'); }
+								}, el(Icon, { icon: 'dismiss' }), __('Incomplete', 'writing-status'))
+							);
+						}
+					})
+				)
+			);
+		}
 
 		function WritingStatusPanel() {
 			var meta = useSelect(function (select) {
@@ -238,9 +397,8 @@
 			});
 			var editPost = useDispatch('core/editor').editPost;
 
-			var isComplete = meta._writing_complete === 'yes';
-			var priority   = meta._writing_priority || 'none';
-			var dueDate    = meta._writing_due_date  || '';
+			var priority = meta._writing_priority || 'none';
+			var dueDate  = meta._writing_due_date  || '';
 
 			function updateMeta(key, value) {
 				var update = {};
@@ -248,20 +406,7 @@
 				editPost({ meta: update });
 			}
 
-			var btnColor = isComplete ? '#00a32a' : '#d63638';
-
 			return el('div', { className: 'ws-panel-wrap' },
-				el('div', { className: 'ws-panel-field' },
-					el(Button, {
-						variant:   'secondary',
-						isPressed: isComplete,
-						className: 'ws-panel-btn',
-						style:     { color: btnColor, border: '1px solid ' + btnColor },
-						onClick: function () {
-							updateMeta('_writing_complete', isComplete ? 'no' : 'yes');
-						}
-					}, isComplete ? __('Complete', 'writing-status') : __('Incomplete', 'writing-status'))
-				),
 				el('div', { className: 'ws-panel-field' },
 					el('label', { htmlFor: 'ws-due-date', className: 'ws-panel-label' }, __('Due Date', 'writing-status')),
 					el('input', {
@@ -292,31 +437,91 @@
 
 		wp.plugins.registerPlugin('writing-status', {
 			render: function () {
-				return el(
-					wp.editPost.PluginDocumentSettingPanel,
-					{
-						name:  'writing-status-panel',
-						title: el('span', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
-							el(wp.components.Icon, { icon: 'edit' }),
-							__('Writing Status', 'writing-status')
-						)
-					},
-					el(WritingStatusPanel)
+				return el(Fragment, {},
+					el(
+						wp.editPost.PluginPostStatusInfo,
+						{ className: 'ws-post-status-info' },
+						el(DraftStatusInfo)
+					),
+					el(
+						wp.editPost.PluginDocumentSettingPanel,
+						{
+							name:  'writing-status-panel',
+							title: el('span', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+								el(wp.components.Icon, { icon: 'edit' }),
+								__('Writing Status', 'writing-status')
+							)
+						},
+						el(WritingStatusPanel)
+					)
 				);
 			}
 		});
+
+		initGutenbergDraftStatusReposition();
+	}
+
+	/**
+	 * Best-effort move of the "Draft status" row to sit directly below core's
+	 * "Status" row in the Status & visibility panel.
+	 *
+	 * Gutenberg's PluginPostStatusInfo slot has no supported way to place a
+	 * fill anywhere but last in that panel (right before "Move to trash"), so
+	 * this repositions it via DOM move instead. It anchors structurally (our
+	 * fill is moved to be the first row's next sibling) rather than by
+	 * matching translated label text, but that structure is internal to core
+	 * and undocumented — if a future WP version changes it, this silently
+	 * no-ops and the row stays in its already-working fallback position at
+	 * the bottom of the panel.
+	 */
+	function initGutenbergDraftStatusReposition() {
+		function reposition() {
+			var el = document.querySelector('.ws-post-status-info');
+			if (!el || !el.parentElement) {
+				return;
+			}
+			var parent = el.parentElement;
+			var firstChild = parent.firstElementChild;
+			if (firstChild && firstChild !== el && el.previousElementSibling !== firstChild) {
+				parent.insertBefore(el, firstChild.nextSibling);
+			}
+		}
+
+		// The sidebar panel mounts asynchronously; poll briefly until it exists.
+		var attempts = 0;
+		var pollId = setInterval(function () {
+			attempts++;
+			if (document.querySelector('.ws-post-status-info') || attempts > 20) {
+				clearInterval(pollId);
+				reposition();
+			}
+		}, 250);
+
+		// The panel can re-render (e.g. toggling "Status & visibility"
+		// open/closed), which resets DOM order — reapply when that happens.
+		var editorRoot = document.getElementById('editor');
+		if (editorRoot && typeof MutationObserver !== 'undefined') {
+			var observer = new MutationObserver(function () {
+				reposition();
+			});
+			observer.observe(editorRoot, { childList: true, subtree: true });
+		}
 	}
 
 	// Initialize when DOM is ready
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', function () {
 			initCompletionToggle();
+			initDraftStatusExpand();
+			repositionClassicDraftStatus();
 			initUnsavedWarning();
 			initQuickEdit();
 			initGutenbergPanel();
 		});
 	} else {
 		initCompletionToggle();
+		initDraftStatusExpand();
+		repositionClassicDraftStatus();
 		initUnsavedWarning();
 		initQuickEdit();
 		initGutenbergPanel();

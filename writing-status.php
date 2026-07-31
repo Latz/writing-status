@@ -3,7 +3,7 @@
  * Plugin Name: Writing Status
  * Plugin URI: https://github.com/yourusername/writing-status
  * Description: Mark draft posts by completion status (complete/incomplete) with priority levels
- * Version: 1.9.0
+ * Version: 1.9.10
  * Author: Latz
  * Author URI: https://elektroelch.de
  * * License: GPL v2 or later
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'WRITING_STATUS_VERSION', '1.9.0' );
+define( 'WRITING_STATUS_VERSION', '1.9.10' );
 
 require_once plugin_dir_path( __FILE__ ) . 'class-writing-status-renderer.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-writing-status-column.php';
@@ -65,7 +65,15 @@ class WritingStatus extends WritingStatusRenderer {
             WRITING_STATUS_VERSION
         );
 
-        if ( $hook === 'edit.php' ) {
+        // On post.php/post-new.php, only load here for the classic editor —
+        // the block editor loads the same file itself via enqueueBlockEditorAssets(),
+        // and loading it twice would double-register the Gutenberg plugin.
+        $is_block_editor = ( $hook === 'post.php' || $hook === 'post-new.php' )
+            && function_exists( 'get_current_screen' )
+            && get_current_screen()
+            && get_current_screen()->is_block_editor();
+
+        if ( ( $hook === 'edit.php' || $hook === 'post.php' || $hook === 'post-new.php' ) && ! $is_block_editor ) {
             // skipcq: PHP-W1020
             wp_enqueue_script(
                 'writing-status',
