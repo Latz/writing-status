@@ -213,6 +213,7 @@ class WritingStatus extends WritingStatusRenderer {
             '<div class="notice notice-warning"><p>%s</p></div>',
             wp_kses(
                 sprintf(
+                    /* translators: %1$d: number of overdue drafts, %2$s: URL to the drafts list */
                     _n(
                         'Writing Status: <strong>%1$d incomplete draft is overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',
                         'Writing Status: <strong>%1$d incomplete drafts are overdue.</strong> <a href="%2$s">View drafts &rarr;</a>',

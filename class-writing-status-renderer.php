@@ -70,6 +70,7 @@ class WritingStatusRenderer {
             // Overdue
             $date_class .= ' draft-due-overdue';
             $date_label  = sprintf(
+                /* translators: %s: formatted due date */
                 esc_html__( 'Overdue: %s', 'writing-status' ),
                 date_i18n( get_option( 'date_format' ), $due_timestamp )
             );
@@ -81,12 +82,14 @@ class WritingStatusRenderer {
             // Due soon (within 3 days)
             $date_class .= ' draft-due-soon';
             $date_label  = sprintf(
+                /* translators: %s: formatted due date */
                 esc_html__( 'Due: %s', 'writing-status' ),
                 date_i18n( get_option( 'date_format' ), $due_timestamp )
             );
         } else {
             // Due later
             $date_label = sprintf(
+                /* translators: %s: formatted due date */
                 esc_html__( 'Due: %s', 'writing-status' ),
                 date_i18n( get_option( 'date_format' ), $due_timestamp )
             );
@@ -477,6 +480,7 @@ class WritingStatusRenderer {
                     $status_text = $is_complete ? __( 'complete', 'writing-status' ) : __( 'incomplete', 'writing-status' );
                     ?>
                     <li class="writing-status-item">
+                        <?php /* translators: %1$s: completion status, %2$s: post title, %3$s: last modified date */ ?>
                         <a href="<?php echo esc_url( get_edit_post_link( $post_id ) ); ?>" class="writing-status-item-link" aria-label="<?php echo esc_attr( sprintf( __( 'Edit %1$s draft: %2$s, last modified %3$s', 'writing-status' ), $status_text, get_the_title(), get_the_modified_date() ) ); ?>">
                             <div class="writing-status-title">
                                 <?php $this->renderPriorityBadgeForDashboard( $priority ); ?>
@@ -485,8 +489,9 @@ class WritingStatusRenderer {
                             <div class="writing-status-meta">
                                 <?php
                                 printf(
+                                    /* translators: %s: last modified date */
                                     esc_html__( 'Modified: %s', 'writing-status' ),
-                                    get_the_modified_date()
+                                    esc_html( get_the_modified_date() )
                                 );
 
                                 if ( ! empty( $due_date ) ) {
@@ -540,6 +545,7 @@ class WritingStatusRenderer {
     protected function renderDashboardIncompletePosts( $query ) {
         $this->renderDashboardPostSection(
             $query,
+            /* translators: %d: number of incomplete drafts */
             __( 'Incomplete Drafts (%d)', 'writing-status' ),
             'writing-status-incomplete-title',
             'writing-status-incomplete',
@@ -558,6 +564,7 @@ class WritingStatusRenderer {
     protected function renderDashboardCompletePosts( $query ) {
         $this->renderDashboardPostSection(
             $query,
+            /* translators: %d: number of complete drafts */
             __( 'Complete Drafts Ready for Review (%d)', 'writing-status' ),
             'writing-status-complete-title',
             'writing-status-complete',
