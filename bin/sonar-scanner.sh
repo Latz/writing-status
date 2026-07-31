@@ -4,18 +4,19 @@ set -euo pipefail
 
 # ── Box-Zeichnung ────────────────────────────────────────────────────────────
 BW=62  # innere Breite
+SUMMARY_ROW_FMT="  %-20s  %7s  %10s  %8s"
+RULE_ROW_FMT="  %5s  %s"
 _box_top() { printf '╔%s╗\n' "$(printf '═%.0s' $(seq 1 $BW))"; }
 _box_sep() { printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $BW))"; }
 _box_bot() { printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $BW))"; }
-_box_row() { printf "║%-${BW}s║\n" "$1"; }
+_box_row() { local text="$1"; printf "║%-${BW}s║\n" "$text"; }
 _box_title() {
   local t="$1" pad=$(( (BW - ${#1}) / 2 ))
   _box_row "$(printf "%${pad}s%s" "" "$t")"
 }
-_box_col() {  # _box_col "Label" "Val1" "Val2" "Val3"
-  local row
-  row=$(printf "  %-20s %7s    %9s    %7s" "$1" "$2" "$3" "$4")
-  _box_row "$row"
+_box_rule() {  # _box_rule "Count" "Rule"
+  local count="$1" rule="$2"
+  _box_row "$(printf "$RULE_ROW_FMT" "$count" "$rule")"
 }
 # ────────────────────────────────────────────────────────────────────────────
 
@@ -81,7 +82,7 @@ _box_sep
 jq -r '[.files[].messages[].source] | group_by(.) | map({rule: .[0], count: length}) | sort_by(-.count)[] | "\(.count)\t\(.rule)"' \
   reports/wpcs-report.json 2>/dev/null \
   | while IFS=$'\t' read -r COUNT RULE; do
-    _box_row "$(printf "  %5s  %s" "$COUNT" "$RULE")"
+    _box_rule "$COUNT" "$RULE"
   done || true
 _box_bot
 echo ""
@@ -111,7 +112,7 @@ _box_sep
 jq -r '.files | to_entries[] | select(.value.errors > 0) | "\(.value.errors)\t\(.key | split("/")[-1])"' \
   reports/phpstan-report.json 2>/dev/null \
   | while IFS=$'\t' read -r COUNT FILE; do
-    _box_row "$(printf "  %5s  %s" "$COUNT" "$FILE")"
+    _box_rule "$COUNT" "$FILE"
   done || true
 _box_sep
 _box_row "  Anzahl  Identifier"
@@ -119,7 +120,7 @@ _box_sep
 jq -r '[.files[].messages[].identifier] | group_by(.) | map({id: .[0], count: length}) | sort_by(-.count)[] | "\(.count)\t\(.id)"' \
   reports/phpstan-report.json 2>/dev/null \
   | while IFS=$'\t' read -r COUNT ID; do
-    _box_row "$(printf "  %5s  %s" "$COUNT" "$ID")"
+    _box_rule "$COUNT" "$ID"
   done || true
 _box_bot
 echo ""
@@ -130,7 +131,7 @@ echo ""
 echo "[5/8] JavaScript-Analyse (ESLint)..."
 echo "      Standard : @wordpress/eslint-plugin/recommended"
 echo "      Ausgabe  : reports/eslint-report.json"
-npx eslint --format json writing-status.js > reports/eslint-report.json || true
+./node_modules/.bin/eslint --format json writing-status.js > reports/eslint-report.json || true
 
 ESLINT_ERRORS=$(jq '[.[].messages[] | select(.severity == 2)] | length' reports/eslint-report.json 2>/dev/null || echo "?")
 ESLINT_WARNINGS=$(jq '[.[].messages[] | select(.severity == 1)] | length' reports/eslint-report.json 2>/dev/null || echo "?")
@@ -149,7 +150,7 @@ _box_sep
 jq -r '[.[].messages[].ruleId] | group_by(.) | map({rule: .[0], count: length}) | sort_by(-.count)[] | "\(.count)\t\(.rule)"' \
   reports/eslint-report.json 2>/dev/null \
   | while IFS=$'\t' read -r COUNT RULE; do
-    _box_row "$(printf "  %5s  %s" "$COUNT" "$RULE")"
+    _box_rule "$COUNT" "$RULE"
   done || true
 _box_bot
 echo ""
@@ -179,7 +180,7 @@ _box_sep
 awk 'NF && !/^FILE/ && !/^line/ {print $4}' reports/plugin-check-report.txt \
   | sort | uniq -c | sort -rn \
   | while read -r COUNT CODE; do
-    _box_row "$(printf "  %5s  %s" "$COUNT" "$CODE")"
+    _box_rule "$COUNT" "$CODE"
   done || true
 _box_bot
 echo ""
@@ -216,7 +217,7 @@ _box_sep
 jq -r '[.results[].check_id] | group_by(.) | map({rule: .[0], count: length}) | sort_by(-.count)[] | "\(.count)\t\(.rule)"' \
   reports/semgrep-report.json 2>/dev/null \
   | while IFS=$'\t' read -r COUNT RULE; do
-    _box_row "$(printf "  %5s  %s" "$COUNT" "$RULE")"
+    _box_rule "$COUNT" "$RULE"
   done || true
 _box_bot
 echo ""
@@ -227,7 +228,7 @@ echo ""
 echo "[8/10] Sende Daten an SonarCloud..."
 echo "      Konfiguration : sonar-project.properties"
 echo "      Token         : aus .env"
-if [ -f .env ]; then
+if [[ -f .env ]]; then
   export SONAR_TOKEN=$(grep -E '^SONAR_TOKEN=' .env | cut -d= -f2 | tr -d '\r\n')
 fi
 /opt/sonar-scanner/bin/sonar-scanner \
@@ -258,8 +259,10 @@ jq -r '
 echo "      OK"
 echo ""
 
-_n() { [[ "$1" =~ ^[0-9]+$ ]] && echo "$1" || echo "0"; }
+_n() { local val="$1"; [[ "$val" =~ ^[0-9]+$ ]] && echo "$val" || echo "0"; }
 GESAMT_TOTAL=$(( $(_n "$ISSUE_COUNT") + $(_n "$PHPSTAN_COUNT") + $(_n "$ESLINT_TOTAL") + $(_n "$PC_TOTAL") + $(_n "$SG_TOTAL") ))
+WPCS_ERRORS=$(jq '.totals.errors' reports/wpcs-report.json 2>/dev/null || echo "?")
+WPCS_WARNINGS=$(jq '.totals.warnings' reports/wpcs-report.json 2>/dev/null || echo "?")
 
 echo ""
 _box_top
@@ -267,13 +270,13 @@ _box_title "ANALYSE ABGESCHLOSSEN"
 _box_sep
 _box_row "  $(date '+%Y-%m-%d %H:%M:%S')"
 _box_sep
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "Tool" "Fehler" "Warnungen" "Gesamt")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "Tool" "Fehler" "Warnungen" "Gesamt")"
 _box_sep
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "PHPCS"          "$(jq '.totals.errors'   reports/wpcs-report.json    2>/dev/null||echo '?')" "$(jq '.totals.warnings' reports/wpcs-report.json 2>/dev/null||echo '?')" "$ISSUE_COUNT")"
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "PHPStan"        "$PHPSTAN_FILE"   "$PHPSTAN_GLOBAL"  "$PHPSTAN_COUNT")"
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "ESLint"         "$ESLINT_ERRORS"  "$ESLINT_WARNINGS" "$ESLINT_TOTAL")"
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "WP Plugin Check" "$PC_ERRORS"     "$PC_WARNINGS"     "$PC_TOTAL")"
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "Semgrep"        "$SG_ERRORS"      "$SG_WARNINGS"     "$SG_TOTAL")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "PHPCS" "$WPCS_ERRORS" "$WPCS_WARNINGS" "$ISSUE_COUNT")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "PHPStan" "$PHPSTAN_FILE" "$PHPSTAN_GLOBAL" "$PHPSTAN_COUNT")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "ESLint" "$ESLINT_ERRORS" "$ESLINT_WARNINGS" "$ESLINT_TOTAL")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "WP Plugin Check" "$PC_ERRORS" "$PC_WARNINGS" "$PC_TOTAL")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "Semgrep" "$SG_ERRORS" "$SG_WARNINGS" "$SG_TOTAL")"
 _box_sep
 _box_row "$(printf "  %-20s  %28s" "Gesamt" "$GESAMT_TOTAL Probleme")"
 _box_sep

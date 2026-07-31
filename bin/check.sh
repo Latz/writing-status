@@ -10,7 +10,7 @@ PHP_SOURCES="writing-status.php class-writing-status-renderer.php includes/"
 JS_SOURCES="writing-status.js"
 
 SONAR_TOKEN="${SONAR_TOKEN:-}"
-if [ -f .env ]; then
+if [[ -f .env ]]; then
     SONAR_TOKEN=$(grep -E '^SONAR_TOKEN=' .env | cut -d= -f2 | tr -d '\r\n')
 fi
 
@@ -22,20 +22,21 @@ done
 
 # ── Temp-Verzeichnis mit automatischem Cleanup ────────────────────────────────
 SCAN_TMP=""
-cleanup() { [ -n "$SCAN_TMP" ] && rm -rf "$SCAN_TMP"; }
+cleanup() { [[ -n "$SCAN_TMP" ]] && rm -rf "$SCAN_TMP"; }
 trap cleanup EXIT
 
 # ── Hilfsfunktionen ───────────────────────────────────────────────────────────
 BW=62
+SUMMARY_ROW_FMT="  %-20s  %7s  %10s  %8s"
 
 _box_top()   { printf '╔%s╗\n' "$(printf '═%.0s' $(seq 1 $BW))"; }
 _box_sep()   { printf '╠%s╣\n' "$(printf '═%.0s' $(seq 1 $BW))"; }
 _box_bot()   { printf '╚%s╝\n' "$(printf '═%.0s' $(seq 1 $BW))"; }
-_box_row()   { printf "║%-${BW}s║\n" "$1"; }
-_box_title() { local pad=$(( (BW - ${#1}) / 2 )); _box_row "$(printf "%${pad}s%s" "" "$1")"; }
-_box_rule()  { _box_row "$(printf "  %5s  %s" "$1" "$2")"; }
+_box_row()   { local text="$1"; printf "║%-${BW}s║\n" "$text"; }
+_box_title() { local title="$1" pad=$(( (BW - ${#1}) / 2 )); _box_row "$(printf "%${pad}s%s" "" "$title")"; }
+_box_rule()  { local count="$1" rule="$2"; _box_row "$(printf "  %5s  %s" "$count" "$rule")"; }
 
-_n() { [[ "$1" =~ ^[0-9]+$ ]] && echo "$1" || echo "0"; }
+_n() { local val="$1"; [[ "$val" =~ ^[0-9]+$ ]] && echo "$val" || echo "0"; }
 
 pause() {
     if $NON_INTERACTIVE; then return; fi
@@ -45,7 +46,7 @@ pause() {
     fi
 }
 
-step() { echo; echo "[$1/10] $2"; }
+step() { local n="$1" label="$2"; echo; echo "[$n/10] $label"; }
 
 # ── Start ─────────────────────────────────────────────────────────────────────
 echo
@@ -101,7 +102,7 @@ pause
 
 # ── 4. PHPStan ────────────────────────────────────────────────────────────────
 step 4 "PHPStan – Statische Analyse"
-~/.config/composer/vendor/bin/phpstan analyse --error-format=json \
+./vendor/bin/phpstan analyse --error-format=json \
     > reports/phpstan-report.json || true
 
 PHPSTAN_FILES=$(jq  '.totals.file_errors'                       reports/phpstan-report.json 2>/dev/null || echo "?")
@@ -137,7 +138,7 @@ pause
 # ── 5. ESLint ─────────────────────────────────────────────────────────────────
 step 5 "ESLint – JavaScript (@wordpress/eslint-plugin)"
 # shellcheck disable=SC2086
-npx eslint --format json $JS_SOURCES > reports/eslint-report.json || true
+./node_modules/.bin/eslint --format json $JS_SOURCES > reports/eslint-report.json || true
 
 ESLINT_ERRORS=$(jq '[.[].messages[] | select(.severity == 2)] | length'  reports/eslint-report.json 2>/dev/null || echo "?")
 ESLINT_WARN=$(jq   '[.[].messages[] | select(.severity == 1)] | length'  reports/eslint-report.json 2>/dev/null || echo "?")
@@ -259,13 +260,13 @@ _box_title "ANALYSE ABGESCHLOSSEN"
 _box_sep
 _box_row "  $(date '+%Y-%m-%d %H:%M:%S')"
 _box_sep
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "Tool" "Fehler" "Warnungen" "Gesamt")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "Tool" "Fehler" "Warnungen" "Gesamt")"
 _box_sep
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "PHPCS"           "$PHPCS_ERRORS"   "$PHPCS_WARN"    "$PHPCS_TOTAL")"
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "PHPStan"         "$PHPSTAN_FILES"  "$PHPSTAN_GLOBAL" "$PHPSTAN_TOTAL")"
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "ESLint"          "$ESLINT_ERRORS"  "$ESLINT_WARN"   "$ESLINT_TOTAL")"
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "WP Plugin Check" "$PC_ERRORS"      "$PC_WARN"       "$PC_TOTAL")"
-_box_row "$(printf "  %-20s  %7s  %10s  %8s" "Semgrep"         "$SG_ERRORS"      "$SG_WARN"       "$SG_TOTAL")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "PHPCS" "$PHPCS_ERRORS" "$PHPCS_WARN" "$PHPCS_TOTAL")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "PHPStan" "$PHPSTAN_FILES" "$PHPSTAN_GLOBAL" "$PHPSTAN_TOTAL")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "ESLint" "$ESLINT_ERRORS" "$ESLINT_WARN" "$ESLINT_TOTAL")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "WP Plugin Check" "$PC_ERRORS" "$PC_WARN" "$PC_TOTAL")"
+_box_row "$(printf "$SUMMARY_ROW_FMT" "Semgrep" "$SG_ERRORS" "$SG_WARN" "$SG_TOTAL")"
 _box_sep
 _box_row "$(printf "  %-20s  %28s" "Gesamt" "$GESAMT Probleme")"
 _box_sep
