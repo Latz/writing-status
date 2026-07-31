@@ -235,7 +235,7 @@ echo ""
 # 7. Aktuelle offene Issues via API abrufen
 echo "[9/10] Rufe offene Issues von SonarCloud-API ab..."
 curl -s -u "${SONAR_TOKEN}": \
-  "https://sonarcloud.io/api/issues/search?componentKeys=Latz_draft-status&resolved=false" \
+  "https://sonarcloud.io/api/issues/search?componentKeys=Latz_writing-status&resolved=false" \
   > sonar-issues.json
 OPEN_COUNT=$(jq '.total' sonar-issues.json 2>/dev/null || echo "?")
 echo "      Offene Issues: $OPEN_COUNT"

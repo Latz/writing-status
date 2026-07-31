@@ -1,4 +1,4 @@
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Latz_draft-status&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Latz_draft-status)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Latz_writing-status&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Latz_writing-status)
 
 # Writing Status
 

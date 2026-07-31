@@ -35,7 +35,7 @@ Add the following to your project's `.claude/settings.json` (or global `~/.claud
 The project key is defined in `sonar-project.properties`:
 
 ```
-sonar.projectKey=Latz_draft-status
+sonar.projectKey=Latz_writing-status
 ```
 
 Use this value as the `project_key` parameter in all MCP tool calls.
@@ -51,26 +51,26 @@ Use this value as the `project_key` parameter in all MCP tool calls.
 | `issues`              | ✅     | Use `project_key` + optional filters                            |
 | `measures_component`  | ✅     | Use `project_key`                                               |
 | `hotspots`            | ✅     | Use `project_key`                                               |
-| `source_code`         | ✅     | Use component key (e.g. `Latz_draft-status:writing-status.php`) |
+| `source_code`         | ✅     | Use component key (e.g. `Latz_writing-status:writing-status.php`) |
 
 ## Example queries
 
 **Check quality gate:**
 
 ```
-quality_gate_status(project_key: "Latz_draft-status")
+quality_gate_status(project_key: "Latz_writing-status")
 ```
 
 **New code issues only:**
 
 ```
-issues(project_key: "Latz_draft-status", in_new_code_period: true)
+issues(project_key: "Latz_writing-status", in_new_code_period: true)
 ```
 
 **Open issues by severity:**
 
 ```
-issues(project_key: "Latz_draft-status", resolved: false, severities: ["CRITICAL", "BLOCKER"])
+issues(project_key: "Latz_writing-status", resolved: false, severities: ["CRITICAL", "BLOCKER"])
 ```
 
 ## Known limitations

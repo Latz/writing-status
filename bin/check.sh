@@ -4,7 +4,7 @@ set -euo pipefail
 # ── Konfiguration ─────────────────────────────────────────────────────────────
 WP_PATH="/home/latz/www/wp"
 WP_PLUGIN="draft-status"
-SONARCLOUD_PROJECT="Latz_draft-status"
+SONARCLOUD_PROJECT="Latz_writing-status"
 SEMGREP_RULES="/home/latz/tools/wordpress-semgrep-rules/configs/plugin-development.yaml"
 PHP_SOURCES="writing-status.php class-writing-status-renderer.php includes/"
 JS_SOURCES="writing-status.js"
