@@ -252,14 +252,6 @@ jq -r '
   (.issues[] | "| \(.severity) | \(.component | split(":")[1]) | \(.line // "") | \(.rule) | \(.message | gsub("\\|"; "\\|")) |")
 ' sonar-issues.json > sonar-issues.md
 
-# SonarCloud Issues als XML
-{
-  echo '<?xml version="1.0" encoding="UTF-8"?>'
-  echo '<issues>'
-  jq -r '.issues[] | "  <issue severity=\"\(.severity)\" rule=\"\(.rule|@html)\">\n    <file>\(.component | split(":")[1] | @html)</file>\n    <line>\(.line // "")</line>\n    <message>\(.message | @html)</message>\n  </issue>"' sonar-issues.json
-  echo '</issues>'
-} > report.xml
-
 echo "      OK"
 echo ""
 
