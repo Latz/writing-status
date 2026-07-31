@@ -6,5 +6,6 @@ coverage.xml
 coverage-unit.xml
 coverage-integration.xml
 .worktrees/
+/dist
 .phpunit.result.cache
 tests/integration-runner/.phpunit.result.cache
