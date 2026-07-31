@@ -35,7 +35,7 @@ class WritingStatusFilters extends WritingStatusRenderer {
         <?php
         $priority_selected = isset($_GET['writing_priority_filter']) ? sanitize_text_field(wp_unslash($_GET['writing_priority_filter'])) : '';
         ?>
-        <select name="writing_priority_filter">
+        <select name="writing_priority_filter" id="writing_priority_filter" aria-label="<?php esc_attr_e('Filter posts by priority', 'writing-status'); ?>">
             <option value=""><?php esc_html_e('All Priorities', 'writing-status'); ?></option>
             <option value="urgent" <?php selected($priority_selected, 'urgent'); ?>><?php esc_html_e('Urgent', 'writing-status'); ?></option>
             <option value="high" <?php selected($priority_selected, 'high'); ?>><?php esc_html_e('High', 'writing-status'); ?></option>
