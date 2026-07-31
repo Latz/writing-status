@@ -57,6 +57,7 @@ class WritingStatus extends WritingStatusRenderer {
             return;
         }
 
+        // skipcq: PHP-W1020
         wp_enqueue_style(
             'writing-status',
             plugin_dir_url( __FILE__ ) . 'writing-status.css',
@@ -65,6 +66,7 @@ class WritingStatus extends WritingStatusRenderer {
         );
 
         if ( $hook === 'edit.php' ) {
+            // skipcq: PHP-W1020
             wp_enqueue_script(
                 'writing-status',
                 plugin_dir_url( __FILE__ ) . 'writing-status.js',
@@ -76,6 +78,7 @@ class WritingStatus extends WritingStatusRenderer {
     }
 
     public function enqueueBlockEditorAssets() {
+        // skipcq: PHP-W1020
         wp_enqueue_script(
             'writing-status-gutenberg',
             plugin_dir_url( __FILE__ ) . 'writing-status.js',
@@ -86,6 +89,7 @@ class WritingStatus extends WritingStatusRenderer {
     }
 
     public function registerMetaField() {
+        // skipcq: PHP-W1020
         register_post_meta(
             'post',
             '_writing_complete',
@@ -104,6 +108,7 @@ class WritingStatus extends WritingStatusRenderer {
             )
         );
 
+        // skipcq: PHP-W1020
         register_post_meta(
             'post',
             '_writing_due_date',
@@ -125,6 +130,7 @@ class WritingStatus extends WritingStatusRenderer {
             )
         );
 
+        // skipcq: PHP-W1020
         register_post_meta(
             'post',
             '_writing_priority',

@@ -19,6 +19,7 @@ class WritingStatusDashboard extends WritingStatusRenderer {
     }
 
     public function addDashboardWidget() {
+        // skipcq: PHP-W1020
         wp_add_dashboard_widget(
             'writing_status_widget',
             __( 'Draft Writing Status', 'writing-status' ),

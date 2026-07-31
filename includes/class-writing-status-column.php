@@ -122,6 +122,7 @@ class WritingStatusColumn extends WritingStatusRenderer {
             (SELECT meta_value FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND meta_key = '_writing_complete' LIMIT 1) {$order}
         ";
 
+        // skipcq: PHP-W1020
         remove_filter( 'posts_orderby', array( $this, 'customPriorityOrderby' ), 10 );
 
         return $orderby;

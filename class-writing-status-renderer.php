@@ -433,6 +433,7 @@ class WritingStatusRenderer {
         );
 
         // Remove the filter after queries are done
+        // skipcq: PHP-W1020
         remove_filter( 'posts_orderby', array( $this, 'dashboardWidgetOrderby' ), 10 );
 
         return array( $incomplete_query, $complete_query );

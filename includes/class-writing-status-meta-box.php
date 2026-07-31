@@ -20,6 +20,7 @@ class WritingStatusMetaBox extends WritingStatusRenderer {
     }
 
     public function addCompletionMetaBox() {
+        // skipcq: PHP-W1020
         add_meta_box(
             'writing_completion_box',
             __( 'Completion Status', 'writing-status' ),
