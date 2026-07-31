@@ -12,15 +12,20 @@ if (!defined('ABSPATH')) {
  * Every function here is a sensible no-op default. Brain Monkey patches over
  * any of them per-test when you call Functions\expect() or Functions\when().
  *
- * wp_verify_nonce(), current_user_can(), and is_admin() are intentionally
- * NOT stubbed here — Brain Monkey intercepts them per-test. Tests that need
- * a default return value must set up a Functions\when()/expect()
- * expectation. (A real defined is_admin() caused Functions\when()
- * overrides to leak across tests in the same file, since Brain Monkey
- * patches already-defined functions less reliably than undefined ones.)
+ * wp_verify_nonce(), current_user_can(), is_admin(), and get_post_status()
+ * are intentionally NOT stubbed here — Brain Monkey intercepts them
+ * per-test. Tests that need a default return value must set up a
+ * Functions\when()/expect() expectation. (A real, defined function here
+ * caused Functions\when() overrides to leak across tests in *other* test
+ * files too, not just the same file — Brain Monkey patches already-defined
+ * functions less reliably than undefined ones.)
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
+if (!defined('HOUR_IN_SECONDS')) {
+    define('HOUR_IN_SECONDS', 3600);
+}
 
 if (!function_exists('__')) {
     function __($text, $domain = 'default') { return $text; }
@@ -77,9 +82,6 @@ if (!function_exists('delete_post_meta')) {
 }
 if (!function_exists('get_post_meta')) {
     function get_post_meta($post_id, $key = '', $single = false) { return $single ? '' : []; }
-}
-if (!function_exists('get_post_status')) {
-    function get_post_status($post) { return 'draft'; }
 }
 if (!function_exists('wp_nonce_field')) {
     function wp_nonce_field($action, $name, $referer = true, $echo = true) { if ($echo) { echo ''; } }

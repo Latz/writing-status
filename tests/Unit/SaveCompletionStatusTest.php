@@ -33,11 +33,15 @@ describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
     it('returns early when nonce field is missing', function (): void {
         unset($_POST['writing_completion_nonce_field']);
 
-        Functions\expect('update_post_meta')->never();
+        $updateCalls = [];
+        Functions\when('update_post_meta')->alias(function (...$args) use (&$updateCalls) {
+            $updateCalls[] = $args;
+            return true;
+        });
 
         $this->plugin->saveCompletionStatus(42);
 
-        expect(true)->toBeTrue();
+        expect($updateCalls)->toBe([]);
     });
 
     it('returns early when nonce verification fails', function (): void {
@@ -46,28 +50,16 @@ describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
         Functions\when('sanitize_text_field')->returnArg();
         Functions\when('wp_unslash')->returnArg();
         Functions\when('wp_verify_nonce')->justReturn(false);
-        Functions\expect('update_post_meta')->never();
+
+        $updateCalls = [];
+        Functions\when('update_post_meta')->alias(function (...$args) use (&$updateCalls) {
+            $updateCalls[] = $args;
+            return true;
+        });
 
         $this->plugin->saveCompletionStatus(42);
 
-        expect(true)->toBeTrue();
-    });
-
-    it('returns early during autosave even with valid nonce', function (): void {
-        if (!defined('DOING_AUTOSAVE')) {
-            define('DOING_AUTOSAVE', true);
-        }
-
-        $_POST['writing_completion_nonce_field'] = 'nonce';
-
-        Functions\when('sanitize_text_field')->returnArg();
-        Functions\when('wp_unslash')->returnArg();
-        Functions\when('wp_verify_nonce')->justReturn(1);
-        Functions\expect('update_post_meta')->never();
-
-        $this->plugin->saveCompletionStatus(42);
-
-        expect(true)->toBeTrue();
+        expect($updateCalls)->toBe([]);
     });
 
     it('returns early when user lacks edit capability', function (): void {
@@ -80,15 +72,26 @@ describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
         Functions\when('sanitize_text_field')->returnArg();
         Functions\when('wp_unslash')->returnArg();
         Functions\when('wp_verify_nonce')->justReturn(1);
-        Functions\expect('current_user_can')
-            ->with('edit_post', 99)
-            ->andReturn(false);
-        Functions\expect('update_post_meta')->never();
+        Functions\when('current_user_can')->justReturn(false);
+
+        $updateCalls = [];
+        Functions\when('update_post_meta')->alias(function (...$args) use (&$updateCalls) {
+            $updateCalls[] = $args;
+            return true;
+        });
 
         $this->plugin->saveCompletionStatus(99);
 
-        expect(true)->toBeTrue();
+        expect($updateCalls)->toBe([]);
     });
+
+    // The three "saves ..." tests below must run before "returns early during
+    // autosave" — DOING_AUTOSAVE is a process-global constant, so once that
+    // test defines it, every later test in the process hits the autosave
+    // guard first and never reaches the save branch (they self-skip via
+    // markTestSkipped as a result). Keeping these first is what lets them
+    // actually exercise saveCompletionStatus()'s full success path,
+    // including the delete_transient() call at the end of the method.
 
     it('saves no when writing_complete not in post', function (): void {
         if (defined('DOING_AUTOSAVE')) {
@@ -101,21 +104,25 @@ describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
         Functions\when('sanitize_text_field')->returnArg();
         Functions\when('wp_unslash')->returnArg();
         Functions\when('wp_verify_nonce')->justReturn(1);
-        Functions\expect('current_user_can')
-            ->with('edit_post', 42)
-            ->andReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
 
-        Functions\expect('update_post_meta')
-            ->with(42, '_writing_complete', 'no')
-            ->once()
-            ->andReturn(true);
-
-        Functions\when('update_post_meta')->justReturn(true);
+        $updateCalls = [];
+        Functions\when('update_post_meta')->alias(function (...$args) use (&$updateCalls) {
+            $updateCalls[] = $args;
+            return true;
+        });
         Functions\when('delete_post_meta')->justReturn(true);
+
+        $transientCalls = [];
+        Functions\when('delete_transient')->alias(function (...$args) use (&$transientCalls) {
+            $transientCalls[] = $args;
+            return true;
+        });
 
         $this->plugin->saveCompletionStatus(42);
 
-        expect(true)->toBeTrue();
+        expect($updateCalls)->toContain([42, '_writing_complete', 'no']);
+        expect($transientCalls)->toBe([['writing_status_overdue_count']]);
     });
 
     it('saves yes when writing_complete is yes in post', function (): void {
@@ -129,21 +136,19 @@ describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
         Functions\when('sanitize_text_field')->returnArg();
         Functions\when('wp_unslash')->returnArg();
         Functions\when('wp_verify_nonce')->justReturn(1);
-        Functions\expect('current_user_can')
-            ->with('edit_post', 55)
-            ->andReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
 
-        Functions\expect('update_post_meta')
-            ->with(55, '_writing_complete', 'yes')
-            ->once()
-            ->andReturn(true);
-
-        Functions\when('update_post_meta')->justReturn(true);
+        $updateCalls = [];
+        Functions\when('update_post_meta')->alias(function (...$args) use (&$updateCalls) {
+            $updateCalls[] = $args;
+            return true;
+        });
         Functions\when('delete_post_meta')->justReturn(true);
+        Functions\when('delete_transient')->justReturn(true);
 
         $this->plugin->saveCompletionStatus(55);
 
-        expect(true)->toBeTrue();
+        expect($updateCalls)->toContain([55, '_writing_complete', 'yes']);
     });
 
     it('saves no when writing_complete value is invalid', function (): void {
@@ -157,20 +162,40 @@ describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
         Functions\when('sanitize_text_field')->returnArg();
         Functions\when('wp_unslash')->returnArg();
         Functions\when('wp_verify_nonce')->justReturn(1);
-        Functions\expect('current_user_can')
-            ->with('edit_post', 77)
-            ->andReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
 
-        Functions\expect('update_post_meta')
-            ->with(77, '_writing_complete', 'no')
-            ->once()
-            ->andReturn(true);
-
-        Functions\when('update_post_meta')->justReturn(true);
+        $updateCalls = [];
+        Functions\when('update_post_meta')->alias(function (...$args) use (&$updateCalls) {
+            $updateCalls[] = $args;
+            return true;
+        });
         Functions\when('delete_post_meta')->justReturn(true);
+        Functions\when('delete_transient')->justReturn(true);
 
         $this->plugin->saveCompletionStatus(77);
 
-        expect(true)->toBeTrue();
+        expect($updateCalls)->toContain([77, '_writing_complete', 'no']);
+    });
+
+    it('returns early during autosave even with valid nonce', function (): void {
+        if (!defined('DOING_AUTOSAVE')) {
+            define('DOING_AUTOSAVE', true);
+        }
+
+        $_POST['writing_completion_nonce_field'] = 'nonce';
+
+        Functions\when('sanitize_text_field')->returnArg();
+        Functions\when('wp_unslash')->returnArg();
+        Functions\when('wp_verify_nonce')->justReturn(1);
+
+        $updateCalls = [];
+        Functions\when('update_post_meta')->alias(function (...$args) use (&$updateCalls) {
+            $updateCalls[] = $args;
+            return true;
+        });
+
+        $this->plugin->saveCompletionStatus(42);
+
+        expect($updateCalls)->toBe([]);
     });
 });

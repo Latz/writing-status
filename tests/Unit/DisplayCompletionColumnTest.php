@@ -27,8 +27,9 @@ describe('WritingStatusColumn::displayCompletionColumn()', function (): void {
     });
 
     it('draft column calls completion status render', function (): void {
-        // get_post_status stub returns 'draft', get_post_meta stub returns ''
-        // for single lookups, so is_complete is '' → incomplete branch fires.
+        // get_post_meta stub returns '' for single lookups, so is_complete
+        // is '' → incomplete branch fires.
+        Functions\when('get_post_status')->justReturn('draft');
         Functions\when('esc_attr__')->returnArg();
         Functions\when('esc_html__')->returnArg();
 
@@ -72,6 +73,7 @@ describe('WritingStatusColumn::displayCompletionColumn()', function (): void {
     });
 
     it('draft incomplete shows incomplete span', function (): void {
+        Functions\when('get_post_status')->justReturn('draft');
         Functions\when('esc_attr__')->returnArg();
         Functions\when('esc_html__')->returnArg();
 
@@ -83,6 +85,7 @@ describe('WritingStatusColumn::displayCompletionColumn()', function (): void {
     });
 
     it('draft column outputs no due date for empty meta', function (): void {
+        Functions\when('get_post_status')->justReturn('draft');
         Functions\when('esc_attr__')->returnArg();
         Functions\when('esc_html__')->returnArg();
 
@@ -94,6 +97,7 @@ describe('WritingStatusColumn::displayCompletionColumn()', function (): void {
     });
 
     it('draft column outputs no priority badge for empty meta', function (): void {
+        Functions\when('get_post_status')->justReturn('draft');
         Functions\when('esc_attr__')->returnArg();
         Functions\when('esc_html__')->returnArg();
 
@@ -102,5 +106,20 @@ describe('WritingStatusColumn::displayCompletionColumn()', function (): void {
         $output = ob_get_clean();
 
         expect($output)->not->toContain('draft-priority');
+    });
+
+    it('published post shows the published indicator instead of completion status', function (): void {
+        Functions\when('get_post_status')->justReturn('publish');
+        Functions\when('esc_attr__')->returnArg();
+        Functions\when('esc_html__')->returnArg();
+
+        ob_start();
+        $this->plugin->displayCompletionColumn('writing_completion', 1);
+        $output = ob_get_clean();
+
+        expect($output)->toContain('writing-status-published');
+        expect($output)->toContain('Published');
+        expect($output)->not->toContain('writing-status-incomplete');
+        expect($output)->not->toContain('writing-status-complete');
     });
 });
