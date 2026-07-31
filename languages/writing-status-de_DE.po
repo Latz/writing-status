@@ -1,58 +1,266 @@
-# Copyright (C) 2025 Latz
-# This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Writing Status Indexer 1.0.0\n"
+"Project-Id-Version: Writing Status 1.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/writing-status\n"
 "Last-Translator: Latz <noreply@elektroelch.de>\n"
 "Language-Team: German\n"
-"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-06T13:24:15+00:00\n"
-"PO-Revision-Date: 2025-12-06 14:24+0000\n"
+"POT-Creation-Date: 2026-07-31T13:41:17+00:00\n"
+"PO-Revision-Date: 2026-07-31 13:41+0000\n"
+"Language: de_DE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: writing-status\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Plugin Name of the plugin
 #: writing-status.php
-msgid "Writing Status Indexer"
-msgstr "Entwurfsstatus-Indexer"
-
-#. Plugin URI of the plugin
-#: writing-status.php
-msgid "https://github.com/yourusername/writing-status-indexer"
-msgstr "https://github.com/yourusername/writing-status-indexer"
-
-#. Description of the plugin
-#: writing-status.php
-msgid "Mark draft posts by completion status (complete/incomplete)"
-msgstr "Entwurfsbeiträge nach Fertigstellungsstatus markieren (fertig/unfertig)"
-
-#: writing-status.php:96
+#: class-writing-status-renderer.php:283
+#: class-writing-status-renderer.php:335
+#: includes/class-writing-status-column.php:25
+#: writing-status.js:301
 msgid "Writing Status"
 msgstr "Schreibstatus"
 
-#: writing-status.php:119
-#: writing-status.php:220
+#: includes/class-writing-status-column.php:38
+#: includes/class-writing-status-meta-box.php:41
 msgid "Published"
 msgstr "Veröffentlicht"
 
-#: writing-status.php:129
-#: writing-status.php:230
+#: class-writing-status-renderer.php:117
+#: class-writing-status-renderer.php:289
+#: class-writing-status-renderer.php:341
+#: includes/class-writing-status-filters.php:31
+#: includes/class-writing-status-meta-box.php:57
+#: includes/class-writing-status-meta-box.php:59
+#: writing-status.js:263
 msgid "Complete"
 msgstr "Fertig"
 
-#: writing-status.php:135
+#: class-writing-status-renderer.php:123
+#: class-writing-status-renderer.php:290
+#: class-writing-status-renderer.php:340
+#: includes/class-writing-status-filters.php:32
+#: includes/class-writing-status-meta-box.php:57
+#: includes/class-writing-status-meta-box.php:59
+#: writing-status.js:263
 msgid "Incomplete"
 msgstr "Unfertig"
 
-#: writing-status.php:191
+#: includes/class-writing-status-meta-box.php:26
 msgid "Completion Status"
 msgstr "Fertigstellungsstatus"
 
-#: writing-status.php:234
-msgid "Check when you've finished writing this draft. This helps you sort and track your writing progress."
-msgstr "Aktivieren, wenn Sie mit dem Schreiben dieses Entwurfs fertig sind. Dies hilft Ihnen, Ihren Schreibfortschritt zu sortieren und zu verfolgen."
+#. Plugin URI of the plugin
+#: writing-status.php
+msgid "https://github.com/yourusername/writing-status"
+msgstr "https://github.com/yourusername/writing-status"
+
+#. Description of the plugin
+#: writing-status.php
+msgid "Mark draft posts by completion status (complete/incomplete) with priority levels"
+msgstr "Markiere Entwurfsbeiträge nach Fertigstellungsstatus (fertig/unfertig) mit Prioritätsstufen"
+
+#. Author of the plugin
+#: writing-status.php
+msgid "Latz"
+msgstr "Latz"
+
+#. Author URI of the plugin
+#: writing-status.php
+msgid "https://elektroelch.de"
+msgstr "https://elektroelch.de"
+
+#: class-writing-status-renderer.php:45
+#: includes/class-writing-status-filters.php:43
+#: includes/class-writing-status-meta-box.php:100
+#: writing-status.js:284
+msgid "Low"
+msgstr "Niedrig"
+
+#: class-writing-status-renderer.php:46
+#: includes/class-writing-status-filters.php:42
+#: includes/class-writing-status-meta-box.php:101
+#: writing-status.js:285
+msgid "Medium"
+msgstr "Mittel"
+
+#: class-writing-status-renderer.php:47
+#: includes/class-writing-status-filters.php:41
+#: includes/class-writing-status-meta-box.php:102
+#: writing-status.js:286
+msgid "High"
+msgstr "Hoch"
+
+#: class-writing-status-renderer.php:48
+#: includes/class-writing-status-filters.php:40
+#: includes/class-writing-status-meta-box.php:103
+#: writing-status.js:287
+msgid "Urgent"
+msgstr "Dringend"
+
+#. translators: %s: formatted due date
+#: class-writing-status-renderer.php:74
+#, php-format
+msgid "Overdue: %s"
+msgstr "Überfällig: %s"
+
+#: class-writing-status-renderer.php:80
+msgid "Due today"
+msgstr "Heute fällig"
+
+#. translators: %s: formatted due date
+#: class-writing-status-renderer.php:86
+#: class-writing-status-renderer.php:93
+#, php-format
+msgid "Due: %s"
+msgstr "Fällig: %s"
+
+#: class-writing-status-renderer.php:116
+msgid "Draft completion status: Complete"
+msgstr "Fertigstellungsstatus des Entwurfs: Fertig"
+
+#: class-writing-status-renderer.php:122
+msgid "Draft completion status: Incomplete"
+msgstr "Fertigstellungsstatus des Entwurfs: Unfertig"
+
+#: class-writing-status-renderer.php:286
+#: class-writing-status-renderer.php:338
+msgid "Completion"
+msgstr "Fertigstellung"
+
+#: class-writing-status-renderer.php:288
+#: class-writing-status-renderer.php:297
+msgid "— No Change —"
+msgstr "— Keine Änderung —"
+
+#: class-writing-status-renderer.php:295
+#: class-writing-status-renderer.php:346
+#: includes/class-writing-status-meta-box.php:88
+#: writing-status.js:276
+msgid "Priority"
+msgstr "Priorität"
+
+#: class-writing-status-renderer.php:298
+#: class-writing-status-renderer.php:348
+#: includes/class-writing-status-filters.php:44
+#: includes/class-writing-status-meta-box.php:99
+#: writing-status.js:283
+msgid "None"
+msgstr "Keine"
+
+#: class-writing-status-renderer.php:306
+#: class-writing-status-renderer.php:356
+#: includes/class-writing-status-meta-box.php:70
+#: writing-status.js:266
+msgid "Due Date"
+msgstr "Fälligkeitsdatum"
+
+#: class-writing-status-renderer.php:308
+msgid "Leave blank for no change"
+msgstr "Leer lassen, um nichts zu ändern"
+
+#: class-writing-status-renderer.php:480
+msgid "complete"
+msgstr "fertig"
+
+#: class-writing-status-renderer.php:480
+msgid "incomplete"
+msgstr "unfertig"
+
+#. translators: %1$s: completion status, %2$s: post title, %3$s: last modified date
+#: class-writing-status-renderer.php:484
+#, php-format
+msgid "Edit %1$s draft: %2$s, last modified %3$s"
+msgstr "%1$s Entwurf bearbeiten: %2$s, zuletzt geändert %3$s"
+
+#. translators: %s: last modified date
+#: class-writing-status-renderer.php:493
+#, php-format
+msgid "Modified: %s"
+msgstr "Geändert: %s"
+
+#. translators: %d: number of incomplete drafts
+#: class-writing-status-renderer.php:549
+#, php-format
+msgid "Incomplete Drafts (%d)"
+msgstr "Unfertige Entwürfe (%d)"
+
+#. translators: %d: number of complete drafts
+#: class-writing-status-renderer.php:568
+#, php-format
+msgid "Complete Drafts Ready for Review (%d)"
+msgstr "Fertige Entwürfe zur Durchsicht (%d)"
+
+#: includes/class-writing-status-column.php:37
+msgid "Post status: Published"
+msgstr "Beitragsstatus: Veröffentlicht"
+
+#: includes/class-writing-status-dashboard.php:25
+msgid "Draft Writing Status"
+msgstr "Entwurfs-Schreibstatus"
+
+#: includes/class-writing-status-dashboard.php:38
+msgid "No drafts found. Start writing!"
+msgstr "Keine Entwürfe gefunden. Fang an zu schreiben!"
+
+#: includes/class-writing-status-dashboard.php:42
+msgid "View all draft posts in the posts list"
+msgstr "Alle Entwurfsbeiträge in der Beitragsliste anzeigen"
+
+#: includes/class-writing-status-dashboard.php:43
+msgid "View All Drafts →"
+msgstr "Alle Entwürfe anzeigen →"
+
+#: includes/class-writing-status-filters.php:29
+msgid "Filter posts by completion status"
+msgstr "Beiträge nach Fertigstellungsstatus filtern"
+
+#: includes/class-writing-status-filters.php:30
+msgid "All Completion Status"
+msgstr "Alle Fertigstellungsstatus"
+
+#: includes/class-writing-status-filters.php:38
+msgid "Filter posts by priority"
+msgstr "Beiträge nach Priorität filtern"
+
+#: includes/class-writing-status-filters.php:39
+msgid "All Priorities"
+msgstr "Alle Prioritäten"
+
+#: includes/class-writing-status-meta-box.php:44
+msgid "This post has been published."
+msgstr "Dieser Beitrag wurde veröffentlicht."
+
+#: includes/class-writing-status-meta-box.php:63
+msgid "Click to toggle the completion status of this draft. This helps you sort and track your writing progress."
+msgstr "Klicken, um den Fertigstellungsstatus dieses Entwurfs umzuschalten. Dies hilft dir, deinen Schreibfortschritt zu sortieren und zu verfolgen."
+
+#: includes/class-writing-status-meta-box.php:81
+msgid "Set a target completion date for this draft."
+msgstr "Lege ein Zieldatum für die Fertigstellung dieses Entwurfs fest."
+
+#: includes/class-writing-status-meta-box.php:107
+msgid "Set the priority level for this draft."
+msgstr "Lege die Prioritätsstufe für diesen Entwurf fest."
+
+#: writing-status.php:98
+msgid "Draft completion status"
+msgstr "Fertigstellungsstatus des Entwurfs"
+
+#: writing-status.php:117
+msgid "Draft due date"
+msgstr "Fälligkeitsdatum des Entwurfs"
+
+#: writing-status.php:139
+msgid "Draft priority level"
+msgstr "Prioritätsstufe des Entwurfs"
+
+#. translators: %1$d: number of overdue drafts, %2$s: URL to the drafts list
+#: writing-status.php:217
+#, php-format
+msgid "Writing Status: <strong>%1$d incomplete draft is overdue.</strong> <a href=\"%2$s\">View drafts &rarr;</a>"
+msgid_plural "Writing Status: <strong>%1$d incomplete drafts are overdue.</strong> <a href=\"%2$s\">View drafts &rarr;</a>"
+msgstr[0] "Schreibstatus: <strong>%1$d unfertiger Entwurf ist überfällig.</strong> <a href=\"%2$s\">Entwürfe ansehen &rarr;</a>"
+msgstr[1] "Schreibstatus: <strong>%1$d unfertige Entwürfe sind überfällig.</strong> <a href=\"%2$s\">Entwürfe ansehen &rarr;</a>"
