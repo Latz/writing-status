@@ -1,0 +1,14 @@
+{
+	"name": "latz/writing-status-integration-runner",
+	"description": "Isolated PHPUnit 9.5 toolchain for the Integration test suite — kept separate from the main Pest 4/PHPUnit 12 toolchain because WordPress core's WP_UnitTestCase (abstract-testcase.php) still calls a PHPUnit method removed in PHPUnit 10+.",
+	"private": true,
+	"require-dev": {
+		"phpunit/phpunit": "^9.5",
+		"yoast/phpunit-polyfills": "^1.1"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
+}

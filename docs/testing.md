@@ -93,5 +93,20 @@ test database (`tests/integration-bootstrap.php` → `tests/wp-tests-config.php`
 No mocking framework — these tests exercise the plugin against actual
 `WP_Query`, post meta, and hooks.
 
-Write these as classic PHPUnit test-case classes; Pest runs them fine via
-its PHPUnit compatibility layer without any Pest-specific syntax.
+**Runs under an isolated PHPUnit 9.5 toolchain**
+(`tests/integration-runner/`, its own `composer.json`/`vendor/`), separate
+from the main Pest 4 toolchain. WordPress core's `WP_UnitTestCase`
+(`abstract-testcase.php`) calls `\PHPUnit\Util\Test::parseTestMethodAnnotations()`
+inside `expectDeprecated()`, a method PHPUnit removed in 10.0 — since Pest 4
+bundles PHPUnit 12, every `WP_UnitTestCase`-based test fails immediately in
+`setUp()` under the main toolchain. This was confirmed against both WP
+trunk and the 6.7 tag, so it isn't a WP-version issue.
+
+Because of this, test methods use plain `test`-prefixed method names
+(PHPUnit's original discovery convention, unchanged since PHPUnit 4) rather
+than `@test` docblocks (dropped in PHPUnit 10) or `#[Test]` attributes
+(don't exist before PHPUnit 10) — the one style that works identically
+across both toolchains.
+
+`composer test:integration` installs the runner's dependencies and invokes
+its `vendor/bin/phpunit` automatically.

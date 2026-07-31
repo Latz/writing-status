@@ -47,6 +47,10 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --no-interaction
 
+      - name: Install integration-runner Composer dependencies
+        run: composer install --no-progress --prefer-dist --no-interaction
+        working-directory: tests/integration-runner
+
       - name: Install SVN
         run: sudo apt-get install -y subversion
 
@@ -70,7 +74,12 @@ jobs:
           DB_USER: root
           DB_PASSWORD: ''
           DB_NAME: wordpress_tests
-        run: php vendor/bin/pest --testsuite=Integration --bootstrap tests/integration-bootstrap.php --coverage-clover coverage.xml
+        # Runs under the isolated PHPUnit 9.5 toolchain in tests/integration-runner/
+        # (see that directory's composer.json) because WordPress core's
+        # WP_UnitTestCase (abstract-testcase.php) calls a PHPUnit method removed
+        # in PHPUnit 10+, which the main Pest 4 toolchain bundles.
+        run: php vendor/bin/phpunit --coverage-clover ../../coverage.xml
+        working-directory: tests/integration-runner
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4

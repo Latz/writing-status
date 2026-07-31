@@ -6,7 +6,6 @@
  * constrain WP_Query results.
  */
 
-use PHPUnit\Framework\Attributes\Test;
 
 class FilterPostsByCompletionTest extends WP_UnitTestCase {
 
@@ -42,8 +41,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
     // Completion filter
     // -----------------------------------------------------------------------
 
-    #[Test]
-    public function complete_filter_includes_only_complete_posts(): void {
+    public function test_complete_filter_includes_only_complete_posts(): void {
         $_GET['writing_completion_filter'] = 'complete';
 
         $query = new WP_Query( [ 'post_type' => 'post', 'post_status' => 'draft', 'fields' => 'ids' ] );
@@ -58,8 +56,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
         $this->assertNotContains( $this->post_ids['incomplete_high'], $ids );
     }
 
-    #[Test]
-    public function incomplete_filter_excludes_complete_posts(): void {
+    public function test_incomplete_filter_excludes_complete_posts(): void {
         $_GET['writing_completion_filter'] = 'incomplete';
 
         $query = new WP_Query( [
@@ -82,8 +79,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
     // Priority filter
     // -----------------------------------------------------------------------
 
-    #[Test]
-    public function priority_filter_returns_only_matching_priority(): void {
+    public function test_priority_filter_returns_only_matching_priority(): void {
         $query = new WP_Query( [
             'post_type'  => 'post',
             'post_status' => 'draft',
@@ -97,8 +93,7 @@ class FilterPostsByCompletionTest extends WP_UnitTestCase {
         $this->assertNotContains( $this->post_ids['incomplete_no_pri'], $ids );
     }
 
-    #[Test]
-    public function no_filter_does_not_modify_query(): void {
+    public function test_no_filter_does_not_modify_query(): void {
         unset( $_GET['writing_completion_filter'], $_GET['writing_priority_filter'] );
 
         $query = $this->getMockBuilder( WP_Query::class )->onlyMethods( [ 'set' ] )->getMock();

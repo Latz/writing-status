@@ -9,7 +9,6 @@
  *   vendor/bin/phpunit --bootstrap tests/integration-bootstrap.php --testsuite integration
  */
 
-use PHPUnit\Framework\Attributes\Test;
 
 class SaveMetaIntegrationTest extends WP_UnitTestCase {
 
@@ -46,8 +45,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
     // Completion status (_writing_complete)
     // -----------------------------------------------------------------------
 
-    #[Test]
-    public function saves_yes_when_writing_complete_is_yes(): void {
+    public function test_saves_yes_when_writing_complete_is_yes(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         $this->postWith( [ 'writing_complete' => 'yes' ], $post_id );
@@ -55,8 +53,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         $this->assertSame( 'yes', get_post_meta( $post_id, '_writing_complete', true ) );
     }
 
-    #[Test]
-    public function saves_no_when_writing_complete_is_anything_else(): void {
+    public function test_saves_no_when_writing_complete_is_anything_else(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         $this->postWith( [ 'writing_complete' => 'maybe' ], $post_id );
@@ -64,8 +61,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         $this->assertSame( 'no', get_post_meta( $post_id, '_writing_complete', true ) );
     }
 
-    #[Test]
-    public function saves_no_when_writing_complete_field_is_absent(): void {
+    public function test_saves_no_when_writing_complete_field_is_absent(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         $this->postWith( [], $post_id );
@@ -77,8 +73,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
     // Due date (_writing_due_date)
     // -----------------------------------------------------------------------
 
-    #[Test]
-    public function saves_valid_due_date(): void {
+    public function test_saves_valid_due_date(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         $this->postWith( [ 'writing_due_date' => '2026-12-31' ], $post_id );
@@ -86,8 +81,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         $this->assertSame( '2026-12-31', get_post_meta( $post_id, '_writing_due_date', true ) );
     }
 
-    #[Test]
-    public function rejects_malformed_due_date(): void {
+    public function test_rejects_malformed_due_date(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         $this->postWith( [ 'writing_due_date' => '31-12-2026' ], $post_id );
@@ -96,8 +90,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         $this->assertEmpty( get_post_meta( $post_id, '_writing_due_date', true ) );
     }
 
-    #[Test]
-    public function deletes_due_date_meta_when_empty_string_submitted(): void {
+    public function test_deletes_due_date_meta_when_empty_string_submitted(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
         update_post_meta( $post_id, '_writing_due_date', '2026-01-01' );
 
@@ -110,8 +103,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
     // Priority (_writing_priority)
     // -----------------------------------------------------------------------
 
-    #[Test]
-    public function saves_valid_priority(): void {
+    public function test_saves_valid_priority(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         foreach ( [ 'none', 'low', 'medium', 'high', 'urgent' ] as $priority ) {
@@ -124,8 +116,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         }
     }
 
-    #[Test]
-    public function saves_none_for_invalid_priority(): void {
+    public function test_saves_none_for_invalid_priority(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
 
         $this->postWith( [ 'writing_priority' => 'critical' ], $post_id );
@@ -137,8 +128,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
     // Security guards (real WP environment)
     // -----------------------------------------------------------------------
 
-    #[Test]
-    public function does_not_save_without_nonce(): void {
+    public function test_does_not_save_without_nonce(): void {
         $post_id = self::factory()->post->create( [ 'post_status' => 'draft' ] );
         wp_set_current_user( $this->editor_id );
 
@@ -149,8 +139,7 @@ class SaveMetaIntegrationTest extends WP_UnitTestCase {
         $this->assertEmpty( get_post_meta( $post_id, '_writing_complete', true ) );
     }
 
-    #[Test]
-    public function does_not_save_for_subscriber_without_edit_capability(): void {
+    public function test_does_not_save_for_subscriber_without_edit_capability(): void {
         $post_id      = self::factory()->post->create( [ 'post_status' => 'draft' ] );
         $subscriber   = self::factory()->user->create( [ 'role' => 'subscriber' ] );
         wp_set_current_user( $subscriber );
