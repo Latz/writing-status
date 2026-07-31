@@ -37,12 +37,12 @@
  * Complete Status - Green
  * ========================
  * Applied to draft posts that are marked as complete.
- * Uses WordPress success green (#46b450) to indicate positive status.
+ * Uses WordPress success green (#00a32a) to indicate positive status.
  *
  * Symbol: ✓ (checkmark)
  */
 .writing-status-complete {
-	color: #46b450; /* WordPress success green */
+	color: #00a32a; /* WordPress success green */
 	font-weight: bold;
 }
 
@@ -50,12 +50,12 @@
  * Incomplete Status - Red
  * ========================
  * Applied to draft posts that are not yet complete.
- * Uses WordPress error red (#dc3232) to draw attention to unfinished work.
+ * Uses WordPress error red (#d63638) to draw attention to unfinished work.
  *
  * Symbol: ✗ (X mark)
  */
 .writing-status-incomplete {
-	color: #dc3232; /* WordPress error red */
+	color: #d63638; /* WordPress error red */
 	font-weight: bold;
 }
 
@@ -409,18 +409,18 @@
  */
 .draft-complete-toggle.is-incomplete {
 	background: #fff;
-	border-color: #dc3232;
-	color: #dc3232;
+	border-color: #d63638;
+	color: #d63638;
 }
 
 .draft-complete-toggle.is-incomplete:hover {
 	background: #fff0f0;
-	border-color: #b02a2a;
+	border-color: #b32d2f;
 }
 
 .draft-complete-toggle.is-incomplete:focus {
-	border-color: #dc3232;
-	box-shadow: 0 0 0 1px #dc3232;
+	border-color: #d63638;
+	box-shadow: 0 0 0 1px #d63638;
 }
 
 /*
@@ -430,18 +430,18 @@
  */
 .draft-complete-toggle.is-complete {
 	background: #fff;
-	border-color: #1e7a24;
-	color: #1e7a24;
+	border-color: #00a32a;
+	color: #00a32a;
 }
 
 .draft-complete-toggle.is-complete:hover {
 	background: #f0faf0;
-	border-color: #175e1b;
+	border-color: #008a20;
 }
 
 .draft-complete-toggle.is-complete:focus {
-	border-color: #1e7a24;
-	box-shadow: 0 0 0 1px #1e7a24;
+	border-color: #00a32a;
+	box-shadow: 0 0 0 1px #00a32a;
 }
 
 /*
