@@ -64,7 +64,7 @@ jobs:
         run: bash bin/install-wp-tests.sh
 
       - name: Run unit tests
-        run: composer test
+        run: vendor/bin/pest --testsuite=Unit --coverage-clover coverage-unit.xml
 
       - name: Run integration tests
         env:
@@ -78,14 +78,16 @@ jobs:
         # (see that directory's composer.json) because WordPress core's
         # WP_UnitTestCase (abstract-testcase.php) calls a PHPUnit method removed
         # in PHPUnit 10+, which the main Pest 4 toolchain bundles.
-        run: php vendor/bin/phpunit --coverage-clover ../../coverage.xml
+        run: php vendor/bin/phpunit --coverage-clover ../../coverage-integration.xml
         working-directory: tests/integration-runner
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: coverage.xml
+          path: |
+            coverage-unit.xml
+            coverage-integration.xml
 
   sonarcloud:
     name: SonarQube Cloud Scan

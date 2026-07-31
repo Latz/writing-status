@@ -3,6 +3,8 @@
 CLAUDE.local.md
 .env
 coverage.xml
+coverage-unit.xml
+coverage-integration.xml
 .worktrees/
 .phpunit.result.cache
 tests/integration-runner/.phpunit.result.cache
