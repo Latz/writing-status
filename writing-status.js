@@ -51,6 +51,34 @@
 	}
 
 	/**
+	 * Warn before publishing a draft still marked Incomplete (classic editor).
+	 *
+	 * Intercepts the Publish button click only — Save Draft is left alone —
+	 * and lets the user cancel and go back, or confirm and publish anyway.
+	 */
+	function initPublishWarning() {
+		var hiddenInput = document.getElementById('writing_complete_hidden');
+		var publishBtn = document.getElementById('publish');
+
+		if (!hiddenInput || !publishBtn) {
+			return;
+		}
+
+		publishBtn.addEventListener('click', function (e) {
+			if (hiddenInput.value === 'yes') {
+				return;
+			}
+
+			var message = hiddenInput.getAttribute('data-publish-warning') ||
+				'This draft is marked as Incomplete. Are you sure you want to publish it?';
+
+			if (!window.confirm(message)) {
+				e.preventDefault();
+			}
+		});
+	}
+
+	/**
 	 * Open/close the floating popup containing the completion toggle button,
 	 * triggered by clicking the "Draft status: ..." link in the Publish box.
 	 * Closes on outside click or Escape, matching standard popup UX.
@@ -333,6 +361,7 @@
 		var Dropdown    = wp.components.Dropdown;
 		var HStack      = wp.components.__experimentalHStack;
 		var Icon        = wp.components.Icon;
+		var Modal       = wp.components.Modal;
 
 		/**
 		 * Outline circle-check / circle-cross icons, drawn to match the
@@ -416,6 +445,69 @@
 			);
 		}
 
+		/**
+		 * Publish confirmation popup shown instead of Gutenberg's own "Are you
+		 * ready to publish?" sidebar when the draft is still marked Incomplete.
+		 * Intercepts the sidebar the instant it opens (closing it immediately)
+		 * so the warning reads as a hard stop rather than inline text easily
+		 * scrolled past, while still leaving publishing to the user's choice.
+		 */
+		function PublishConfirmModal() {
+			var useState = wp.element.useState;
+			var useEffect = wp.element.useEffect;
+
+			var isComplete = useSelect(function (select) {
+				var meta = select('core/editor').getEditedPostAttribute('meta') || {};
+				return meta._writing_complete === 'yes';
+			});
+			var isPublishSidebarOpened = useSelect(function (select) {
+				var editPostStore = select('core/edit-post');
+				return editPostStore && typeof editPostStore.isPublishSidebarOpened === 'function'
+					? editPostStore.isPublishSidebarOpened()
+					: false;
+			});
+			var togglePublishSidebar = useDispatch('core/edit-post').togglePublishSidebar;
+			var savePost = useDispatch('core/editor').savePost;
+
+			var stateArr    = useState(false);
+			var showModal   = stateArr[0];
+			var setShowModal = stateArr[1];
+
+			useEffect(function () {
+				if (isPublishSidebarOpened && !isComplete) {
+					if (togglePublishSidebar) {
+						togglePublishSidebar();
+					}
+					setShowModal(true);
+				}
+			}, [isPublishSidebarOpened, isComplete]);
+
+			if (!showModal) {
+				return null;
+			}
+
+			function closeModal() {
+				setShowModal(false);
+			}
+
+			function confirmPublish() {
+				setShowModal(false);
+				savePost({ isPublish: true });
+			}
+
+			return el(Modal, {
+				title: __( 'Publish Incomplete Draft?', 'writing-status' ),
+				onRequestClose: closeModal,
+				className: 'ws-publish-warning-modal'
+			},
+				el('p', {}, el(Icon, { icon: incompleteIcon, size: 18 }), __( 'This draft is marked as Incomplete. Are you sure you want to publish it?', 'writing-status' )),
+				el(HStack, { justify: 'flex-end', spacing: 3, className: 'ws-publish-warning-modal-actions' },
+					el(Button, { variant: 'tertiary', onClick: closeModal }, __( 'Cancel', 'writing-status' )),
+					el(Button, { variant: 'primary', onClick: confirmPublish }, __( 'Publish Anyway', 'writing-status' ))
+				)
+			);
+		}
+
 		function WritingStatusPanel() {
 			var meta = useSelect(function (select) {
 				return select('core/editor').getEditedPostAttribute('meta') || {};
@@ -468,6 +560,7 @@
 						{ className: 'ws-post-status-info' },
 						el(DraftStatusInfo)
 					),
+					el(PublishConfirmModal),
 					el(
 						wp.editPost.PluginDocumentSettingPanel,
 						{
@@ -537,6 +630,7 @@
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', function () {
 			initCompletionToggle();
+			initPublishWarning();
 			initDraftStatusExpand();
 			repositionClassicDraftStatus();
 			initUnsavedWarning();
@@ -545,6 +639,7 @@
 		});
 	} else {
 		initCompletionToggle();
+		initPublishWarning();
 		initDraftStatusExpand();
 		repositionClassicDraftStatus();
 		initUnsavedWarning();

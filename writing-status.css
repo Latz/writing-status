@@ -656,3 +656,28 @@
 	font-size: 11px;
 	margin: 2px 0 0;
 }
+
+/*
+ * Publish confirmation popup — Gutenberg
+ * =========================================
+ * Modal shown in place of core's own "Are you ready to publish?" sidebar
+ * when the draft is still marked Incomplete, so the warning reads as a
+ * deliberate stop rather than text easily scrolled past in a panel.
+ */
+.ws-publish-warning-modal p {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 0 0 20px;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.ws-publish-warning-modal p svg {
+	flex-shrink: 0;
+	color: #dba617;
+}
+
+.ws-publish-warning-modal-actions {
+	margin-top: 8px;
+}

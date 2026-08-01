@@ -10,6 +10,7 @@ import { vi } from 'vitest';
  * @param {object} [state] Mutable editor state read by useSelect/select.
  * @param {object} [state.meta] Post meta (_writing_complete, _writing_priority, _writing_due_date).
  * @param {string} [state.status] Post status.
+ * @param {boolean} [state.isPublishSidebarOpened] core/edit-post publish-sidebar-open flag.
  * @return {object} A fresh wp mock object.
  */
 export function createWpMock( state = {} ) {
@@ -22,10 +23,20 @@ export function createWpMock( state = {} ) {
 		...state,
 	};
 
+	const editPostState = {
+		isPublishSidebarOpened: state.isPublishSidebarOpened || false,
+	};
+
+	const hookBox = { value: undefined };
+
 	const editPostMock = vi.fn( ( update ) => {
 		if ( update.meta ) {
 			Object.assign( editorState.meta, update.meta );
 		}
+	} );
+	const savePostMock = vi.fn();
+	const togglePublishSidebarMock = vi.fn( () => {
+		editPostState.isPublishSidebarOpened = ! editPostState.isPublishSidebarOpened;
 	} );
 
 	const editorSelectors = {
@@ -42,6 +53,26 @@ export function createWpMock( state = {} ) {
 		isAutosavingPost: () => editorState.isAutosavingPost,
 		didPostSaveRequestSucceed: () => editorState.didPostSaveRequestSucceed,
 	};
+	const editorDispatchers = {
+		editPost: editPostMock,
+		savePost: savePostMock,
+	};
+
+	const editPostStoreSelectors = {
+		isPublishSidebarOpened: () => editPostState.isPublishSidebarOpened,
+	};
+	const editPostStoreDispatchers = {
+		togglePublishSidebar: togglePublishSidebarMock,
+	};
+
+	// Both `select`/`dispatch` (used directly) and `useSelect`/`useDispatch`
+	// (which receive this same function as their `select` callback arg) key
+	// off the store name so the mock behaves for both core/editor and
+	// core/edit-post, matching how initGutenbergPanel() reads each store.
+	const selectStore = ( storeName ) =>
+		storeName === 'core/edit-post' ? editPostStoreSelectors : editorSelectors;
+	const dispatchStore = ( storeName ) =>
+		storeName === 'core/edit-post' ? editPostStoreDispatchers : editorDispatchers;
 
 	const subscribers = [];
 
@@ -60,12 +91,33 @@ export function createWpMock( state = {} ) {
 				children,
 			} ),
 			Fragment: 'Fragment',
+			// Single-slot hook state persisted for the lifetime of this mock
+			// instance (`hookBox`, declared once per createWpMock() call below)
+			// rather than reset per call — real React persists state across
+			// re-renders of the same component instance, and PublishConfirmModal
+			// is the only component under test that uses useState, so one shared
+			// slot is enough to fake that without a full hooks reconciler.
+			useState: ( initial ) => {
+				if ( hookBox.value === undefined ) {
+					hookBox.value = initial;
+				}
+				const setValue = ( next ) => {
+					hookBox.value = typeof next === 'function' ? next( hookBox.value ) : next;
+				};
+				return [ hookBox.value, setValue ];
+			},
+			// Runs the effect synchronously on every "render" (every call to the
+			// component function) instead of deferring to a commit phase — close
+			// enough for these plain-descriptor tests, which call the component
+			// function directly once per simulated render rather than going
+			// through a real reconciler.
+			useEffect: ( effect ) => effect(),
 		},
 		data: {
-			useSelect: ( mapSelect ) => mapSelect( () => editorSelectors ),
-			useDispatch: () => ( { editPost: editPostMock } ),
-			select: () => editorSelectors,
-			dispatch: () => ( { editPost: editPostMock } ),
+			useSelect: ( mapSelect ) => mapSelect( selectStore ),
+			useDispatch: ( storeName ) => dispatchStore( storeName ),
+			select: selectStore,
+			dispatch: dispatchStore,
 			subscribe: ( listener ) => {
 				subscribers.push( listener );
 				return () => {
@@ -80,6 +132,7 @@ export function createWpMock( state = {} ) {
 			Button: 'Button',
 			Dropdown: 'Dropdown',
 			Icon: 'Icon',
+			Modal: 'Modal',
 			__experimentalHStack: 'HStack',
 		},
 		i18n: {
@@ -90,7 +143,10 @@ export function createWpMock( state = {} ) {
 	return {
 		wp,
 		editorState,
+		editPostState,
 		editPostMock,
+		savePostMock,
+		togglePublishSidebarMock,
 		notifySubscribers: () => subscribers.forEach( ( listener ) => listener() ),
 	};
 }

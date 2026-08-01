@@ -31,6 +31,22 @@ export function buildCompletionToggleFixture() {
 	`;
 }
 
+/**
+ * Markup for the classic-editor publish-warning check: the completion
+ * toggle fixture plus a #publish button, as rendered on post.php/post-new.php.
+ */
+export function buildPublishWarningFixture() {
+	buildCompletionToggleFixture();
+	document.getElementById( 'writing_complete_hidden' ).setAttribute(
+		'data-publish-warning',
+		'This draft is marked as Incomplete. Are you sure you want to publish it?'
+	);
+	const publishBtn = document.createElement( 'button' );
+	publishBtn.type = 'submit';
+	publishBtn.id = 'publish';
+	document.body.appendChild( publishBtn );
+}
+
 export function buildDraftStatusExpandFixture() {
 	buildCompletionToggleFixture();
 	const iframe = document.createElement( 'iframe' );
