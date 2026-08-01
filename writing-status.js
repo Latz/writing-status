@@ -335,6 +335,20 @@
 		var Icon        = wp.components.Icon;
 
 		/**
+		 * Outline circle-check / circle-cross icons, drawn to match the
+		 * stroke weight and 20x20 grid of core's own Status row icon
+		 * (an outline circle, not a solid dashicon glyph).
+		 */
+		var completeIcon = el('svg', { viewBox: '0 0 20 20', xmlns: 'http://www.w3.org/2000/svg' },
+			el('path', { fill: 'currentColor', d: 'M10 1a9 9 0 100 18 9 9 0 000-18zm0 16.2a7.2 7.2 0 110-14.4 7.2 7.2 0 010 14.4z' }),
+			el('path', { fill: 'currentColor', d: 'M8.5 13.2 4.8 9.5l1.3-1.3 2.4 2.4 5.4-5.4 1.3 1.3z' })
+		);
+		var incompleteIcon = el('svg', { viewBox: '0 0 20 20', xmlns: 'http://www.w3.org/2000/svg' },
+			el('path', { fill: 'currentColor', d: 'M10 1a9 9 0 100 18 9 9 0 000-18zm0 16.2a7.2 7.2 0 110-14.4 7.2 7.2 0 010 14.4z' }),
+			el('path', { fill: 'currentColor', d: 'M13.5 7.6 11.9 6l-1.9 1.9L8.1 6 6.5 7.6 8.4 9.5l-1.9 1.9 1.6 1.6 1.9-1.9 1.9 1.9 1.6-1.6L11.6 9.5z' })
+		);
+
+		/**
 		 * "Draft status" row, styled to match core's own Status/Publish/Slug
 		 * rows (label left, value right) via the same editor-post-panel__row
 		 * classes and HStack component core uses for those rows. The value is
@@ -345,8 +359,15 @@
 			var meta = useSelect(function (select) {
 				return select('core/editor').getEditedPostAttribute('meta') || {};
 			});
+			var postStatus = useSelect(function (select) {
+				return select('core/editor').getEditedPostAttribute('status');
+			});
 			var editPost = useDispatch('core/editor').editPost;
 			var isComplete = meta._writing_complete === 'yes';
+
+			if (postStatus === 'publish') {
+				return null;
+			}
 
 			function setValue(value) {
 				editPost({ meta: { _writing_complete: value } });
@@ -366,24 +387,24 @@
 								'aria-expanded': props.isOpen,
 								onClick: props.onToggle
 							},
-								el(Icon, { icon: isComplete ? 'yes-alt' : 'dismiss' }),
+								el(Icon, { icon: isComplete ? completeIcon : incompleteIcon, size: 18 }),
 								isComplete ? __('Complete', 'writing-status') : __('Incomplete', 'writing-status')
 							);
 						},
-						renderContent: function () {
+						renderContent: function (contentProps) {
 							return el('div', { className: 'ws-status-info-popover-content' },
 								el(Button, {
 									variant:   'secondary',
 									isPressed: isComplete,
 									className: 'ws-status-info-btn is-complete-btn',
-									onClick:   function () { setValue('yes'); }
-								}, el(Icon, { icon: 'yes-alt' }), __('Complete', 'writing-status')),
+									onClick:   function () { setValue('yes'); contentProps.onClose(); }
+								}, el(Icon, { icon: completeIcon, size: 18 }), __('Complete', 'writing-status')),
 								el(Button, {
 									variant:   'secondary',
 									isPressed: !isComplete,
 									className: 'ws-status-info-btn is-incomplete-btn',
-									onClick:   function () { setValue('no'); }
-								}, el(Icon, { icon: 'dismiss' }), __('Incomplete', 'writing-status'))
+									onClick:   function () { setValue('no'); contentProps.onClose(); }
+								}, el(Icon, { icon: incompleteIcon, size: 18 }), __('Incomplete', 'writing-status'))
 							);
 						}
 					})
