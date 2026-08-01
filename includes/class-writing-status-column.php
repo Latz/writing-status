@@ -33,14 +33,17 @@ class WritingStatusColumn extends WritingStatusRenderer {
 
         $post_status = get_post_status( $post_id );
 
-        if ( $post_status === 'publish' || $post_status === 'private' ) {
+        if ( $this->isPublishedLikeStatus( $post_status ) ) {
             printf(
                 '<span class="writing-status-indicator writing-status-published" aria-label="%s">● %s</span>',
                 esc_attr__( 'Post status: Published', 'writing-status' ),
                 esc_html__( 'Published', 'writing-status' )
             );
-        } elseif ( $post_status === 'pending' || $post_status === 'future' || $post_status === 'trash' ) {
+        } elseif ( $this->isNonDraftStatus( $post_status ) || $post_status === 'trash' ) {
             // No draft-status indicator for posts pending review, scheduled, or trashed.
+            // 'trash' is only reachable here (the Trash list view); the edit
+            // screens never render for a trashed post, so it's not part of
+            // isNonDraftStatus().
         } else {
             $is_complete = get_post_meta( $post_id, '_writing_complete', true );
             $due_date    = get_post_meta( $post_id, '_writing_due_date', true );

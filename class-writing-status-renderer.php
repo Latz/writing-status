@@ -102,6 +102,38 @@ class WritingStatusRenderer {
     }
 
     /**
+     * Whether a post status is "published-like"
+     *
+     * Publish and private posts are both live content, just with different
+     * visibility, so both get the "Published" indicator instead of draft controls.
+     *
+     * @since 1.9.19
+     * @param string $post_status The post status to check.
+     * @return bool
+     */
+    protected function isPublishedLikeStatus( $post_status ) {
+        return in_array( $post_status, array( 'publish', 'private' ), true );
+    }
+
+    /**
+     * Whether a post status means Draft status should be fully suppressed
+     *
+     * Covers every status reachable while editing a post (via the classic
+     * editor or block editor) where the post is no longer an actionable
+     * draft. 'trash' is deliberately excluded: WP core blocks the edit
+     * screen entirely for trashed posts, so it never reaches these render
+     * paths and is instead handled inline where it IS reachable (the
+     * Posts List Trash view column).
+     *
+     * @since 1.9.19
+     * @param string $post_status The post status to check.
+     * @return bool
+     */
+    protected function isNonDraftStatus( $post_status ) {
+        return in_array( $post_status, array( 'publish', 'pending', 'future', 'private' ), true );
+    }
+
+    /**
      * Render completion status indicator
      *
      * Displays completion status (complete/incomplete) for a draft.

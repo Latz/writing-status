@@ -27,7 +27,7 @@ class WritingStatusMetaBox extends WritingStatusRenderer {
             return;
         }
 
-        if ( in_array( get_post_status( $post->ID ), array( 'publish', 'pending', 'future', 'private', 'trash' ), true ) ) {
+        if ( $this->isNonDraftStatus( get_post_status( $post->ID ) ) ) {
             return;
         }
 
@@ -72,7 +72,7 @@ class WritingStatusMetaBox extends WritingStatusRenderer {
     public function renderCompletionMetaBox( $post ) {
         $post_status = get_post_status( $post->ID );
 
-        if ( $post_status === 'publish' || $post_status === 'private' ) {
+        if ( $this->isPublishedLikeStatus( $post_status ) ) {
             ?>
             <p class="writing-status-metabox-published">
                 <span class="writing-status-indicator writing-status-published">● <?php esc_html_e( 'Published', 'writing-status' ); ?></span>
@@ -84,7 +84,7 @@ class WritingStatusMetaBox extends WritingStatusRenderer {
             return;
         }
 
-        if ( $post_status === 'pending' || $post_status === 'future' || $post_status === 'trash' ) {
+        if ( $this->isNonDraftStatus( $post_status ) ) {
             return;
         }
 

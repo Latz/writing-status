@@ -356,16 +356,19 @@
 		 * clicking it opens a floating popover rather than pushing content down.
 		 */
 		function DraftStatusInfo() {
-			var meta = useSelect(function (select) {
-				return select('core/editor').getEditedPostAttribute('meta') || {};
+			var editorData = useSelect(function (select) {
+				var editor = select('core/editor');
+				return {
+					meta: editor.getEditedPostAttribute('meta') || {},
+					status: editor.getEditedPostAttribute('status')
+				};
 			});
-			var postStatus = useSelect(function (select) {
-				return select('core/editor').getEditedPostAttribute('status');
-			});
+			var meta = editorData.meta;
+			var postStatus = editorData.status;
 			var editPost = useDispatch('core/editor').editPost;
 			var isComplete = meta._writing_complete === 'yes';
 
-			if (postStatus === 'publish' || postStatus === 'pending' || postStatus === 'future' || postStatus === 'private' || postStatus === 'trash') {
+			if (postStatus === 'publish' || postStatus === 'pending' || postStatus === 'future' || postStatus === 'private') {
 				return null;
 			}
 
