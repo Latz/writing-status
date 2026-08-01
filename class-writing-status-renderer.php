@@ -102,6 +102,17 @@ class WritingStatusRenderer {
     }
 
     /**
+     * Whether a post type is one this plugin manages Writing Status for
+     *
+     * @since 1.9.24
+     * @param string $post_type The post type slug to check.
+     * @return bool
+     */
+    protected function isSupportedPostType( $post_type ) {
+        return $post_type === 'post';
+    }
+
+    /**
      * Whether a post status is "published-like"
      *
      * Publish and private posts are both live content, just with different
@@ -124,6 +135,9 @@ class WritingStatusRenderer {
      * screen entirely for trashed posts, so it never reaches these render
      * paths and is instead handled inline where it IS reachable (the
      * Posts List Trash view column).
+     *
+     * Keep this status list in sync with the equivalent inline check in
+     * DraftStatusInfo() in writing-status.js.
      *
      * @since 1.9.19
      * @param string $post_status The post status to check.

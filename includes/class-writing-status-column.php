@@ -22,7 +22,7 @@ class WritingStatusColumn extends WritingStatusRenderer {
     }
 
     public function addCompletionColumn( $columns, $post_type ) {
-        if ( $post_type !== 'post' ) {
+        if ( ! $this->isSupportedPostType( $post_type ) ) {
             return $columns;
         }
 
@@ -30,6 +30,14 @@ class WritingStatusColumn extends WritingStatusRenderer {
         return $columns;
     }
 
+    /**
+     * Displays the Writing Status column content.
+     *
+     * No draft-status indicator is shown for posts pending review, scheduled,
+     * or trashed. 'trash' is checked inline here rather than folded into
+     * isNonDraftStatus() because this is the only call site that can ever
+     * see it — WP core blocks the edit screens entirely for trashed posts.
+     */
     public function displayCompletionColumn( $column, $post_id ) {
         if ( $column !== 'writing_completion' ) {
             return;
@@ -43,12 +51,7 @@ class WritingStatusColumn extends WritingStatusRenderer {
                 esc_attr__( 'Post status: Published', 'writing-status' ),
                 esc_html__( 'Published', 'writing-status' )
             );
-        } elseif ( $this->isNonDraftStatus( $post_status ) || $post_status === 'trash' ) {
-            // No draft-status indicator for posts pending review, scheduled, or trashed.
-            // 'trash' is only reachable here (the Trash list view); the edit
-            // screens never render for a trashed post, so it's not part of
-            // isNonDraftStatus().
-        } else {
+        } elseif ( ! $this->isNonDraftStatus( $post_status ) && $post_status !== 'trash' ) {
             $is_complete = get_post_meta( $post_id, '_writing_complete', true );
             $due_date    = get_post_meta( $post_id, '_writing_due_date', true );
             $priority    = get_post_meta( $post_id, '_writing_priority', true );

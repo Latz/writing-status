@@ -356,18 +356,19 @@
 		 * clicking it opens a floating popover rather than pushing content down.
 		 */
 		function DraftStatusInfo() {
-			var editorData = useSelect(function (select) {
-				var editor = select('core/editor');
-				return {
-					meta: editor.getEditedPostAttribute('meta') || {},
-					status: editor.getEditedPostAttribute('status')
-				};
+			// Two selectors returning primitives (not a shared object) so this only
+			// re-renders when isComplete/postStatus actually change, not on every
+			// core/editor state change (e.g. title keystrokes).
+			var isComplete = useSelect(function (select) {
+				var meta = select('core/editor').getEditedPostAttribute('meta') || {};
+				return meta._writing_complete === 'yes';
 			});
-			var meta = editorData.meta;
-			var postStatus = editorData.status;
+			var postStatus = useSelect(function (select) {
+				return select('core/editor').getEditedPostAttribute('status');
+			});
 			var editPost = useDispatch('core/editor').editPost;
-			var isComplete = meta._writing_complete === 'yes';
 
+			// Keep this status list in sync with isNonDraftStatus() in class-writing-status-renderer.php.
 			if (postStatus === 'publish' || postStatus === 'pending' || postStatus === 'future' || postStatus === 'private') {
 				return null;
 			}

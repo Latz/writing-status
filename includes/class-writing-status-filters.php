@@ -20,7 +20,7 @@ class WritingStatusFilters extends WritingStatusRenderer {
     }
 
     public function addCompletionFilterDropdown( $post_type ) {
-        if ( $post_type !== 'post' ) {
+        if ( ! $this->isSupportedPostType( $post_type ) ) {
             return;
         }
 
