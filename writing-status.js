@@ -365,7 +365,7 @@
 			var editPost = useDispatch('core/editor').editPost;
 			var isComplete = meta._writing_complete === 'yes';
 
-			if (postStatus === 'publish') {
+			if (postStatus === 'publish' || postStatus === 'pending' || postStatus === 'future' || postStatus === 'private' || postStatus === 'trash') {
 				return null;
 			}
 
