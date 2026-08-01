@@ -81,6 +81,17 @@ jobs:
         run: php vendor/bin/phpunit --coverage-clover ../../coverage-integration.xml
         working-directory: tests/integration-runner
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Run JS tests
+        run: npm run test:js:coverage
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
@@ -88,6 +99,7 @@ jobs:
           path: |
             coverage-unit.xml
             coverage-integration.xml
+            bin/reports/coverage-js/lcov.info
 
   sonarcloud:
     name: SonarQube Cloud Scan

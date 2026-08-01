@@ -1,7 +1,8 @@
 # Testing
 
 Writing Status has two PHP test layers: **Unit** (Pest + Brain Monkey, no
-database) and **Integration** (real WordPress + test database).
+database) and **Integration** (real WordPress + test database), plus a
+**JS** layer (Vitest) covering `writing-status.js`.
 
 ## Dependencies
 
@@ -110,3 +111,25 @@ across both toolchains.
 
 `composer test:integration` installs the runner's dependencies and invokes
 its `vendor/bin/phpunit` automatically.
+
+## JS suite (`tests/js/`)
+
+`writing-status.js` is a single unbundled IIFE enqueued as-is (no build
+step) — its `init*` functions aren't exported, they just run immediately
+against the live DOM/`wp` globals on load. So instead of importing named
+functions like a normal ES module, each test dynamically re-imports the raw
+script fresh (`tests/js/helpers/dom.js`'s `loadScript()`, which calls
+`vi.resetModules()` then `await import('../../../writing-status.js')`)
+against a jsdom fixture it builds first, then asserts on the resulting DOM
+state or mocked `wp`/`inlineEditPost` calls. `tests/js/mocks/wp.js` provides
+a minimal `wp` global stub (`plugins`, `editPost`, `element`, `data`,
+`components`, `i18n`) for the Gutenberg-panel tests, with
+`element.createElement` returning a plain `{ type, props, children }`
+descriptor rather than rendering real React.
+
+```bash
+npm install
+npm run test:js            # run once
+npm run test:js:watch       # watch mode
+npm run test:js:coverage    # with coverage (bin/reports/coverage-js/)
+```
