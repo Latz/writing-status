@@ -55,7 +55,15 @@ fi
 BASE_URL="https://sonarcloud.io/api/issues/search"
 PAGE=1
 TOTAL_FETCHED=0
-ALL_ISSUES="[]"
+
+# Pages are written to disk and merged via `jq -s` at the end instead of
+# accumulated in a shell variable — passing the whole growing issue array
+# through --argjson on every iteration hits the OS argv size limit
+# ("Argument list too long") once a project has more than a few hundred
+# open issues, since each issue object (message, flow locations, etc.) is
+# fairly verbose.
+PAGES_DIR=$(mktemp -d)
+trap 'rm -rf "$PAGES_DIR"' EXIT
 
 echo "Fetching issues from SonarCloud..."
 
@@ -75,12 +83,9 @@ while true; do
     exit 1
   fi
 
-  PAGE_ISSUES=$(echo "$BODY" | jq '.issues')
-  PAGE_COUNT=$(echo "$PAGE_ISSUES" | jq 'length')
+  echo "$BODY" | jq '.issues' > "$PAGES_DIR/page-${PAGE}.json"
+  PAGE_COUNT=$(jq 'length' "$PAGES_DIR/page-${PAGE}.json")
   TOTAL=$(echo "$BODY" | jq '.paging.total')
-
-  # Merge this page's issues into the accumulated array
-  ALL_ISSUES=$(jq -n --argjson acc "$ALL_ISSUES" --argjson page "$PAGE_ISSUES" '$acc + $page')
 
   TOTAL_FETCHED=$(( TOTAL_FETCHED + PAGE_COUNT ))
 
@@ -93,6 +98,8 @@ while true; do
 
   PAGE=$(( PAGE + 1 ))
 done
+
+ALL_ISSUES=$(jq -s 'add' "$PAGES_DIR"/page-*.json)
 
 echo "Done. ${TOTAL_FETCHED} issue(s) fetched."
 
