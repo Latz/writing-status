@@ -61,7 +61,7 @@ class WritingStatusColumn extends WritingStatusRenderer {
         printf(
             '<span class="hidden writing-status-qe-data" id="writing-status-data-%1$d"'
             . ' data-complete="%2$s" data-due-date="%3$s" data-priority="%4$s"></span>',
-            $post_id,
+            absint( $post_id ),
             esc_attr( get_post_meta( $post_id, '_writing_complete', true ) ?: 'no' ),
             esc_attr( get_post_meta( $post_id, '_writing_due_date', true ) ?: '' ),
             esc_attr( get_post_meta( $post_id, '_writing_priority', true ) ?: 'none' )

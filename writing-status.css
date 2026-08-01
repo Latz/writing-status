@@ -376,7 +376,7 @@
 	gap: 6px;
 	font-size: 12px;
 	font-weight: 600;
-	transition: all 0.2s ease;
+	transition: all 0.4s ease;
 	border-width: 2px;
 	padding: 4px 10px;
 }
@@ -615,9 +615,20 @@
 	padding: 12px;
 }
 
-.ws-status-info-btn .dashicon,
-.ws-status-info-dropdown button .dashicon {
-	margin-right: 4px;
+.ws-status-info-btn,
+.ws-status-info-dropdown button {
+	gap: 4px;
+}
+
+.ws-status-info-btn {
+	transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+/* Drop the focus ring left on the toggle button once the popover closes
+   after a mouse click, while keeping it for keyboard (:focus-visible). */
+.ws-status-info-dropdown button:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: none;
 }
 
 .ws-status-info-btn.is-complete-btn {

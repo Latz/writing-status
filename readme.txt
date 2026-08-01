@@ -3,7 +3,7 @@ Contributors: latz
 Tags: draft, posts, writing, status, productivity
 Requires at least: 6.6
 Tested up to: 7.0
-Stable tag: 1.9.21
+Stable tag: 1.9.23
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -123,6 +123,9 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 4. Sortable Writing Status column in action
 
 == Changelog ==
+
+= 1.9.23 =
+* Draft status Complete/Incomplete toggle now animates smoothly (0.4s fade) in both the Classic Editor and the block editor's Status & visibility popover
 
 = 1.9.21 =
 * Fixed: the "Writing Status" column no longer appears on custom post type list tables — it's scoped to standard posts only, as documented

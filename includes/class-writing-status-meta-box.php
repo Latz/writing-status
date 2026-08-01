@@ -33,14 +33,14 @@ class WritingStatusMetaBox extends WritingStatusRenderer {
 
         $is_complete = get_post_meta( $post->ID, '_writing_complete', true );
         $is_complete = $is_complete === 'yes' ? 'yes' : 'no';
-        $complete_label   = esc_html__( 'Draft status: Complete', 'writing-status' );
-        $incomplete_label = esc_html__( 'Draft status: Incomplete', 'writing-status' );
+        $complete_label   = __( 'Draft status: Complete', 'writing-status' );
+        $incomplete_label = __( 'Draft status: Incomplete', 'writing-status' );
         ?>
         <div class="misc-pub-section misc-pub-draft-status">
             <input type="hidden" id="writing_complete_hidden" name="writing_complete" value="<?php echo esc_attr( $is_complete ); ?>">
             <a href="#" id="writing-draft-status-toggle-link" class="writing-draft-status-link" aria-expanded="false" aria-controls="writing-draft-status-box" data-complete-label="<?php echo esc_attr( $complete_label ); ?>" data-incomplete-label="<?php echo esc_attr( $incomplete_label ); ?>">
                 <span class="writing-draft-status-link-icon"><?php echo $is_complete === 'yes' ? '✓' : '✗'; ?></span>
-                <span class="writing-draft-status-link-text"><?php echo $is_complete === 'yes' ? $complete_label : $incomplete_label; ?></span>
+                <span class="writing-draft-status-link-text"><?php echo esc_html( $is_complete === 'yes' ? $complete_label : $incomplete_label ); ?></span>
             </a>
             <div id="writing-draft-status-box" class="writing-draft-status-box">
                 <button type="button" id="writing_complete_button" class="button draft-complete-toggle is-complete-btn <?php echo esc_attr( $is_complete === 'yes' ? 'is-active' : '' ); ?>" aria-pressed="<?php echo esc_attr( $is_complete === 'yes' ? 'true' : 'false' ); ?>">
