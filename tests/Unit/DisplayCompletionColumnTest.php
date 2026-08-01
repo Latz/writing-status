@@ -45,7 +45,6 @@ describe('WritingStatusColumn::displayCompletionColumn()', function (): void {
         // call renderCompletionStatus directly via reflection to verify the
         // 'complete' path.
         $method = new ReflectionMethod(WritingStatus::class, 'renderCompletionStatus');
-        $method->setAccessible(true);
 
         Functions\when('esc_attr__')->returnArg();
         Functions\when('esc_html__')->returnArg();
@@ -59,7 +58,6 @@ describe('WritingStatusColumn::displayCompletionColumn()', function (): void {
 
     it('draft with priority shows priority badge', function (): void {
         $method = new ReflectionMethod(WritingStatus::class, 'renderPriorityBadge');
-        $method->setAccessible(true);
 
         Functions\when('__')->returnArg();
         Functions\when('esc_attr')->returnArg();

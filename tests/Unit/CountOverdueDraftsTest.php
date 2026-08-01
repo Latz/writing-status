@@ -17,7 +17,6 @@ beforeEach(function (): void {
     $this->plugin = new WritingStatus();
 
     $method = new ReflectionMethod(WritingStatus::class, 'countOverdueDrafts');
-    $method->setAccessible(true);
 
     $this->call = fn (): int => $method->invoke($this->plugin);
 });

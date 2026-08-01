@@ -63,7 +63,6 @@ describe('renderDashboardIncompletePosts (protected, via ReflectionMethod)', fun
         $query = new WP_Query();
 
         $method = new ReflectionMethod(WritingStatus::class, 'renderDashboardIncompletePosts');
-        $method->setAccessible(true);
 
         ob_start();
         $method->invokeArgs($this->plugin, [$query]);
@@ -77,7 +76,6 @@ describe('renderDashboardIncompletePosts (protected, via ReflectionMethod)', fun
         $query->set_posts([1]);
 
         $method = new ReflectionMethod(WritingStatus::class, 'renderDashboardIncompletePosts');
-        $method->setAccessible(true);
 
         ob_start();
         $method->invokeArgs($this->plugin, [$query]);
@@ -93,7 +91,6 @@ describe('renderDashboardCompletePosts (protected, via ReflectionMethod)', funct
         $query = new WP_Query();
 
         $method = new ReflectionMethod(WritingStatus::class, 'renderDashboardCompletePosts');
-        $method->setAccessible(true);
 
         ob_start();
         $method->invokeArgs($this->plugin, [$query]);
@@ -107,7 +104,6 @@ describe('renderDashboardCompletePosts (protected, via ReflectionMethod)', funct
         $query->set_posts([1]);
 
         $method = new ReflectionMethod(WritingStatus::class, 'renderDashboardCompletePosts');
-        $method->setAccessible(true);
 
         ob_start();
         $method->invokeArgs($this->plugin, [$query]);
@@ -124,7 +120,6 @@ describe('private renderDashboardPostSection (via ReflectionMethod)', function (
         $query->set_posts([1]);
 
         $method = new ReflectionMethod(WritingStatus::class, 'renderDashboardPostSection');
-        $method->setAccessible(true);
 
         ob_start();
         $method->invokeArgs(
@@ -141,7 +136,6 @@ describe('private renderDashboardPostSection (via ReflectionMethod)', function (
         $query->set_posts([1]);
 
         $method = new ReflectionMethod(WritingStatus::class, 'renderDashboardPostSection');
-        $method->setAccessible(true);
 
         ob_start();
         $method->invokeArgs(
@@ -157,7 +151,6 @@ describe('private renderDashboardPostSection (via ReflectionMethod)', function (
         $query = new WP_Query();
 
         $method = new ReflectionMethod(WritingStatus::class, 'renderDashboardPostSection');
-        $method->setAccessible(true);
 
         ob_start();
         $method->invokeArgs(

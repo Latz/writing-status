@@ -16,7 +16,6 @@ beforeEach(function (): void {
 
     $ref          = new ReflectionClass(WritingStatus::class);
     $method       = $ref->getMethod('getDueDateDisplay');
-    $method->setAccessible(true);
 
     $this->call = fn (string $date): array => $method->invoke($this->plugin, $date);
 });

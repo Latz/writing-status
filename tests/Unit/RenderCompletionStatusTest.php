@@ -16,7 +16,6 @@ beforeEach(function (): void {
     $this->plugin = new WritingStatus();
 
     $method = new ReflectionMethod(WritingStatus::class, 'renderCompletionStatus');
-    $method->setAccessible(true);
 
     $this->call = function (string $status) use ($method): string {
         ob_start();

@@ -6,24 +6,34 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatus::saveDraftDueDate() and WritingStatus::saveDraftPriority().
  *
- * Both methods are protected. They are exercised via ReflectionMethod.
- * update_post_meta, delete_post_meta, sanitize_text_field, and wp_unslash are
- * defined as real no-op stubs in tests/stubs/wp-stubs.php, so these tests
- * assert that each code path executes without error rather than verifying
- * call arguments.
+ * Both methods are protected and exercised via ReflectionMethod. Spies on
+ * update_post_meta/delete_post_meta assert the actual meta key/value written
+ * (or that nothing was written), rather than just that the call didn't throw.
  */
 
 beforeEach(function (): void {
     $this->plugin = new WritingStatus();
 
     $this->saveDraftDueDate = new ReflectionMethod(WritingStatus::class, 'saveDraftDueDate');
-    $this->saveDraftDueDate->setAccessible(true);
 
     $this->saveDraftPriority = new ReflectionMethod(WritingStatus::class, 'saveDraftPriority');
-    $this->saveDraftPriority->setAccessible(true);
+
+    $this->updateCalls = [];
+    Functions\when('update_post_meta')->alias(function (...$args) {
+        $this->updateCalls[] = $args;
+        return true;
+    });
+
+    $this->deleteCalls = [];
+    Functions\when('delete_post_meta')->alias(function (...$args) {
+        $this->deleteCalls[] = $args;
+        return true;
+    });
 });
 
 afterEach(function (): void {
@@ -32,66 +42,70 @@ afterEach(function (): void {
 
 describe('WritingStatus::saveDraftDueDate()', function (): void {
 
-    it('valid date executes without error', function (): void {
+    it('saves a valid date', function (): void {
         $_POST['writing_due_date'] = '2026-12-31';
 
         $this->saveDraftDueDate->invoke($this->plugin, 1);
 
-        expect(true)->toBeTrue();
+        expect($this->updateCalls)->toBe([[1, '_writing_due_date', '2026-12-31']]);
+        expect($this->deleteCalls)->toBe([]);
     });
 
-    it('empty string executes without error', function (): void {
+    it('deletes the meta when the date is cleared', function (): void {
         $_POST['writing_due_date'] = '';
 
         $this->saveDraftDueDate->invoke($this->plugin, 1);
 
-        expect(true)->toBeTrue();
+        expect($this->deleteCalls)->toBe([[1, '_writing_due_date']]);
+        expect($this->updateCalls)->toBe([]);
     });
 
-    it('invalid format executes without error', function (): void {
+    it('writes nothing for an invalid, non-empty format', function (): void {
         $_POST['writing_due_date'] = 'not-a-date';
 
         $this->saveDraftDueDate->invoke($this->plugin, 1);
 
-        expect(true)->toBeTrue();
+        expect($this->updateCalls)->toBe([]);
+        expect($this->deleteCalls)->toBe([]);
     });
 
-    it('without post key executes without error', function (): void {
+    it('writes nothing when the field is absent', function (): void {
         $this->saveDraftDueDate->invoke($this->plugin, 1);
 
-        expect(true)->toBeTrue();
+        expect($this->updateCalls)->toBe([]);
+        expect($this->deleteCalls)->toBe([]);
     });
 });
 
 describe('WritingStatus::saveDraftPriority()', function (): void {
 
-    it('valid priority executes without error', function (): void {
+    it('saves a valid priority as-is', function (): void {
         $_POST['writing_priority'] = 'high';
 
         $this->saveDraftPriority->invoke($this->plugin, 1);
 
-        expect(true)->toBeTrue();
+        expect($this->updateCalls)->toBe([[1, '_writing_priority', 'high']]);
     });
 
-    it('invalid priority executes without error', function (): void {
+    it('falls back to none for an invalid priority', function (): void {
         $_POST['writing_priority'] = 'invalid';
 
         $this->saveDraftPriority->invoke($this->plugin, 1);
 
-        expect(true)->toBeTrue();
+        expect($this->updateCalls)->toBe([[1, '_writing_priority', 'none']]);
     });
 
-    it('none executes without error', function (): void {
+    it('saves none as-is', function (): void {
         $_POST['writing_priority'] = 'none';
 
         $this->saveDraftPriority->invoke($this->plugin, 1);
 
-        expect(true)->toBeTrue();
+        expect($this->updateCalls)->toBe([[1, '_writing_priority', 'none']]);
     });
 
-    it('without post key executes without error', function (): void {
+    it('writes nothing when the field is absent', function (): void {
         $this->saveDraftPriority->invoke($this->plugin, 1);
 
-        expect(true)->toBeTrue();
+        expect($this->updateCalls)->toBe([]);
     });
 });

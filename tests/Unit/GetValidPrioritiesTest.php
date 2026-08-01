@@ -19,7 +19,6 @@ describe('WritingStatus::getValidPriorities()', function (): void {
 
     it('returns array with five priorities', function (): void {
         $method = new ReflectionMethod(WritingStatus::class, 'getValidPriorities');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->plugin);
 
@@ -28,7 +27,6 @@ describe('WritingStatus::getValidPriorities()', function (): void {
 
     it('contains all expected priorities', function (): void {
         $method = new ReflectionMethod(WritingStatus::class, 'getValidPriorities');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->plugin);
 
@@ -39,7 +37,6 @@ describe('WritingStatus::getValidPriorities()', function (): void {
 
     it('urgent is in valid priorities', function (): void {
         $method = new ReflectionMethod(WritingStatus::class, 'getValidPriorities');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->plugin);
 
@@ -51,7 +48,6 @@ describe('WritingStatus::getPriorityLabels()', function (): void {
 
     it('returns four labels', function (): void {
         $method = new ReflectionMethod(WritingStatus::class, 'getPriorityLabels');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->plugin);
 
@@ -60,7 +56,6 @@ describe('WritingStatus::getPriorityLabels()', function (): void {
 
     it('does not contain none key', function (): void {
         $method = new ReflectionMethod(WritingStatus::class, 'getPriorityLabels');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->plugin);
 
@@ -69,7 +64,6 @@ describe('WritingStatus::getPriorityLabels()', function (): void {
 
     it('contains high key', function (): void {
         $method = new ReflectionMethod(WritingStatus::class, 'getPriorityLabels');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->plugin);
 

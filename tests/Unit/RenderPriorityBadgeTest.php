@@ -18,9 +18,7 @@ beforeEach(function (): void {
 
     $ref              = new ReflectionClass(WritingStatus::class);
     $badgeMethod      = $ref->getMethod('renderPriorityBadge');
-    $badgeMethod->setAccessible(true);
     $dashboardMethod  = $ref->getMethod('renderPriorityBadgeForDashboard');
-    $dashboardMethod->setAccessible(true);
 
     $this->callBadge = function (string $priority) use ($badgeMethod): string {
         ob_start();

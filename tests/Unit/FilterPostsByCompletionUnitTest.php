@@ -50,7 +50,6 @@ describe('WritingStatusFilters::filterPostsByCompletion()', function (): void {
         $_GET['writing_completion_filter'] = 'complete';
 
         $method = new ReflectionMethod(WritingStatusFilters::class, 'applyCompletionFilter');
-        $method->setAccessible(true);
 
         $query              = new MockWPQueryFilter();
         $filter_meta_query  = ['relation' => 'AND'];
@@ -65,7 +64,6 @@ describe('WritingStatusFilters::filterPostsByCompletion()', function (): void {
         $_GET['writing_completion_filter'] = 'incomplete';
 
         $method = new ReflectionMethod(WritingStatusFilters::class, 'applyCompletionFilter');
-        $method->setAccessible(true);
 
         $query              = new MockWPQueryFilter();
         $filter_meta_query  = ['relation' => 'AND'];
@@ -80,7 +78,6 @@ describe('WritingStatusFilters::filterPostsByCompletion()', function (): void {
         $_GET['writing_completion_filter'] = 'unknown';
 
         $method = new ReflectionMethod(WritingStatusFilters::class, 'applyCompletionFilter');
-        $method->setAccessible(true);
 
         $query              = new MockWPQueryFilter();
         $filter_meta_query  = ['relation' => 'AND'];
@@ -94,7 +91,6 @@ describe('WritingStatusFilters::filterPostsByCompletion()', function (): void {
         $_GET['writing_priority_filter'] = 'high';
 
         $method = new ReflectionMethod(WritingStatusFilters::class, 'applyPriorityFilter');
-        $method->setAccessible(true);
 
         $query                  = new MockWPQueryFilter();
         $filter_meta_query      = ['relation' => 'AND'];
@@ -110,7 +106,6 @@ describe('WritingStatusFilters::filterPostsByCompletion()', function (): void {
         $_GET['writing_priority_filter'] = 'invalid';
 
         $method = new ReflectionMethod(WritingStatusFilters::class, 'applyPriorityFilter');
-        $method->setAccessible(true);
 
         $query                  = new MockWPQueryFilter();
         $filter_meta_query      = ['relation' => 'AND'];
@@ -125,7 +120,6 @@ describe('WritingStatusFilters::filterPostsByCompletion()', function (): void {
         $_GET['writing_priority_filter'] = 'high';
 
         $method = new ReflectionMethod(WritingStatusFilters::class, 'applyPriorityFilter');
-        $method->setAccessible(true);
 
         $query                  = new MockWPQueryFilter();
         $filter_meta_query      = ['relation' => 'AND'];

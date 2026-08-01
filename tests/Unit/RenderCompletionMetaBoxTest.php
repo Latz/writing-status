@@ -7,12 +7,12 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Unit tests for WritingStatus::renderCompletionMetaBox().
+ * Unit tests for WritingStatusMetaBox::addCompletionMetaBox() and
+ * renderCompletionMetaBox(). The Complete/Incomplete toggle markup lives in
+ * renderDraftStatusRow() instead — see RenderDraftStatusRowTest.php.
  *
  * get_post_status() must be mocked per-test (it's intentionally left
- * undefined in tests/stubs/wp-stubs.php). get_post_meta returns '' for
- * single lookups, so is_complete will always be falsy in the draft-path
- * tests.
+ * undefined in tests/stubs/wp-stubs.php).
  */
 
 use Brain\Monkey\Functions;
@@ -33,27 +33,23 @@ beforeEach(function (): void {
     };
 });
 
+describe('WritingStatusMetaBox::addCompletionMetaBox()', function (): void {
+
+    it('registers the meta box without error', function (): void {
+        $this->plugin->addCompletionMetaBox();
+        expect(true)->toBeTrue();
+    });
+});
+
 describe('WritingStatusMetaBox::renderCompletionMetaBox()', function (): void {
 
-    it('draft post outputs nonce field', function (): void {
-        // wp_nonce_field is stubbed to echo '', but the hidden completion
-        // input rendered directly after it proves the nonce path executed.
+    it('draft post verifies the completion nonce', function (): void {
         Functions\when('get_post_status')->justReturn('draft');
+        Functions\expect('wp_nonce_field')
+            ->once()
+            ->with('writing_completion_nonce', 'writing_completion_nonce_field');
 
-        $output = ($this->captureOutput)(($this->makePost)());
-
-        expect($output)->toContain('writing_complete_hidden');
-    });
-
-    it('draft post outputs complete button', function (): void {
-        Functions\when('get_post_status')->justReturn('draft');
-
-        $output = ($this->captureOutput)(($this->makePost)());
-
-        expect(
-            str_contains($output, 'writing_complete_button')
-            || str_contains($output, 'draft-complete-toggle')
-        )->toBeTrue();
+        ($this->captureOutput)(($this->makePost)());
     });
 
     it('draft post outputs due date field', function (): void {
@@ -70,14 +66,6 @@ describe('WritingStatusMetaBox::renderCompletionMetaBox()', function (): void {
         $output = ($this->captureOutput)(($this->makePost)());
 
         expect($output)->toContain('writing_priority');
-    });
-
-    it('draft post outputs incomplete state by default', function (): void {
-        Functions\when('get_post_status')->justReturn('draft');
-
-        $output = ($this->captureOutput)(($this->makePost)());
-
-        expect($output)->toContain('is-incomplete');
     });
 
     it('published post outputs the published indicator and nothing else', function (): void {
