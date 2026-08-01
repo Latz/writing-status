@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildDraftStatusExpandFixture, loadScript } from './helpers/dom.js';
 
 describe( 'initDraftStatusExpand()', () => {
@@ -6,10 +6,24 @@ describe( 'initDraftStatusExpand()', () => {
 	let box;
 
 	beforeEach( async () => {
+		// bindContentIframeClose() falls back to a 250ms setInterval poll
+		// when the content_ifr iframe isn't synchronously bindable yet.
+		// Fake timers let runAllTimers() flush that poll to completion (bind
+		// or exhaust its 20 attempts) within the test instead of leaving a
+		// real timer running past teardown, which crashes ("document is not
+		// defined") once it fires against a torn-down environment.
+		vi.useFakeTimers();
+
 		buildDraftStatusExpandFixture();
 		await loadScript();
+		vi.runAllTimers();
+
 		link = document.getElementById( 'writing-draft-status-toggle-link' );
 		box = document.getElementById( 'writing-draft-status-box' );
+	} );
+
+	afterEach( () => {
+		vi.useRealTimers();
 	} );
 
 	it( 'opens on link click and closes on a second click', () => {
