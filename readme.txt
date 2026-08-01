@@ -1,9 +1,9 @@
 === Writing Status ===
 Contributors: latz
 Tags: draft, posts, writing, status, productivity
-Requires at least: 5.0
+Requires at least: 6.6
 Tested up to: 7.0
-Stable tag: 1.9.0
+Stable tag: 1.9.21
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -18,7 +18,7 @@ Writing Status helps content creators and site administrators manage their writi
 
 * **Visual Status Indicators**: Instantly see which posts are published, complete drafts, or incomplete drafts
 * **Published Posts Highlighting**: Published posts are clearly marked with a blue dot (●) and "Published" label in blue
-* **Draft Completion Tracking**: Mark draft posts as complete or incomplete to track your writing progress
+* **Draft Completion Tracking**: Mark draft posts as complete or incomplete to track your writing progress. The control only appears while a post is an actionable draft — it's hidden once the post is published, private, pending review, scheduled, or trashed
 * **Priority Levels**: Assign Low, Medium, High, or Urgent priority to any draft
 * **Due Dates**: Set a due date per post; overdue and soon-due dates are highlighted automatically
 * **Filter by Status or Priority**: Dropdowns above the posts list let you filter by completion and priority
@@ -37,9 +37,10 @@ Writing Status helps content creators and site administrators manage their writi
 * No manual marking required
 
 **For Draft Posts:**
-* A toggle button appears in the post editor meta box: mark the draft complete or incomplete
+* Classic Editor: a toggle in the "Completion Status" meta box marks the draft complete or incomplete
+* Block Editor (Gutenberg): the same toggle appears as a "Draft status" row inside core's Status & visibility popover
 * Optionally set a priority (Low / Medium / High / Urgent) and a due date
-* Complete drafts show "✓ Complete" in green; incomplete drafts show "✗ Incomplete" in red
+* The posts list column shows a green ✓ for complete drafts and a red ✗ for incomplete drafts; the editor's Draft status controls also show the "Complete"/"Incomplete" text
 * Overdue and soon-due dates are highlighted automatically
 * Sort your drafts to prioritize incomplete work
 * Use the Bulk Edit panel to update completion, priority, or due date across many posts at once
@@ -122,6 +123,15 @@ Yes, the plugin works with both the Classic Editor and the Block Editor (Gutenbe
 4. Sortable Writing Status column in action
 
 == Changelog ==
+
+= 1.9.21 =
+* Fixed: the "Writing Status" column no longer appears on custom post type list tables — it's scoped to standard posts only, as documented
+* Updated readme to reflect current behavior (minimum WordPress version, posts-list indicator style, block editor vs Classic Editor control location)
+
+= 1.9.20 =
+* Moved the Draft status control (Complete/Incomplete) into core's Status & visibility popover in the block editor
+* Draft status is now hidden once a post is no longer an actionable draft — published, private, pending review, or scheduled — across the Gutenberg popover, Classic Editor, sidebar meta box, and posts list column
+* Posts list and sidebar meta box show a "● Published" indicator for both published and private posts
 
 = 1.9.0 =
 * Added native Gutenberg panel in the Document tab sidebar (completion toggle, priority, due date)

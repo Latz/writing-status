@@ -15,13 +15,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WritingStatusColumn extends WritingStatusRenderer {
 
     public function __construct() {
-        add_filter( 'manage_posts_columns', array( $this, 'addCompletionColumn' ) );
+        add_filter( 'manage_posts_columns', array( $this, 'addCompletionColumn' ), 10, 2 );
         add_action( 'manage_posts_custom_column', array( $this, 'displayCompletionColumn' ), 10, 2 );
         add_filter( 'manage_edit-post_sortable_columns', array( $this, 'makeCompletionSortable' ) );
         add_action( 'pre_get_posts', array( $this, 'sortByCompletion' ) );
     }
 
-    public function addCompletionColumn( $columns ) {
+    public function addCompletionColumn( $columns, $post_type ) {
+        if ( $post_type !== 'post' ) {
+            return $columns;
+        }
+
         $columns['writing_completion'] = __( 'Writing Status', 'writing-status' );
         return $columns;
     }
