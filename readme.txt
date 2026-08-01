@@ -8,51 +8,29 @@ Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Track and sort your draft posts by completion status. See published posts clearly marked in blue with visual indicators.
+Adds visual completion indicators to draft posts — mark drafts complete or incomplete.
 
 == Description ==
 
-Writing Status helps content creators and site administrators manage their writing workflow more efficiently. This plugin adds a "Writing Status" column to the WordPress posts list and a sidebar meta box on the post editor, providing clear visual indicators of your content status.
+Writing Status adds visual draft-status indicators to help content creators manage their writing workflow more efficiently. Every draft post gets a "Complete" or "Incomplete" indicator.
 
 = Key Features =
 
 * **Visual Status Indicators**: Instantly see which posts are published, complete drafts, or incomplete drafts
-* **Published Posts Highlighting**: Published posts are clearly marked with a blue dot (●) and "Published" label in blue
 * **Draft Completion Tracking**: Mark draft posts as complete or incomplete to track your writing progress. The control only appears while a post is an actionable draft — it's hidden once the post is published, private, pending review, scheduled, or trashed
 * **Priority Levels**: Assign Low, Medium, High, or Urgent priority to any draft
 * **Due Dates**: Set a due date per post; overdue and soon-due dates are highlighted automatically
 * **Filter by Status or Priority**: Dropdowns above the posts list let you filter by completion and priority
 * **Sortable Column**: Click the "Writing Status" column header to sort posts by status and priority
-* **Bulk Edit Support**: Set completion, priority, and due date across multiple posts at once from the Bulk Edit panel
-* **Quick Edit Support**: Update completion, priority, and due date for a single post inline from the posts list
 * **Dashboard Widget**: See incomplete and complete drafts at a glance from the WordPress dashboard
-* **Unsaved Changes Warning**: The post editor warns you before navigating away with unsaved meta box changes
-* **Clean Interface**: Integrates seamlessly with WordPress admin design
 
 = How It Works =
 
-**For Published Posts:**
-* Posts with "Published" status automatically display "● Published" in blue
-* This appears in both the posts list column and the post editor sidebar
-* No manual marking required
-
-**For Draft Posts:**
 * Classic Editor: a toggle in the "Completion Status" meta box marks the draft complete or incomplete
 * Block Editor (Gutenberg): the same toggle appears as a "Draft status" row inside core's Status & visibility popover
 * Optionally set a priority (Low / Medium / High / Urgent) and a due date
 * The posts list column shows a green ✓ for complete drafts and a red ✗ for incomplete drafts; the editor's Draft status controls also show the "Complete"/"Incomplete" text
-* Overdue and soon-due dates are highlighted automatically
 * Sort your drafts to prioritize incomplete work
-* Use the Bulk Edit panel to update completion, priority, or due date across many posts at once
-* Use Quick Edit to update a single post's Writing Status inline without opening the full editor
-* The editor warns you if you try to navigate away without saving meta box changes
-
-= Use Cases =
-
-* **Content Teams**: Coordinate multiple writers and track which drafts need attention
-* **Bloggers**: Manage your editorial calendar and see which posts are ready to publish
-* **Site Administrators**: Get a quick overview of content status across your site
-* **Freelance Writers**: Track your progress on client work
 
 == Installation ==
 
@@ -76,10 +54,8 @@ Writing Status helps content creators and site administrators manage their writi
 1. Go to Posts > All Posts to see the new "Writing Status" column
 2. Edit any draft post to see the "Completion Status" meta box
 3. Toggle the button to mark the draft complete or incomplete, and optionally set a priority and due date
-4. Published posts automatically show as "● Published" in blue
-5. Use the filter dropdowns above the posts list to narrow by completion or priority
-6. Select multiple posts and open Bulk Edit to update Writing Status fields in one action
-7. Check the dashboard widget for a live summary of incomplete and complete drafts
+4. Use the filter dropdowns above the posts list to narrow by completion or priority
+5. Check the dashboard widget for a summary of incomplete and complete drafts
 
 == Frequently Asked Questions ==
 
