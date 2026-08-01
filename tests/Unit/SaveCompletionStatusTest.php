@@ -91,7 +91,7 @@ describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
     // guard first and never reaches the save branch (they self-skip via
     // markTestSkipped as a result). Keeping these first is what lets them
     // actually exercise saveCompletionStatus()'s full success path,
-    // including the delete_transient() call at the end of the method.
+    // including the delete_transient() calls at the end of the method.
 
     it('saves no when writing_complete not in post', function (): void {
         if (defined('DOING_AUTOSAVE')) {
@@ -122,7 +122,10 @@ describe('WritingStatusMetaBox::saveCompletionStatus()', function (): void {
         $this->plugin->saveCompletionStatus(42);
 
         expect($updateCalls)->toContain([42, '_writing_complete', 'no']);
-        expect($transientCalls)->toBe([['writing_status_overdue_count']]);
+        expect($transientCalls)->toBe([
+            ['writing_status_overdue_count'],
+            ['writing_status_dashboard_html'],
+        ]);
     });
 
     it('saves yes when writing_complete is yes in post', function (): void {

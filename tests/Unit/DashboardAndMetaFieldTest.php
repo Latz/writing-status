@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Brain\Monkey\Functions;
+
 /**
  * Unit tests for WritingStatus dashboard widget and meta field registration.
  *
@@ -24,6 +26,12 @@ beforeEach(function (): void {
     $wpdb->posts     = 'wp_posts';
     $this->plugin    = new WritingStatus();
     $this->dashboard = new WritingStatusDashboard();
+
+    // Always a cache miss here so renderDashboardWidget() exercises its full
+    // render path — the caching behavior itself is covered in
+    // RenderDashboardWidgetCacheTest.php.
+    Functions\when('get_transient')->justReturn(false);
+    Functions\when('set_transient')->justReturn(true);
 });
 
 describe('addDashboardWidget', function (): void {

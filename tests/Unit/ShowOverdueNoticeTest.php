@@ -80,15 +80,18 @@ describe('WritingStatus::showOverdueNotice()', function (): void {
 
         Functions\when('get_current_screen')->justReturn($screen);
         Functions\when('get_transient')->justReturn(false);
-        Functions\expect('set_transient')
-            ->once()
-            ->with('writing_status_overdue_count', 0, HOUR_IN_SECONDS)
-            ->andReturn(true);
+
+        $setCalls = [];
+        Functions\when('set_transient')->alias(function (...$args) use (&$setCalls) {
+            $setCalls[] = $args;
+            return true;
+        });
 
         ob_start();
         $this->plugin->showOverdueNotice();
         $output = ob_get_clean();
 
         expect($output)->toBe('');
+        expect($setCalls)->toBe([['writing_status_overdue_count', 0, HOUR_IN_SECONDS]]);
     });
 });

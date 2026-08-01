@@ -104,7 +104,12 @@ describe('WritingStatus::saveBulkEdit()', function (): void {
         Functions\when('wp_unslash')->returnArg();
         Functions\when('wp_verify_nonce')->justReturn(1);
         Functions\when('current_user_can')->justReturn(true);
-        Functions\when('delete_transient')->justReturn(true);
+
+        $transientCalls = [];
+        Functions\when('delete_transient')->alias(function (...$args) use (&$transientCalls) {
+            $transientCalls[] = $args;
+            return true;
+        });
 
         $updateCalls = [];
         Functions\when('update_post_meta')->alias(function (...$args) use (&$updateCalls) {
@@ -117,6 +122,8 @@ describe('WritingStatus::saveBulkEdit()', function (): void {
         expect($updateCalls)->toContain([42, '_writing_complete', 'yes']);
         expect($updateCalls)->toContain([42, '_writing_priority', 'high']);
         expect($updateCalls)->toContain([42, '_writing_due_date', '2026-12-31']);
+        expect($transientCalls)->toContain(['writing_status_overdue_count']);
+        expect($transientCalls)->toContain(['writing_status_dashboard_html']);
     });
 
     it('skips priority update when priority is invalid', function () {

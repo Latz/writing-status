@@ -201,6 +201,7 @@ class WritingStatus extends WritingStatusRenderer {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		delete_transient( 'writing_status_overdue_count' );
+		delete_transient( 'writing_status_dashboard_html' );
 	}
 
 	public function showOverdueNotice() {
