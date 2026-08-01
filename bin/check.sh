@@ -167,7 +167,7 @@ PC_TARGET="$WP_PATH/wp-content/plugins/$WP_PLUGIN"
 PC_STAGING=$(mktemp -d)
 trap 'rm -rf "$PC_STAGING"' EXIT
 
-if [ -e "$PC_TARGET" ]; then
+if [[ -e "$PC_TARGET" ]]; then
     echo "  Fehler: $PC_TARGET existiert bereits — Plugin Check übersprungen." >&2
 else
     mkdir -p "$PC_STAGING/$WP_PLUGIN"
