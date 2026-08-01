@@ -3,7 +3,7 @@ set -euo pipefail
 
 # ── Konfiguration ─────────────────────────────────────────────────────────────
 WP_PATH="/home/latz/www/wp"
-WP_PLUGIN="draft-status"
+WP_PLUGIN="writing-status"
 SONARCLOUD_PROJECT="Latz_writing-status"
 SEMGREP_RULES="/home/latz/tools/wordpress-semgrep-rules/configs/plugin-development.yaml"
 PHP_SOURCES="writing-status.php class-writing-status-renderer.php includes/"
@@ -159,8 +159,27 @@ pause
 
 # ── 6. WP Plugin Check ────────────────────────────────────────────────────────
 step 6 "WP Plugin Check"
-wp plugin check "$WP_PLUGIN" --path="$WP_PATH" \
-    > reports/plugin-check-report.txt 2>/dev/null || true
+# Check only the plugin's real shipped surface, not the whole dev checkout —
+# a full working copy trips WP Plugin Check on dev/tooling artifacts (.git,
+# .github, README.md, etc.) and on any folder-name/text-domain mismatch, none
+# of which reflect real issues in the plugin code.
+PC_TARGET="$WP_PATH/wp-content/plugins/$WP_PLUGIN"
+PC_STAGING=$(mktemp -d)
+trap 'rm -rf "$PC_STAGING"' EXIT
+
+if [ -e "$PC_TARGET" ]; then
+    echo "  Fehler: $PC_TARGET existiert bereits — Plugin Check übersprungen." >&2
+else
+    mkdir -p "$PC_STAGING/$WP_PLUGIN"
+    cp -r writing-status.php class-writing-status-renderer.php writing-status.js \
+        writing-status.css uninstall.php includes languages readme.txt \
+        "$PC_STAGING/$WP_PLUGIN/"
+
+    cp -r "$PC_STAGING/$WP_PLUGIN" "$PC_TARGET"
+    wp plugin check "$WP_PLUGIN" --path="$WP_PATH" \
+        > reports/plugin-check-report.txt 2>/dev/null || true
+    rm -rf "$PC_TARGET"
+fi
 
 PC_ERRORS=$(awk 'NF && !/^FILE/ && !/^line/ {print $3}' reports/plugin-check-report.txt \
     | grep -c "^ERROR$"   || true)

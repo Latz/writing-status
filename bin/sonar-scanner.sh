@@ -155,9 +155,30 @@ echo ""
 
 # 6. WordPress Plugin Check
 echo "[6/9] WordPress Plugin Check..."
-echo "      Plugin : draft-status"
+echo "      Plugin : writing-status"
 echo "      Ausgabe: reports/plugin-check-report.txt"
-wp plugin check draft-status --path=/home/latz/www/wp > reports/plugin-check-report.txt 2>/dev/null || true
+
+# Check only the plugin's real shipped surface, not the whole dev checkout —
+# a full working copy trips WP Plugin Check on dev/tooling artifacts (.git,
+# .github, README.md, etc.) and on any folder-name/text-domain mismatch, none
+# of which reflect real issues in the plugin code.
+PC_WP_PATH=/home/latz/www/wp
+PC_TARGET="$PC_WP_PATH/wp-content/plugins/writing-status"
+PC_STAGING=$(mktemp -d)
+trap 'rm -rf "$PC_STAGING"' EXIT
+
+if [ -e "$PC_TARGET" ]; then
+  echo "      Fehler: $PC_TARGET existiert bereits — Plugin Check übersprungen." >&2
+else
+  mkdir -p "$PC_STAGING/writing-status"
+  cp -r writing-status.php class-writing-status-renderer.php writing-status.js \
+    writing-status.css uninstall.php includes languages readme.txt \
+    "$PC_STAGING/writing-status/"
+
+  cp -r "$PC_STAGING/writing-status" "$PC_TARGET"
+  wp plugin check writing-status --path="$PC_WP_PATH" > reports/plugin-check-report.txt 2>/dev/null || true
+  rm -rf "$PC_TARGET"
+fi
 
 PC_ERRORS=$(awk 'NF && !/^FILE/ && !/^line/ {print $3}' reports/plugin-check-report.txt | grep -c "^ERROR$" || true)
 PC_WARNINGS=$(awk 'NF && !/^FILE/ && !/^line/ {print $3}' reports/plugin-check-report.txt | grep -c "^WARNING$" || true)

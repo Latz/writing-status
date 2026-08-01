@@ -12,7 +12,7 @@ Adds visual completion indicators to draft posts — mark drafts complete or inc
 
 == Description ==
 
-Writing Status adds visual draft-status indicators to help content creators manage their writing workflow more efficiently. Every draft post gets a "Complete" or "Incomplete" indicator.
+Writing Status adds visual completion-status indicators to help content creators manage their writing workflow more efficiently. Every draft post gets a "Complete" or "Incomplete" indicator.
 
 = Key Features =
 
